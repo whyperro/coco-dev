@@ -1,7 +1,7 @@
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request) {
+export async function GET() {
     try {
       const data = await db.provider.findMany()
       return NextResponse.json(data,{
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
         provider_number: data.provider_number,
       },
     });
-  
+
     if (providerFound) {
       return NextResponse.json(
         {
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         }
       );
     }
-  
+
       // Create a new branch if the name is unique
       const newProvider = await db.provider.create({
         data: {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
           provider_type: data.provider_type,
         },
       });
-  
+
       return NextResponse.json(newProvider);
     } catch (error) {
       console.error("Error creating client:", error);
@@ -60,5 +60,3 @@ export async function GET(request: Request) {
       );
     }
   }
-  
-  

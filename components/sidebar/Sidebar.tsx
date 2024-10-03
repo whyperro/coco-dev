@@ -1,14 +1,12 @@
 import Link from "next/link";
-import { PanelsTopLeft } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/hooks/useStore";
 import { useSidebarToggle } from "@/hooks/useSidebarToggle";
-import { SidebarToggle } from "./SidebarToggle";
+import { useStore } from "@/hooks/useStore";
 import { Menu } from "./Menu";
-import Image from "next/image";
+import { SidebarToggle } from "./SidebarToggle";
 
 export function Sidebar() {
   const sidebar = useStore(useSidebarToggle, (state) => state);
@@ -36,17 +34,17 @@ export function Sidebar() {
               Berkana
             </Link> */}
 
-        <Link href="/dashboard" className="flex items-center gap-2">
-                    <h1
-                      className={cn(
-                        "font-bold text-4xl whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300 text-[#63c144]",
-                        sidebar?.isOpen === false
-                          ? "-translate-x-96 opacity-0 text-lg"
-                          : "translate-x-0 opacity-100"
-                      )}
-                    >
-                      Berkana
-                    </h1>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <h1
+              className={cn(
+                "font-bold text-4xl whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300 text-[#63c144]",
+                sidebar?.isOpen === false
+                  ? "-translate-x-96 opacity-0 text-lg"
+                  : "translate-x-0 opacity-100"
+              )}
+            >
+              Berkana
+            </h1>
           </Link>
         </Button>
         <Menu isOpen={sidebar?.isOpen} />

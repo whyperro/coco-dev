@@ -1,9 +1,6 @@
 'use client'
-import { useGetSummary } from '@/actions/summary/actions'
-import React from 'react'
+import BranchPie from './BranchPie'
 import Chart from './Chart'
-import BranchPie, { BranchPieLoading } from './BranchPie'
-import { string } from 'zod'
 
 
 interface DataChartsProps {
@@ -21,7 +18,7 @@ interface DataChartsProps {
   }[]
 }
 
-const DataCharts = ({transactions, branches}: DataChartsProps) => {
+const DataCharts = ({ transactions, branches }: DataChartsProps) => {
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-6 gap-8'>

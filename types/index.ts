@@ -52,7 +52,8 @@ export type Client = {
     issued_by:string,
     served_by :string,
     route: Route
-    passanger: Passanger
+    passanger: Passanger,
+    transaction?: Transaction,
     branchId: string,
     provider: Provider
   }

@@ -1,7 +1,5 @@
-import { convertAmountFromMiliunits, formatCurrency, formatPercentage } from '@/lib/utils';
-import React from 'react'
-import { PieChart, Pie, Legend, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar } from 'recharts'
-import CategoryTooltip from './CategoryTooltip';
+import { convertAmountFromMiliunits, formatCurrency } from '@/lib/utils';
+import { Legend, RadialBar, RadialBarChart, ResponsiveContainer } from 'recharts';
 
 
 const COLORS = ["#0052FF", "#12C6FF", "#FF647F", "#FF9354"];

@@ -1,18 +1,17 @@
 'use client'
 
-import { useGetSummary } from "@/actions/summary/actions";
 import { formatDataRange } from "@/lib/utils";
 import { PiggyBank, Tickets } from "lucide-react";
-import { useSearchParams } from "next/navigation"
-import DataCard, { DataCardLoading } from "./DataCard";
+import { useSearchParams } from "next/navigation";
+import DataCard from "./DataCard";
 
 interface DataGridProps {
-  total_amount:number, 
-  ticketCount:number,
-  pendingCount:number,
+  total_amount: number,
+  ticketCount: number,
+  pendingCount: number,
 }
 
-const DataGrid = ({total_amount, ticketCount, pendingCount}: DataGridProps) => {  
+const DataGrid = ({ total_amount, ticketCount, pendingCount }: DataGridProps) => {
   const params = useSearchParams();
   const from = params.get('from') || undefined
   const to = params.get('to') || undefined

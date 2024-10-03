@@ -1,11 +1,6 @@
 import RegisterForm from '@/components/forms/RegisterForm'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
 import db from '@/lib/db'
+import Image from 'next/image'
 
 const Register = async () => {
 

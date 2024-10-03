@@ -1,20 +1,13 @@
 import {
-  Tag,
-  Users,
-  Settings,
-  Bookmark,
-  SquarePen,
+  BookUser,
+  ChartNoAxesCombined,
   LayoutGrid,
   LucideIcon,
-  Store,
-  Tickets,
-  Save,
-  BookUser,
-  PlaneTakeoff,
-  TicketsPlane,
   Map,
   Signature,
-  ChartNoAxesCombined
+  Store,
+  TicketsPlane,
+  Users
 } from "lucide-react";
 
 type Submenu = {

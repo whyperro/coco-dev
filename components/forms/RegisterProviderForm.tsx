@@ -41,9 +41,9 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { // Set default values for editing
-        provider_number: "",
-        name: "",
-        provider_type: "",// Ensure this is an empty string instead of null
+      provider_number: "",
+      name: "",
+      provider_type: "",// Ensure this is an empty string instead of null
     },
   });
 
@@ -53,7 +53,7 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
       form.setValue("provider_number", data.provider_number)
       form.setValue("name", data.name)
       form.setValue("provider_type", data.provider_type)
-    } 
+    }
   }, [data])
 
 
@@ -82,6 +82,8 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
       toast.error("Error al guardar la proveedor", {
         description: "Ocurrió un error, por favor intenta nuevamente.",
       });
+    } finally {
+      onClose()
     }
   };
 
@@ -157,7 +159,7 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
                   )}
                 /></>
             } */}
-         
+
           </div>
           <Button disabled={createProvider.isPending || updateProvider.isPending} type="submit" className="w-full">
             {createProvider.isPending || updateProvider.isPending ? <Loader2 className='size-4 animate-spin' /> : <p>{isEditing ? "Actualizar" : "Registrar"}</p>}

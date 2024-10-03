@@ -11,7 +11,7 @@ const authOptions = {
         username: { label: 'Username', type: 'text', placeholder: 'admin' },
         password: { label: 'Contraseña', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         // Find the user in the database
         const userFound = await db.user.findUnique({
           where: {

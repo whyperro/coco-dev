@@ -12,7 +12,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 
-import { CreateClientDialog } from "@/components/dialogs/CreateClientDialog"
 import { DataTablePagination } from "@/components/tables/DataTablePagination"
 import { DataTableViewOptions } from "@/components/tables/DataTableViewOptions"
 import { Button } from "@/components/ui/button"

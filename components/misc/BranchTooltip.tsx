@@ -1,5 +1,4 @@
 import { convertAmountFromMiliunits, formatCurrency } from '@/lib/utils';
-import { es } from 'date-fns/locale';
 import { Separator } from '../ui/separator';
 
 const BranchTooltip = ({ active, payload }: any) => {

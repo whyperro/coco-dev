@@ -1,33 +1,32 @@
 'use client';
 
-import React, { useState } from 'react'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import Link from 'next/link'
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  FormMessage
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import axios, { AxiosError } from 'axios';
-import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/select";
 import { Branch } from '@/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
+import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 
 const formSchema = z.object({
@@ -45,7 +44,7 @@ const formSchema = z.object({
   )
 })
 
-const RegisterForm = ({branches}: {
+const RegisterForm = ({ branches }: {
   branches: Branch[]
 }) => {
 
@@ -59,7 +58,7 @@ const RegisterForm = ({branches}: {
       username: "",
       password: "",
       user_role: "",
-      branchId:  ""
+      branchId: ""
     },
   })
 
@@ -156,7 +155,7 @@ const RegisterForm = ({branches}: {
                   <SelectContent>
                     {
                       branches.map((branch) => (
-                        <SelectItem key = {branch.id} value={branch.id}>
+                        <SelectItem key={branch.id} value={branch.id}>
                           {
                             branch.location_name
                           }

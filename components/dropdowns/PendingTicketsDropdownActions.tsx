@@ -1,3 +1,4 @@
+import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
 import { useCreateTransaction } from "@/actions/transactions/actions"
 import {
   DropdownMenu,
@@ -21,20 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { convertAmountToMiliunits } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreditCard, HandCoins, Loader2, MoreHorizontal, Trash2 } from "lucide-react"
+import { CreditCard, HandCoins, Loader2, MoreHorizontal } from "lucide-react"
+import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
+import { FaCreditCard, FaMoneyBillWave } from "react-icons/fa"
+import { IoIosPhonePortrait } from "react-icons/io"
+import { SiZelle } from 'react-icons/si'
 import { z } from "zod"
+import { AmountInput } from "../misc/AmountInput"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
-import { SiZelle } from 'react-icons/si'
-import { FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
-import { IoIosPhonePortrait } from "react-icons/io";
-import { useSession } from "next-auth/react"
-import { AmountInput } from "../misc/AmountInput"
-import { convertAmountToMiliunits } from "@/lib/utils"
 import { Input } from "../ui/input"
 
 const formSchema = z.object({
@@ -60,7 +60,7 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
 
     },
   });
-  const {watch, setValue} = form 
+  const { watch, setValue } = form
   const ticket_price = watch('ticket_price')
   const fee = watch('fee')
   const rate = watch('rate')
@@ -222,7 +222,7 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="rate"
@@ -250,21 +250,21 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                   )}
                 />
                 <FormField
-                control={form.control}
-                name="payment_ref"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Comprobante de pago</FormLabel>
-                    <FormControl>
-                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="XK-456" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Comprobante del pago realizado
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="payment_ref"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Comprobante de pago</FormLabel>
+                      <FormControl>
+                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="XK-456" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Comprobante del pago realizado
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <DialogFooter className="flex flex-col gap-2 md:gap-0">
                   <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
                     Cancelar

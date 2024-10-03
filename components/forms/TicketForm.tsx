@@ -1,8 +1,10 @@
 'use client';
+import { useGetClients } from "@/actions/clients/actions";
 import { useCreatePassenger, useGetPassangerByDni } from "@/actions/passangers/actions";
+import { useGetProviders } from "@/actions/providers/actions";
 import { useGetRoutes } from "@/actions/routes/actions";
+import { useCreateTicket } from "@/actions/tickets/actions";
 import { Calendar } from "@/components/ui/calendar";
-import { useDebounce } from "@uidotdev/usehooks";
 import {
   Command,
   CommandEmpty,
@@ -25,27 +27,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Passanger } from "@/types";
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "@uidotdev/usehooks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon, Check, ChevronsUpDown, Loader2, RotateCcw, Ticket } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Loader2, RotateCcw } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form';
 import { toast } from "sonner";
 import { z } from 'zod';
+import { CreateClientDialog } from "../dialogs/CreateClientDialog";
+import { RegisterProviderDialog } from "../dialogs/RegisterProviderDialog";
 import { RegisterRouteDialog } from "../dialogs/RegisterRouteDialog";
 import { Button } from '../ui/button';
+import { Checkbox } from "../ui/checkbox";
 import { Input } from '../ui/input';
 import { Separator } from "../ui/separator";
-import { useEffect, useState } from "react";
-import { useGetClients } from "@/actions/clients/actions";
-import { CreateClientDialog } from "../dialogs/CreateClientDialog";
-import { Passanger } from "@/types";
-import { useQueryClient } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import { useCreateTicket } from "@/actions/tickets/actions";
-import { RegisterProviderDialog } from "../dialogs/RegisterProviderDialog";
-import { useGetProviders } from "@/actions/providers/actions";
-import { Checkbox } from "../ui/checkbox";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -62,7 +62,7 @@ const formSchema = z.object({
   flight_date: z.date(),
   booking_ref: z.string(),
   quantity: z.coerce.number().nonnegative(),
-  doc_order:z.boolean(),
+  doc_order: z.boolean(),
   issued_by: z.string(),
   served_by: z.string(),
   ticket_type: z.string(),
@@ -75,16 +75,16 @@ const TicketForm = () => {
     defaultValues: {
     },
   });
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const today = new Date()
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
   const queryClient = useQueryClient()
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
-  const { data: routes, loading: routesLoading, error: routerError } = useGetRoutes()
+  const { data: routes, loading: routesLoading, error: routesError } = useGetRoutes()
   const { data: clients, loading: clientsLoading, error: clientsError } = useGetClients()
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
 
-  const { data: passanger, loading, error } = useGetPassangerByDni(debouncedPassangerDni)
+  const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const { createPassenger } = useCreatePassenger()
   const { createTicket } = useCreateTicket();
 
@@ -186,156 +186,162 @@ const TicketForm = () => {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
           <div className="flex items-center gap-8">
-          <FormField
-            control={form.control}
-            name="clientId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel className="font-bold">Cliente</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        disabled={loading}
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-[200px] justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {
-                          clientsLoading && <Loader2 className="size-4 animate-spin mr-2" />
-                        }
-                        {field.value
-                          ? <p>{clients?.find(
-                            (client) => client.id === field.value
-                          )?.first_name} - {clients?.find(
-                            (client) => client.id === field.value
-                          )?.last_name}</p>
-                          : "Seleccione el cliente..."
-                        }
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                    
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Busque su ruta..." />
-                      <CreateClientDialog />
-                      <CommandList>
-                        <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
-                        <CommandGroup>
-                          {clients?.map((client) => (
-                            <CommandItem
-                              value={`${client.first_name} ${client.last_name}`}
-                              key={client.id}
-                              onSelect={() => {
-                                form.setValue("clientId", client.id)
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  client.id === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {
-                                <p>{client.first_name} {client.last_name}</p>
-                              }
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  Seleccione al cliente
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="font-bold">Cliente</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {
+                            clientsLoading && <Loader2 className="size-4 animate-spin mr-2" />
+                          }
+                          {field.value
+                            ? <p>{clients?.find(
+                              (client) => client.id === field.value
+                            )?.first_name} - {clients?.find(
+                              (client) => client.id === field.value
+                            )?.last_name}</p>
+                            : "Seleccione el cliente..."
+                          }
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
 
-          <FormField
-            control={form.control}
-            name="providerId"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel className="font-bold">Proveedor</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        disabled={loading}
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-[200px] justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {
-                          providersLoading && <Loader2 className="size-4 animate-spin mr-2" />
-                        }
-                        {field.value
-                          ? <p>{providers?.find(
-                            (provider) => provider.id === field.value
-                          )?.name} </p>
-                          : "Elige un proveedor..."
-                        }
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Busque su ruta..." />
+                        <CreateClientDialog />
+                        <CommandList>
+                          <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
+                          <CommandGroup>
+                            {clients?.map((client) => (
+                              <CommandItem
+                                value={`${client.first_name} ${client.last_name}`}
+                                key={client.id}
+                                onSelect={() => {
+                                  form.setValue("clientId", client.id)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    client.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {
+                                  <p>{client.first_name} {client.last_name}</p>
+                                }
+                              </CommandItem>
+                            ))}
+                            {
+                              clientsError && <p className="text-sm text-muted-foreground">Ha ocurrido un error al cargar los datos...</p>
+                            }
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Seleccione al cliente
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </FormControl>
-                    
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Busque su proveedor..." />
-                      <RegisterProviderDialog />
-                      <CommandList>
-                        <CommandEmpty>No se ha encontrado un proveedor.</CommandEmpty>
-                        <CommandGroup>
-                          {providers?.map((provider) => (
-                            <CommandItem
-                              value={`${provider.name}`}
-                              key={provider.id}
-                              onSelect={() => {
-                                form.setValue("providerId", provider.id)
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  provider.id === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {
-                                <p>{provider.name}</p>
-                              }
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <FormDescription>
-                  Seleccione al proveedor
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="providerId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="font-bold">Proveedor</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {
+                            providersLoading && <Loader2 className="size-4 animate-spin mr-2" />
+                          }
+                          {field.value
+                            ? <p>{providers?.find(
+                              (provider) => provider.id === field.value
+                            )?.name} </p>
+                            : "Elige un proveedor..."
+                          }
+
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Busque su proveedor..." />
+                        <RegisterProviderDialog />
+                        <CommandList>
+                          <CommandEmpty>No se ha encontrado un proveedor.</CommandEmpty>
+                          <CommandGroup>
+                            {providers?.map((provider) => (
+                              <CommandItem
+                                value={`${provider.name}`}
+                                key={provider.id}
+                                onSelect={() => {
+                                  form.setValue("providerId", provider.id)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    provider.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {
+                                  <p>{provider.name}</p>
+                                }
+                              </CommandItem>
+                            ))}
+                            {
+                              providersError && <p className="text-muted-foreground text-sm">Ha ocurrido un error al cargar los datos...</p>
+                            }
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Seleccione al proveedor
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          
+
 
           {/* FORMULARIO DEL PASAJERO */}
           <div className='flex flex-col'>
@@ -448,7 +454,7 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-               <FormField
+              <FormField
                 control={form.control}
                 name="doc_order"
                 render={({ field }) => (
@@ -463,7 +469,7 @@ const TicketForm = () => {
                       <FormLabel>
                         ¿Documento Vigente?
                       </FormLabel>
-                      
+
                     </div>
                   </FormItem>
                 )}
@@ -507,7 +513,7 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-                <FormField
+              <FormField
                 control={form.control}
                 name="quantity"
                 render={({ field }) => (
@@ -613,7 +619,7 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-            
+
               <FormField
                 control={form.control}
                 name="routeId"
@@ -677,6 +683,9 @@ const TicketForm = () => {
                                   }
                                 </CommandItem>
                               ))}
+                              {
+                                routesError && <p className="text-muted-foreground text-sm">Ha ocurrido un error al cargar los datos...</p>
+                              }
                             </CommandGroup>
                           </CommandList>
                         </Command>

@@ -1,13 +1,11 @@
 "use client"
 
-import ClientDropdownActions from "@/components/dropdowns/ClientDropdownActions"
 import PendingTicketsDropdownActions from "@/components/dropdowns/PendingTicketsDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Client, Ticket } from "@/types"
+import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.

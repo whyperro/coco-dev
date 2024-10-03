@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+enum Role {
+  SELLER
+  ADMIN
+  AUDITOR
+}
+
+enum DoctumentType {
+  V
+  J
+  E
+  PARTIDA_NACIMIENTO
+}
+
+enum ProviderType {
+  AEROLINEA
+  AGENCIA_TERCERO
+}
+
+enum TicketStatus {
+  PAGADO
+  PENDIENTE
+}
+
+enum TicketType {
+  B
+  X
+}
+
+enum RouteType {
+  NACIONAL
+  INTERNACIONAL
+}
+
+enum PaymentMethod {
+  PAGO_MOVIL
+  EFECTIVO
+  ZELLE
+  CREDITO
+  DEBITO
+}
+model User {
+  id        String @id @default(cuid())
+  username  String @unique
+  password  String
+  user_role Role   @default(SELLER)
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  branchId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id             String  @id @default(cuid())
+  location_name  String  @unique
+  fiscal_address String?
+  user           User[]
+  tickets        Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Provider{
+  id             String  @id @default(cuid())
+  provider_number String  @unique
+  name           String
+  provider_type  ProviderType
+  tickets        Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client{
+  id          String @id @default(cuid())
+  first_name  String
+  last_name   String
+  dni         String @unique
+  passenger   Passanger[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Passanger {
+  id           String @id @default(cuid())
+  first_name   String
+  last_name    String
+  dni_type     DoctumentType @default(V)
+  dni_number   String @unique
+  phone_number String?
+  email        String?
+  client       Client @relation(fields: [clientId], references: [id])
+  clientId     String
+  ticket       Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ticket {
+  id            String @id @default(cuid())
+  ticket_number String @unique
+  booking_ref   String
+  purchase_date String
+  quantity      Int
+  flight_date   String
+  registered_by String
+  issued_by     String
+  served_by     String
+  status        TicketStatus @default(PENDIENTE)
+  transaction   Transaction?
+  ticket_type   TicketType @default(B)
+  doc_order     Boolean    @default(true)
+
+  passanger     Passanger  @relation(fields: [passangerId], references: [id])
+  passangerId   String
+  route         Route @relation(fields: [routeId], references: [id])
+  routeId       String
+  branch        Branch @relation(fields: [branchId], references: [id])
+  branchId      String
+  provider      Provider @relation(fields: [providerId], references: [id])
+  providerId    String
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Route {
+  id         String @id @default(cuid())
+  origin     String
+  destiny    String
+  scale      String?
+  route_type RouteType @default(NACIONAL)
+
+  tickets    Ticket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Transaction {
+  id               String @id @default(cuid())
+  ticket_price     Float
+  fee              Float
+  total            Float
+  rate             Float
+  total_bs         Float
+  payment_ref      String
+  payment_method   PaymentMethod @default(EFECTIVO)
+  registered_by    String
+  transaction_date DateTime
+  ticket           Ticket @relation(fields: [ticketId], references: [id])
+  ticketId         String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

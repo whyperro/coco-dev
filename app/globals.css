@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+
+  :root {
+    --background: 144 19% 96%;
+    --foreground: 144 5% 10%;
+    --card: 144 19% 96%;
+    --card-foreground: 144 5% 15%;
+    --popover: 144 19% 96%;
+    --popover-foreground: 144 95% 10%;
+    --primary: 144 100% 22.2%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 144 19% 90%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 106 19% 95%;
+    --muted-foreground: 144 5% 40%;
+    --accent: 106 19% 90%;
+    --accent-foreground: 144 5% 15%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 144 5% 96%;
+    --border: 144 20% 82%;
+    --input: 144 20% 50%;
+    --ring: 144 100% 22.2%;
+    --radius: 0.5rem;
+   }
+   .dark {
+    --background: 105 19% 10%;
+    --foreground: 105 5% 96%;
+    --card: 105 19% 10%;
+    --card-foreground: 105 5% 96%;
+    --popover: 105 19% 5%;
+    --popover-foreground: 105 5% 96%;
+    --primary: 105 50.2% 51.2%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 105 19% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 67 19% 25%;
+    --muted-foreground: 105 5% 65%;
+    --accent: 67 19% 25%;
+    --accent-foreground: 105 5% 95%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 105 5% 96%;
+    --border: 105 20% 50%;
+    --input: 105 20% 50%;
+    --ring: 105 50.2% 51.2%;
+    --radius: 0.5rem;
+   }
+   /* .dark {
+    --background: 239 19% 10%;
+    --foreground: 239 5% 96%;
+    --card: 239 19% 10%;
+    --card-foreground: 239 5% 96%;
+    --popover: 239 19% 5%;
+    --popover-foreground: 239 5% 96%;
+    --primary: 239 91% 41%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 239 19% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 201 19% 25%;
+    --muted-foreground: 239 5% 65%;
+    --accent: 201 19% 25%;
+    --accent-foreground: 239 5% 95%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 239 5% 96%;
+    --border: 239 20% 50%;
+    --input: 239 20% 50%;
+    --ring: 239 91% 41%;
+    --radius: 0.5rem;
+   } */
+
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

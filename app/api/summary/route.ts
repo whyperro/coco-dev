@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { parse, subDays, eachDayOfInterval, format } from "date-fns";
 import db from "@/lib/db";
 
+export const dynamic = 'force-dynamic';
+
+
 // Helper function to generate an array of dates
 const generateDateRange = (start: Date, end: Date): string[] => {
   return eachDayOfInterval({ start, end }).map(date => format(date, "yyyy-MM-dd"));

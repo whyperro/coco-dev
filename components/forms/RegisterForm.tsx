@@ -28,6 +28,7 @@ import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
+import { useGetBranches } from "@/actions/branches/actions";
 
 
 const formSchema = z.object({
@@ -45,9 +46,7 @@ const formSchema = z.object({
   )
 })
 
-const RegisterForm = ({ branches }: {
-  branches: Branch[]
-}) => {
+const RegisterForm = () => {
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -62,6 +61,8 @@ const RegisterForm = ({ branches }: {
       branchId: ""
     },
   })
+
+  const { data: branches, loading: branchesLoading } = useGetBranches();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -147,7 +148,7 @@ const RegisterForm = ({ branches }: {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sucursal del Usuario</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select disabled={branchesLoading} onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una sucursal para el usuario..." />
@@ -156,7 +157,7 @@ const RegisterForm = ({ branches }: {
                   <SelectContent>
                     <CreateBranchDialog />
                     {
-                      branches.map((branch) => (
+                      branches?.map((branch) => (
                         <SelectItem key={branch.id} value={branch.id}>
                           {
                             branch.location_name

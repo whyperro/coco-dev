@@ -1,10 +1,7 @@
 import RegisterForm from '@/components/forms/RegisterForm'
-import db from '@/lib/db'
 import Image from 'next/image'
 
-const Register = async () => {
-
-  const branches = await db.branch.findMany()
+const Register = () => {
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="hidden bg-muted lg:block h-screen">
@@ -17,7 +14,7 @@ const Register = async () => {
         />
       </div>
       <div className="flex items-center justify-center py-12">
-        <RegisterForm branches={branches} />
+        <RegisterForm />
       </div>
     </div>
   )

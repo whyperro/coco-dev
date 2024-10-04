@@ -16,7 +16,7 @@ const formSchema = z.object({
   location_name: z.string({
     required_error: "Nombre requerido",
   }),
-  fiscal_address: z.string().optional().nullable(),
+  fiscal_address: z.string().optional(),
 });
 
 interface FormProps {
@@ -25,44 +25,47 @@ interface FormProps {
   id?: string,
 }
 
-const CreateBranchForm = ({id, onClose, isEditing = false }: FormProps) => {
+const CreateBranchForm = ({ id, onClose, isEditing = false }: FormProps) => {
   const [initialValues, setInitialValues] = useState<Branch | null>(null);
   const { updateBranch } = useUpdateBranch();
-  const {createBranch} = useCreateBranch();
-  const {data} = useGetBranch(id ?? null);
+  const { createBranch } = useCreateBranch();
+  const { data } = useGetBranch(id ?? null);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues || { // Set default values for editing
-      location_name: "",
-      fiscal_address: "", // Ensure this is an empty string instead of null
+    defaultValues: {
+      location_name: initialValues?.location_name ?? "", // Use empty string if undefined
+      fiscal_address: initialValues?.fiscal_address ?? undefined, // Convert null to undefined
     },
   });
 
   useEffect(() => {
-    if(data) {
-      setInitialValues(data)
-      form.setValue("location_name", data.location_name)
-      form.setValue("fiscal_address", data.fiscal_address ?? null)
+    if (data) {
+      setInitialValues(data);
+      form.setValue("location_name", data.location_name);
+      form.setValue("fiscal_address", data.fiscal_address ?? undefined); // Convert null to undefined
     }
-  }, [data, form])
+  }, [data, form]);
+
+
 
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      const payload = {
+        location_name: values.location_name,
+        fiscal_address: values.fiscal_address ? values.fiscal_address : null, // Convert empty string to null
+      };
+
       if (isEditing && initialValues) {
         await updateBranch.mutateAsync({
           id: initialValues.id,
-          location_name: values.location_name,
-          fiscal_address: values.fiscal_address ?? null,
+          ...payload,
         });
       } else {
-        await createBranch.mutateAsync({
-          location_name: values.location_name,
-          fiscal_address: values.fiscal_address ?? null,
-        });
+        await createBranch.mutateAsync(payload);
       }
       form.reset(); // Reset form after successful submission
       onClose();
@@ -73,6 +76,7 @@ const CreateBranchForm = ({id, onClose, isEditing = false }: FormProps) => {
       });
     }
   };
+
 
 
   return (

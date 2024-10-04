@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
 
 
 const formSchema = z.object({
@@ -153,6 +154,7 @@ const RegisterForm = ({ branches }: {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <CreateBranchDialog />
                     {
                       branches.map((branch) => (
                         <SelectItem key={branch.id} value={branch.id}>

@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const id = url.pathname.split("/").pop(); // Extract ID from the URL
-  
+
     if (!id) {
       return NextResponse.json(
         {
@@ -16,14 +16,17 @@ export async function GET(request: Request) {
         }
       );
     }
-  
+
     try {
       const passanger: Passanger | null = await db.passanger.findUnique({
         where: {
           id: id, // Ensure the ID is a number
         },
+        include: {
+          client: true,
+        }
       });
-  
+
       if (!passanger) {
         return NextResponse.json(
           {
@@ -34,7 +37,7 @@ export async function GET(request: Request) {
           }
         );
       }
-  
+
       return NextResponse.json(passanger, {
         status: 200,
       });

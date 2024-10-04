@@ -54,7 +54,7 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
       form.setValue("name", data.name)
       form.setValue("provider_type", data.provider_type)
     }
-  }, [data])
+  }, [data, form, isEditing])
 
 
 

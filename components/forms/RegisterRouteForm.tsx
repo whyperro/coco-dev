@@ -1,5 +1,6 @@
 'use client';
 
+import { useCreateRoute, useGetRoute, useUpdateRoute } from "@/actions/routes/actions";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import {
   Select,
@@ -16,9 +17,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from "sonner";
 import { z } from 'zod';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { useCreateRoute, useGetRoute, useUpdateRoute } from "@/actions/routes/actions";
 import { Checkbox } from "../ui/checkbox";
+import { Input } from '../ui/input';
 
 const formSchema = z.object({
   origin: z.string({
@@ -49,9 +49,11 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues || {
-      origin: "",
-      destiny: "",
+    defaultValues: {
+      origin: initialValues?.origin ?? "",
+      destiny: initialValues?.destiny ?? "",
+      route_type: initialValues?.route_type ?? "",
+      scale: initialValues?.scale ?? undefined,
     },
   });
 
@@ -61,7 +63,7 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
       setInitialValues(data)
       form.setValue("origin", data.origin)
       form.setValue("destiny", data.destiny)
-      form.setValue("scale", data.scale || undefined)
+      form.setValue("scale", data.scale ?? undefined)
       form.setValue("route_type", data.route_type)
     }
   }, [data, form])
@@ -77,7 +79,7 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
           origin: values.origin,
           destiny: values.destiny,
           route_type: values.route_type,
-          scale: values.scale || undefined,
+          scale: values.scale ?? undefined,
         });
       } else {
         await createRoute.mutateAsync(values);
@@ -120,16 +122,16 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
               )}
             />
             <div className="flex items-center space-x-2">
-            <Checkbox onCheckedChange={() => setChecked(!checked)} id="terms1" />
-            <div className="grid gap-1.5 leading-none">
-              <label
-                htmlFor="terms1"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                ¿Tiene escalas?
-              </label>
+              <Checkbox onCheckedChange={() => setChecked(!checked)} id="terms1" />
+              <div className="grid gap-1.5 leading-none">
+                <label
+                  htmlFor="terms1"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  ¿Tiene escalas?
+                </label>
+              </div>
             </div>
-          </div>
           </div>
 
           <div className="flex gap-2 items-center">
@@ -146,21 +148,21 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
                 </FormItem>
               )}
             />
-          {
-            checked && <FormField
-            control={form.control}
-            name="scale"
-            render={({ field }) => (
-              <FormItem className="w-auto">
-                <FormLabel>Escala(s)</FormLabel>
-                <FormControl>
-                  <Input placeholder="CCS" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          }
+            {
+              checked && <FormField
+                control={form.control}
+                name="scale"
+                render={({ field }) => (
+                  <FormItem className="w-auto">
+                    <FormLabel>Escala(s)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="CCS" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            }
             <FormField
               control={form.control}
               name="destiny"

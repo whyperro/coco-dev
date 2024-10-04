@@ -66,7 +66,7 @@ export const columns: ColumnDef<Route>[] = [
       <DataTableColumnHeader column={column} title='Boletos' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">todo: tickets dialog</div>
+      return <div className="text-center font-bold">todo: {row.original.origin} - {row.original.destiny}</div>
     },
   },
   {

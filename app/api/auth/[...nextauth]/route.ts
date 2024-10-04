@@ -46,7 +46,9 @@ const authOptions = {
   },
 
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token }: {
+      session: any, token: any,
+    }) {
       // Add extra data to the session object
       if (token) {
         session.user.id = token.sub!;
@@ -56,7 +58,9 @@ const authOptions = {
       }
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user }: {
+      token: any, user: any
+    }) {
       // Add extra data to the JWT object
       if (user) {
         token.branchId = user.branchId;

@@ -92,7 +92,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Total Pagado' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">${convertAmountFromMiliunits(row.original.transaction.total)}</p>
+      return <p className="text-center font-bold">${convertAmountFromMiliunits(row.original.transaction!.total)}</p>
     },
   },
 
@@ -102,7 +102,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Fecha de Pago' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">{format(row.original.transaction.transaction_date, "PPP", {
+      return <p className="text-center font-bold">{format(row.original.transaction!.transaction_date, "PPP", {
         locale: es
       })}</p>
     },

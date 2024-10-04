@@ -33,7 +33,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon, Check, ChevronsUpDown, Loader2, RotateCcw } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Loader2, RotateCw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form';
@@ -73,6 +73,7 @@ const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      dni_type: "V"
     },
   });
   const { data: session } = useSession()
@@ -106,7 +107,7 @@ const TicketForm = () => {
     }
   }, [fetchedPassanger, form]);
 
-  const onResetPassengerForm = async () => {
+  const onResetPassengerForm = () => {
     // Clear fetched passenger and form values
     setFetchedPassanger(null);
     form.reset({
@@ -119,7 +120,9 @@ const TicketForm = () => {
     });
   };
 
-  console.log(form.getValues())
+  const onResetTicketForm = () => {
+    form.reset()
+  }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -222,7 +225,7 @@ const TicketForm = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
-                        <CommandInput placeholder="Busque su ruta..." />
+                        <CommandInput placeholder="Busque un cliente..." />
                         <CreateClientDialog />
                         <CommandList>
                           <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
@@ -345,7 +348,7 @@ const TicketForm = () => {
 
           {/* FORMULARIO DEL PASAJERO */}
           <div className='flex flex-col'>
-            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCcw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56' />
             <div className="grid grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
               <FormField
@@ -478,7 +481,7 @@ const TicketForm = () => {
           </div>
           {/* FORMULARIO DEL BOLETO */}
           <div className='flex flex-col'>
-            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCcw onClick={() => form.reset()} className="size-4" /></h1>
+            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onResetTicketForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56 mb-4' />
             <div className="grid grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
               <FormField
@@ -705,7 +708,7 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-bold">Tipo de Boleto</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} defaultValue={""}>
                       <FormControl>
                         <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
                           <SelectValue placeholder="Elige el tipo" />
@@ -730,7 +733,7 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-bold">Atendido por</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
                           <SelectValue placeholder="Seleccione el agente" />
@@ -761,7 +764,7 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-bold">Emitido por</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
                           <SelectValue placeholder="Seleccione el agente" />

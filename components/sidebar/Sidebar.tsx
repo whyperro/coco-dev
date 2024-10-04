@@ -37,7 +37,7 @@ export function Sidebar() {
           <Link href="/dashboard" className="flex items-center gap-2">
             <h1
               className={cn(
-                "font-bold text-4xl whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300 text-[#63c144]",
+                "text-[#63c144] font-extrabold text-5xl mt-8 whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300 ",
                 sidebar?.isOpen === false
                   ? "-translate-x-96 opacity-0 text-lg"
                   : "translate-x-0 opacity-100"

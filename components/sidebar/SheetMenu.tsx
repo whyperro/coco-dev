@@ -26,7 +26,7 @@ export function SheetMenu() {
             asChild
           >
             <Link href="/dashboard" className="flex items-center gap-2 font-extrabold text-[#63c144]">
-              Berkana
+              <p className="text-4xl font-extrabold mt-10">Berkana</p>
             </Link>
           </Button>
         </SheetHeader>

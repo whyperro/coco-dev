@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -43,6 +43,8 @@ const LoginForm
       },
     })
 
+    const { data: session } = useSession();
+
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
       setIsLoading(true);
       const res = await signIn("credentials", {
@@ -59,7 +61,11 @@ const LoginForm
         )
       } else {
         setIsLoading(false)
-        router.push("/dashboard")
+        if (session?.user.user_role === 'ADMIN' || session?.user.user_role === "AUDITOR") {
+          router.push('/dashboard')
+        } else {
+          router.push("/estadisticas")
+        }
       }
     }
 

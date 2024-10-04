@@ -16,9 +16,11 @@ interface DataChartsProps {
     name: string,
     amount: number,
   }[]
+  pieTitle: string,
+  pieDescription: string,
 }
 
-const DataCharts = ({ transactions, branches }: DataChartsProps) => {
+const DataCharts = ({ transactions, branches, pieTitle, pieDescription }: DataChartsProps) => {
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-6 gap-8'>
@@ -26,7 +28,7 @@ const DataCharts = ({ transactions, branches }: DataChartsProps) => {
         <Chart data={transactions} />
       </div>
       <div className='col-span-1 lg:col-span-3 xl:col-span-2'>
-        <BranchPie data={branches} />
+        <BranchPie description={pieDescription} title={pieTitle} data={branches} />
       </div>
     </div>
   )

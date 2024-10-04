@@ -18,9 +18,11 @@ type Props = {
     name: string;
     amount: number;
   }[];
+  title: string;
+  description: string,
 };
 
-const BranchPie = ({ data = [] }: Props) => {
+const BranchPie = ({ data = [], title, description }: Props) => {
 
   const [chartType, setChartType] = useState("pie");
 
@@ -33,14 +35,14 @@ const BranchPie = ({ data = [] }: Props) => {
       <CardHeader className="flex space-y-2 lg:space-y-0 lg:flex-row lg:items-center justify-between">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center w-full">
           <div className="flex flex-col gap-2">
-            <CardTitle className="text-xl line-clamp-1">Sucursales</CardTitle>
+            <CardTitle className="text-xl line-clamp-1">{title}</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Ingresos segun las sucursales.
+              {description}
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Select defaultValue={chartType} onValueChange={onTypeChange}>
-              <SelectTrigger className="lg:w-auto h-9 rounded-md px-3">
+            <Select disabled defaultValue={chartType} onValueChange={onTypeChange}>
+              <SelectTrigger className="lg:w-auto h-9 rounded-md px-3 disabled:opacity-85">
                 <SelectValue placeholder="Tipo de gráfico" />
               </SelectTrigger>
               <SelectContent>
@@ -76,8 +78,6 @@ const BranchPie = ({ data = [] }: Props) => {
         ) : (
           <>
             {chartType === "pie" && <PieVariant data={data} />}
-            {chartType === 'radial' && <RadialVariant data={data} />}
-            {chartType === 'radar' && <RadarVariant data={data} />}
           </>
         )}
       </CardContent>

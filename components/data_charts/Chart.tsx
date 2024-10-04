@@ -50,14 +50,14 @@ const Chart = ({ data = [] }: Props) => {
   return (
     <Card className="border-none drop-shadow-md">
       <CardHeader className="flex space-y-2 lg:space-y-0 lg:flex-row lg:items-center justify-between">
-        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center w-full">
+        <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-center w-full">
           <div className="flex flex-col gap-2">
             <CardTitle className="text-xl line-clamp-1">Transacciones</CardTitle>
             <CardDescription className="text-muted-foreground">
               Aquí puede ver la gráfica de los ingresos totales dado el rango.
             </CardDescription>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col xl:flex-row gap-2">
             <Select defaultValue={chartType} onValueChange={onTypeChange}>
               <SelectTrigger className="lg:w-auto h-9 rounded-md px-3">
                 <SelectValue placeholder="Tipo de gráfico" />
@@ -114,7 +114,7 @@ const Chart = ({ data = [] }: Props) => {
           <>
             {chartType === "area" && <AreaVariant data={filteredData} />}
             {chartType === 'bar' && <BarVariant data={filteredData} />}
-            {chartType === 'line' && <LineVariant data={filteredData} />} 
+            {chartType === 'line' && <LineVariant data={filteredData} />}
           </>
         )}
       </CardContent>

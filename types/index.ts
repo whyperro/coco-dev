@@ -1,3 +1,9 @@
+export type User = {
+  id: string,
+  username: string,
+  user_role: string,
+}
+
 
 export type Client = {
     id: string,

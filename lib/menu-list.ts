@@ -7,6 +7,7 @@ import {
   Signature,
   Store,
   TicketsPlane,
+  User,
   Users
 } from "lucide-react";
 
@@ -20,7 +21,7 @@ type Menu = {
   href: string;
   label: string;
   active: boolean;
-  icon: LucideIcon
+  icon: LucideIcon;
   submenus: Submenu[];
 };
 
@@ -29,8 +30,9 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
-  return [
+export function getMenuList(pathname: string, role: string): Group[] {
+  // Menu definition
+  const menuList: Group[] = [
     {
       groupLabel: "",
       menus: [
@@ -44,7 +46,7 @@ export function getMenuList(pathname: string): Group[] {
         {
           href: "/estadisticas",
           label: "Estadisticas",
-          active: pathname.includes("/analitics"),
+          active: pathname.includes("/estadisticas"),
           icon: ChartNoAxesCombined,
           submenus: []
         }
@@ -107,19 +109,12 @@ export function getMenuList(pathname: string): Group[] {
               active: pathname === "/rutas/internacionales"
             }
           ]
-        },
+        }
       ]
     },
     {
       groupLabel: "Configuración",
       menus: [
-        {
-          href: "/configuracion/usuarios",
-          label: "Usuarios",
-          active: pathname.includes("/configuracion/usuarios"),
-          icon: Users,
-          submenus: []
-        },
         {
           href: "/configuracion/sucursales",
           label: "Sucursales",
@@ -127,7 +122,26 @@ export function getMenuList(pathname: string): Group[] {
           icon: Store,
           submenus: []
         },
+        {
+          href: "/configuracion/usuarios",
+          label: "Usuarios",
+          active: pathname.includes("/configuracion/usuarios"),
+          icon: User,
+          submenus: []
+        }
       ]
     }
   ];
+
+  // Filter logic based on user role
+  return menuList.map(group => ({
+    ...group,
+    menus: group.menus.filter(menu => {
+      if (role === "SELLER") {
+        // Hide "Dashboard" and "Sucursales" for SELLER role
+        return menu.label !== "Dashboard" && menu.label !== "Sucursales" && menu.label !== "Sucursales" && menu.label !== "Usuarios";
+      }
+      return true; // No filtering for other roles
+    }),
+  }));
 }

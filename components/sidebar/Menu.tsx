@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Ellipsis, LogOut } from "lucide-react";
+import { Ellipsis, Loader2, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
@@ -15,15 +15,27 @@ import {
 } from "@/components/ui/tooltip";
 import { CollapseMenuButton } from "./CollapsableMenuButton";
 import { getMenuList } from "@/lib/menu-list";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 interface MenuProps {
   isOpen: boolean | undefined;
 }
 
 export function Menu({ isOpen }: MenuProps) {
+  const { data: session, status } = useSession();
+
   const pathname = usePathname();
-  const menuList = getMenuList(pathname);
+
+  // If session is loading, you can return a loading state or null
+  if (status === "loading") {
+    return <div className="h-screen justify-center items-center">
+      <Loader2 className="size-6 animate-spin mt-52" />
+    </div>; // You can customize this loading state
+  }
+
+  // Fallback for users without a role or if the session is undefined
+  const role = session?.user?.user_role || "SELLER";
+  const menuList = getMenuList(pathname, role);
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">

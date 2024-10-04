@@ -6,10 +6,10 @@ import "./globals.css";
 import ClientSessionProvider from "@/providers/AuthProvider";
 import { Metadata } from "next";
 
-const poppins = Poppins({ subsets: ["latin"], weight:["100" , "200" , "300" , "400" , "500" , "600" , "700" , "800" , "900" ] });
+const poppins = Poppins({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
-  title: "BERKANA VIAJES",
+  title: "Berkana - Viajes",
   description: "Sistema de Gestión y Control Contable",
 };
 

@@ -7,11 +7,12 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "migrate": "prisma migrate dev",
-    "postmigrate": "npx @snaplet/seed sync"
+    "postmigrate": "npx @snaplet/seed sync",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

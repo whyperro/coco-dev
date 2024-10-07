@@ -8,7 +8,7 @@ export default function Home() {
       <div className="flex flex-col items-center space-y-3">
         <Image src={'/BERKANA-LOGO.png'} width={250} height={250} alt="Logo Principal" />
         <h1 className="text-center text-4xl font-extrabold text-primary/85">SISTEMA DE GESTIÓN DE CAJA CHICA</h1>
-        <Button variant={"ghost"} className="hover:bg-red-500 hover:text-white">
+        <Button variant={"ghost"} className="hover:bg-red-500 hover:text-white text-black">
           <Link href={"/login"}>Iniciar Sesión</Link>
         </Button>
       </div>

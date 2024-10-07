@@ -45,6 +45,7 @@ import { RegisterRouteDialog } from "../dialogs/RegisterRouteDialog";
 import { Button } from '../ui/button';
 import { Checkbox } from "../ui/checkbox";
 import { Input } from '../ui/input';
+
 import { Separator } from "../ui/separator";
 
 const formSchema = z.object({
@@ -80,22 +81,37 @@ const TicketForm = () => {
   const today = new Date()
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
   const queryClient = useQueryClient()
-  const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
   const { data: routes, loading: routesLoading, error: routesError } = useGetRoutes()
   const { data: clients, loading: clientsLoading, error: clientsError } = useGetClients()
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
-
-  const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const { createPassenger } = useCreatePassenger()
   const { createTicket } = useCreateTicket();
-
+  const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
+  const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
 
   useEffect(() => {
-    if (debouncedPassangerDni) {
-      queryClient.invalidateQueries({ queryKey: ["passanger"] });
-      setFetchedPassanger(passanger ?? null);
+    if (debouncedPassangerDni && passanger) {
+      // Autocomplete form fields when DNI matches a passenger
+      setFetchedPassanger(passanger);
+      form.setValue("first_name", passanger.first_name || "");
+      form.setValue("last_name", passanger.last_name || "");
+      form.setValue("email", passanger.email || "");
+      form.setValue("dni_type", passanger.dni_type || "V");
+      form.setValue("phone_number", passanger.phone_number || "");
+    } else {
+      // Clear form fields and reset passenger when DNI is removed or doesn't match
+      setFetchedPassanger(null);
+      form.setValue("first_name", "");
+      form.setValue("last_name", "");
+      form.setValue("email", "");
+      form.setValue("dni_type", "V");
+      form.setValue("phone_number", "");
+  
+      // Explicitly set query data to null to clear any cached passenger data
+      queryClient.setQueryData(['passanger'], null);
     }
-  }, [debouncedPassangerDni, passanger, queryClient]);
+  }, [debouncedPassangerDni, passanger, form, queryClient]);
+
 
   useEffect(() => {
     if (fetchedPassanger) {
@@ -106,6 +122,8 @@ const TicketForm = () => {
       form.setValue("phone_number", fetchedPassanger.phone_number ?? "");
     }
   }, [fetchedPassanger, form]);
+
+
 
   const onResetPassengerForm = () => {
     // Clear fetched passenger and form values
@@ -128,8 +146,8 @@ const TicketForm = () => {
     try {
       if (fetchedPassanger) {
         await createTicket.mutateAsync({
-          ticket_number: values.ticket_number,
-          booking_ref: values.booking_ref,
+          ticket_number: values.ticket_number.toUpperCase(),
+          booking_ref: values.booking_ref.toUpperCase(),
           purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
           quantity: values.quantity,
           doc_order: values.doc_order,
@@ -146,8 +164,8 @@ const TicketForm = () => {
         })
       } else {
         const res = await createPassenger.mutateAsync({
-          first_name: values.first_name,
-          last_name: values.last_name,
+          first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
+          last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
           dni_type: values.dni_type,
           dni_number: values.dni_number,
           phone_number: values.phone_number ?? null,
@@ -157,10 +175,10 @@ const TicketForm = () => {
         if (res.status === 200) {
           setFetchedPassanger(res.data)
           await createTicket.mutateAsync({
-            ticket_number: values.ticket_number,
-            booking_ref: values.booking_ref,
+            ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
+            booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
-            quantity: values.quantity,
+            quantity: values.quantity, 
             doc_order: values.doc_order,
             issued_by: values.issued_by,
             served_by: values.served_by,
@@ -188,7 +206,7 @@ const TicketForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
-          <div className="flex items-center gap-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             <FormField
               control={form.control}
               name="clientId"
@@ -350,7 +368,7 @@ const TicketForm = () => {
           <div className='flex flex-col'>
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56' />
-            <div className="grid grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
               <FormField
                 control={form.control}
                 name="dni_number"
@@ -358,10 +376,10 @@ const TicketForm = () => {
                   <FormItem>
                     <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
                     <FormControl>
-                      <Input type="number" className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
+                      <Input type="number" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
                     </FormControl>
                     <FormDescription>
-                      El número identificador del boleto
+                      El número identificador del pasajero
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -483,7 +501,7 @@ const TicketForm = () => {
           <div className='flex flex-col'>
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onResetTicketForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56 mb-4' />
-            <div className="grid grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
+            <div className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
               <FormField
                 control={form.control}
                 name="ticket_number"
@@ -628,7 +646,7 @@ const TicketForm = () => {
                 name="routeId"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Ruta del Vuelo</FormLabel>
+                    <FormLabel className="font-bold">Ruta del Vuelo</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>

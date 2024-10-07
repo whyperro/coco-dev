@@ -136,12 +136,28 @@ export function getMenuList(pathname: string, role: string): Group[] {
   // Filter logic based on user role
   return menuList.map(group => ({
     ...group,
-    menus: group.menus.filter(menu => {
-      if (role === "SELLER") {
-        // Hide "Dashboard" and "Sucursales" for SELLER role
-        return menu.label !== "Dashboard" && menu.label !== "Sucursales" && menu.label !== "Sucursales" && menu.label !== "Usuarios";
-      }
-      return true; // No filtering for other roles
-    }),
+    menus: group.menus
+      .filter(menu => {
+        // General filtering for SELLER role
+        if (role === "SELLER") {
+          // Exclude specific menus for SELLER
+          if (menu.label === "Dashboard" || menu.label === "Sucursales" || menu.label === "Usuarios") {
+            return false;
+          }
+        }
+        return true;
+      })
+      .map(menu => {
+        // Filter "Pagados" and "Pendientes" from "Boletos" for SELLER role
+        if (role === "SELLER" && menu.label === "Boletos") {
+          return {
+            ...menu,
+            submenus: menu.submenus.filter(
+              submenu => submenu.label !== "Pagados" && submenu.label !== "Pendientes"
+            )
+          };
+        }
+        return menu;
+      })
   }));
 }

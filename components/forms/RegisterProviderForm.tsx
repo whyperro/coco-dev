@@ -64,14 +64,14 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
         await updateProvider.mutateAsync({
           id: initialValues.id,
           provider_number: values.provider_number.toUpperCase(),
-          name: values.name.charAt(0).toUpperCase() + values.name.slice(1),
+          name: values.name.toUpperCase(),
           provider_type: values.provider_type,
         });
       } else {
         await createProvider.mutateAsync({
           ...values,
           provider_number: values.provider_number.toUpperCase(),
-          name: values.name.charAt(0).toUpperCase() + values.name.slice(1)
+          name: values.name.toUpperCase()
         });
       }
       form.reset(); // Reset form after successful submission
@@ -86,7 +86,6 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
       onClose()
     }
   };
-
 
   return (
     <Form {...form}>

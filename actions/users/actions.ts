@@ -9,7 +9,10 @@ export const useGetUsers = () => {
     queryFn: async () => {
       const {data} = await axios.get('/api/users'); // Adjust the endpoint as needed
       return data as User[];
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
   return {
     data: usersQuery.data,

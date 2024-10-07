@@ -29,6 +29,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
 import { useGetBranches } from "@/actions/branches/actions";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 const formSchema = z.object({
@@ -49,6 +50,8 @@ const formSchema = z.object({
 const RegisterForm = () => {
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const queryClient = useQueryClient()
 
   const router = useRouter();
 
@@ -73,6 +76,7 @@ const RegisterForm = () => {
           description: `El usuario ${values.username} ha sido creado correctamente.`
         })
         router.push('/login')
+        queryClient.invalidateQueries({ queryKey: ["users"] })
       }
     } catch (error: any) {
       toast.error("Oops!", {

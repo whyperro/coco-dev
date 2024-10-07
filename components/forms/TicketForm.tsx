@@ -106,7 +106,7 @@ const TicketForm = () => {
       form.setValue("email", "");
       form.setValue("dni_type", "V");
       form.setValue("phone_number", "");
-  
+
       // Explicitly set query data to null to clear any cached passenger data
       queryClient.setQueryData(['passanger'], null);
     }
@@ -178,7 +178,7 @@ const TicketForm = () => {
             ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
-            quantity: values.quantity, 
+            quantity: values.quantity,
             doc_order: values.doc_order,
             issued_by: values.issued_by,
             served_by: values.served_by,

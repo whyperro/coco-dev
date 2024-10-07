@@ -7,12 +7,15 @@ export async function GET() {
     const data: User[] | null = await db.user.findMany();
     return NextResponse.json(data, {
       status: 200,
+      headers: {
+        "Cache-Control": "no-store", // Ensures no caching on Vercel
+      },
     });
   } catch (error) {
-    console.error("Error fetching branches:", error);
+    console.error("Error fetching users:", error);
     return NextResponse.json(
       {
-        message: "Error al obtener las sucursales.",
+        message: "Error fetching users.",
       },
       {
         status: 500,

@@ -11,7 +11,7 @@ const BranchPage = () => {
     <ContentLayout title='Sucursales' >
       <div className="text-center mt-6">
         <h1 className='text-5xl font-bold'>Sucursales</h1>
-        <p className="text-muted-foreground italic text-sm">Lorem ipsum dolor</p>
+        <p className="mt-2 text-muted-foreground italic text-sm">Aquí puede administrar las diferentes sucursales registradas en el sistema.</p>
       </div>
       {
         data && <DataTable columns={columns} data={data} />

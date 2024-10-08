@@ -28,7 +28,7 @@ const PaidTicketsPage = () => {
 
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR"]}>
-      <ContentLayout title='Clientes'>
+      <ContentLayout title='Boletos Pagados'>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold mb-4'>Boletos Pagados
           </h1>

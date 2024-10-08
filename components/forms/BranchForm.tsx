@@ -30,8 +30,6 @@ const CreateBranchForm = ({ id, onClose, isEditing = false }: FormProps) => {
   const { updateBranch } = useUpdateBranch();
   const { createBranch } = useCreateBranch();
   const { data } = useGetBranch(id ?? null);
-
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     if (dniFound) {
       return NextResponse.json(
         {
-          message: "La identificacion del pasajero ya existe.",
+          message: "El numero de documento del pasajero ya existe.",
         },
         {
           status: 400, // Set 400 status code for a validation error
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
           dni_type: data.dni_type,
           dni_number: data.dni_number,
           phone_number: data.phone_number ?? null,
-          email: data.email ?? null,         
+          email: data.email ?? null,
           clientId: data.clientId
         },
       });
@@ -46,5 +46,26 @@ export async function POST(request: Request) {
           status: 500,
         }
       );
+    }
+  }
+
+
+  export async function GET() {
+    try {
+      const data = await db.passanger.findMany({
+        include: {
+          client: true,
+          ticket: true,
+        }
+      })
+      return NextResponse.json(data,{
+        status:200
+      })
+    } catch (error) {
+      return NextResponse.json({
+        error: error
+      }, {
+        status: 500
+      })
     }
   }

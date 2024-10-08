@@ -39,9 +39,10 @@ export type Client = {
     last_name :   string
     dni_type :      "V"  | "J" | "E" | "PARTIDA_NACIMIENTO"
     dni_number :  string
-    phone_number?: string | null
-    email?:       string | null
+    phone_number: string | null
+    email:       string | null
     client:     Client
+    ticket: Ticket[]
   }
 
   export type Ticket = {

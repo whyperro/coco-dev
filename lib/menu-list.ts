@@ -8,7 +8,7 @@ import {
   Store,
   TicketsPlane,
   User,
-  Users
+  UserCheck2
 } from "lucide-react";
 
 type Submenu = {
@@ -67,6 +67,13 @@ export function getMenuList(pathname: string, role: string): Group[] {
           label: "Clientes",
           active: pathname.includes("/clientes"),
           icon: BookUser,
+          submenus: []
+        },
+        {
+          href: "/pasajeros",
+          label: "Pasajeros",
+          active: pathname.includes("/pasajeros"),
+          icon: UserCheck2,
           submenus: []
         },
         {

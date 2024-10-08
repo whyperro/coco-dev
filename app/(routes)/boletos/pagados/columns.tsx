@@ -80,7 +80,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "passanger",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Pasajere' />
+      <DataTableColumnHeader column={column} title='Pasajero(s)' />
     ),
     cell: ({ row }) => {
       return <div className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</div>

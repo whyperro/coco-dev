@@ -18,7 +18,6 @@ const DashboardPage = () => {
         <DataCardLoading />
         <DataCardLoading />
         <DataCardLoading />
-
       </div>
       <BranchPieLoading />
     </div>

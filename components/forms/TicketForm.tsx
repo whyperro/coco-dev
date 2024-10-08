@@ -45,8 +45,11 @@ import { RegisterRouteDialog } from "../dialogs/RegisterRouteDialog";
 import { Button } from '../ui/button';
 import { Checkbox } from "../ui/checkbox";
 import { Input } from '../ui/input';
+import { driver } from 'driver.js'
+import 'driver.js/dist/driver.css'
 
 import { Separator } from "../ui/separator";
+import { QuestionMarkIcon } from "@radix-ui/react-icons";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -81,6 +84,11 @@ const TicketForm = () => {
   const today = new Date()
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
   const queryClient = useQueryClient()
+  const [openClient, setOpenClient] = useState(false)
+  const [openRoute, setOpenRoute] = useState(false)
+  const [openProvider, setOpenProvider] = useState(false)
+  const [openPurchaseDate, setOpenPurchaseDate] = useState(false)
+  const [openFlightDate, setOpenFlightDate] = useState(false)
   const { data: routes, loading: routesLoading, error: routesError } = useGetRoutes()
   const { data: clients, loading: clientsLoading, error: clientsError } = useGetClients()
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
@@ -120,9 +128,9 @@ const TicketForm = () => {
       form.setValue("email", fetchedPassanger.email ?? "");
       form.setValue("dni_type", fetchedPassanger.dni_type);
       form.setValue("phone_number", fetchedPassanger.phone_number ?? "");
+      form.setValue("clientId", fetchedPassanger.client.id)
     }
   }, [fetchedPassanger, form]);
-
 
 
   const onResetPassengerForm = () => {
@@ -202,18 +210,52 @@ const TicketForm = () => {
   };
 
 
+  const driverObj = driver({
+    showProgress: true,
+    steps: [
+      {
+        element: '#client-provider', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Clientes y Proveedores',
+          description: 'Aquí ingresará el cliente que estaría comprando los boletos y el proveedor del cual se estan obteniendo dichos boletos.'
+        }
+      },
+      {
+        element: '#passanger-info-container', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Información del Pasajero',
+          description: 'En este apartado ingresará toda la información correspondiente al pasajero del boleto a registrar.'
+        }
+      },
+      {
+        element: '#dni-number', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Nro. de Identificación',
+          description: 'Al ingresar el número de identifiación, si este ya ha sido registrado anteriormente, los campos del pasajero se rellenaran automáticamente. Caso contrario, deberá llenar el resto de la información para que sea guardado.'
+        }
+      },
+      {
+        element: '#ticket-info-container', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Información del Boleto',
+          description: 'Luego, ingrese la información correspondiente al boleto a registrar.'
+        }
+      },
+    ]
+  });
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div id="client-provider" className="flex flex-col lg:flex-row gap-8">
             <FormField
               control={form.control}
               name="clientId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="font-bold">Cliente</FormLabel>
-                  <Popover>
+                  <Popover open={openClient} onOpenChange={setOpenClient}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -254,6 +296,7 @@ const TicketForm = () => {
                                 key={client.id}
                                 onSelect={() => {
                                   form.setValue("clientId", client.id)
+                                  setOpenClient(false)
                                 }}
                               >
                                 <Check
@@ -291,7 +334,7 @@ const TicketForm = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="font-bold">Proveedor</FormLabel>
-                  <Popover>
+                  <Popover open={openProvider} onOpenChange={setOpenProvider}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -331,6 +374,7 @@ const TicketForm = () => {
                                 key={provider.id}
                                 onSelect={() => {
                                   form.setValue("providerId", provider.id)
+                                  setOpenProvider(false)
                                 }}
                               >
                                 <Check
@@ -361,30 +405,34 @@ const TicketForm = () => {
                 </FormItem>
               )}
             />
+            <Button className="w-[20px] h-[20px] mt-4" type="button" onClick={() => driverObj.drive()} size={"icon"}>?</Button>
           </div>
 
 
           {/* FORMULARIO DEL PASAJERO */}
+
           <div className='flex flex-col'>
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56' />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
-              <FormField
-                control={form.control}
-                name="dni_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      El número identificador del pasajero
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div id="passanger-info-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
+              <div id="dni-number">
+                <FormField
+                  control={form.control}
+                  name="dni_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
+                      <FormControl>
+                        <Input type="number" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        El número identificador del pasajero
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
                 name="dni_type"
@@ -497,11 +545,13 @@ const TicketForm = () => {
               />
             </div>
           </div>
+
           {/* FORMULARIO DEL BOLETO */}
+
           <div className='flex flex-col'>
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onResetTicketForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56 mb-4' />
-            <div className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
+            <div id="ticket-info-container" className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
               <FormField
                 control={form.control}
                 name="ticket_number"
@@ -556,13 +606,14 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem className="flex flex-col mt-2">
                     <FormLabel className="font-bold">Fecha de Compra</FormLabel>
-                    <Popover>
+                    <Popover open={openPurchaseDate} onOpenChange={setOpenPurchaseDate}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent"
+                              "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value ? (
@@ -570,11 +621,9 @@ const TicketForm = () => {
                                 locale: es
                               })
                             ) : (
-                              format(today, "PPP", {
-                                locale: es
-                              })
+                              <span>Seleccione una fecha</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -582,7 +631,10 @@ const TicketForm = () => {
                         <Calendar
                           mode="single"
                           selected={field.value ?? today}
-                          onSelect={field.onChange}
+                          onSelect={(e) => {
+                            field.onChange(e)
+                            setOpenPurchaseDate(false)
+                          }}
                           disabled={(date) =>
                             date > new Date() || date < new Date("1900-01-01")
                           }
@@ -603,7 +655,7 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem className="flex flex-col mt-2">
                     <FormLabel className="font-bold">Fecha del Vuelo</FormLabel>
-                    <Popover>
+                    <Popover open={openFlightDate} onOpenChange={setOpenFlightDate}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -620,7 +672,7 @@ const TicketForm = () => {
                             ) : (
                               <span>Seleccione una fecha</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -628,7 +680,10 @@ const TicketForm = () => {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(e) => {
+                            field.onChange(e)
+                            setOpenFlightDate(false)
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
@@ -647,7 +702,7 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel className="font-bold">Ruta del Vuelo</FormLabel>
-                    <Popover>
+                    <Popover open={openRoute} onOpenChange={setOpenRoute}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -687,6 +742,7 @@ const TicketForm = () => {
                                   key={route.id}
                                   onSelect={() => {
                                     form.setValue("routeId", route.id)
+                                    setOpenRoute(false)
                                   }}
                                 >
                                   <Check
@@ -813,7 +869,7 @@ const TicketForm = () => {
           <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
         </div>
       </form>
-    </Form>
+    </Form >
   );
 }
 

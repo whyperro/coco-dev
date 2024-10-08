@@ -7,24 +7,24 @@ import { DataTable } from './data-table'
 import { columns } from './columns'
 
 const ClientPage = () => {
-  const {data: clients, loading, error} = useGetClients()
+  const { data: clients, loading, error } = useGetClients()
   return (
     <ContentLayout title='Clientes'>
-        <div className="text-center mt-6">
-            <h1 className='text-5xl font-bold'>Clientes</h1>
-            <p className="text-muted-foreground italic text-sm">Lorem ipsum dolor</p>
+      <div className="text-center mt-6">
+        <h1 className='text-5xl font-bold'>Clientes</h1>
+        <p className="text-muted-foreground italic text-sm mt-2">Aquí verá el registro de todos los clientes registrados en el sistema.</p>
+      </div>
+      {
+        loading && <div className='w-full flex justify-center'>
+          <Loader2 className='size-12 animate-spin' />
         </div>
-        {
-          loading && <div className='w-full flex justify-center'>
-            <Loader2 className='size-12 animate-spin'/>
-          </div>
-        }
-        {
-          clients && <DataTable columns={columns} data={clients}/>
-        }
-        {
-          error && <div className='w-full flex justify-center text-sm text-muted-foreground'>Hubo un error...</div>
-        }
+      }
+      {
+        clients && <DataTable columns={columns} data={clients} />
+      }
+      {
+        error && <div className='w-full flex justify-center text-sm text-muted-foreground'>Hubo un error...</div>
+      }
     </ContentLayout>
   )
 }

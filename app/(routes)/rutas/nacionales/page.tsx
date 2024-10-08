@@ -38,7 +38,7 @@ const RoutePage = () => {
         {/* Texto centrado con z-index más alto */}
         <div className="relative z-10">
           <h1 className="text-5xl font-bold">Rutas Nacionales</h1>
-          <p className="text-muted-foreground italic text-sm">
+          <p className="mt-2 text-muted-foreground italic text-sm">
             Aquí puede ver el listado de las rutas <strong>nacionales</strong> registradas.
           </p>
         </div>

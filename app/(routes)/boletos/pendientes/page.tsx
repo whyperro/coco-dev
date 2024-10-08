@@ -33,7 +33,7 @@ const PendingTicketsPage = () => {
 
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR"]}>
-      <ContentLayout title='Clientes'>
+      <ContentLayout title='Boletos Pendientes'>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold mb-4'>Boletos Pendientes</h1>
           <p className="text-muted-foreground italic text-sm">

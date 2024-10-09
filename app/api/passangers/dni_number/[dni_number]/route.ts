@@ -1,5 +1,4 @@
 import db from "@/lib/db";
-import { Passanger } from "@/types";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request, { params }: { params: { dni_number: string } }) {
@@ -16,12 +15,13 @@ export async function GET(request: Request, { params }: { params: { dni_number: 
     }
 
     try {
-      const passanger: Passanger | null = await db.passanger.findUnique({
+      const passanger = await db.passanger.findUnique({
         where: {
           dni_number
         },
         include: {
           client: true,
+          ticket: true,
         }
       });
 

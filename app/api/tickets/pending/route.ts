@@ -1,10 +1,9 @@
 import db from "@/lib/db";
-import { Ticket } from "@/types";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const data: Ticket[] = await db.ticket.findMany({
+    const data = await db.ticket.findMany({
       where: {
         status: "PENDIENTE"
       },

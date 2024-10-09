@@ -33,7 +33,7 @@ export type Client = {
     provider_type: "AEROLINEA" | "AGENCIA_TERCERO"
   }
 
-  export type Passanger ={
+  export type Passanger = {
     id:           string
     first_name:   string
     last_name :   string

@@ -20,7 +20,7 @@ const ProtectedRoute = ({ children, roles }: ProtectedRouteProps) => {
 
   const userRole = session?.user.user_role
 
-  if (roles && !roles.some(role => userRole!.includes(role))) {
+  if (roles && !roles.some(role => userRole?.includes(role))) {
     router.push('/not-authorized');
     return null;
   }

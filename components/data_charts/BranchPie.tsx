@@ -8,10 +8,8 @@ import {
 } from "@/components/ui/select";
 import { FileSearch, Loader2, PieChart, Radar, Target } from "lucide-react";
 import { useState } from "react";
-import PieVariant from "./PieVariant";
-import RadarVariant from "./RadarVariant";
-import RadialVariant from "./RadialVariant";
 import { Skeleton } from "../ui/skeleton";
+import PieVariant from "./PieVariant";
 
 type Props = {
   data: {

@@ -6,19 +6,15 @@ export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
   const createMutation = useMutation({
       mutationFn: async (values: {
-        ticket_price: number,
-        fee: number,
-        total: number,
-        rate: number,
-        total_bs : number,
         payment_ref: string,
+        image_ref: string,
         payment_method: string,
         ticketId: string,
         registered_by: string,
         transaction_date: Date
       }) => {
           const res = await axios.post(`/api/transactions`, {
-              ...values
+            ...values
           });
           return res
     },

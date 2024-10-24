@@ -33,6 +33,12 @@ import { useQueryClient } from "@tanstack/react-query";
 
 
 const formSchema = z.object({
+  first_name: z.string({
+    message: "Debe ingresar su primer nombre"
+  }),
+  last_name: z.string({
+    message: "Debe ingresar su apellido"
+  }),
   username: z.string().min(2).max(50),
   password: z.string().min(5, {
     message: "La contraseña debe tener al menos 5 carácteres."
@@ -44,7 +50,7 @@ const formSchema = z.object({
     {
       message: "Poner sucursal"
     }
-  )
+  ).optional()
 })
 
 const RegisterForm = () => {
@@ -58,10 +64,11 @@ const RegisterForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      first_name: "",
+      last_name: "",
       username: "",
       password: "",
       user_role: "",
-      branchId: ""
     },
   })
 
@@ -70,7 +77,10 @@ const RegisterForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true)
-      const res = await axios.post('/api/auth/register', values);
+      const res = await axios.post('/api/auth/register', {
+        ...values,
+        branchId:values.branchId ?? null
+      });
       if (res.status == 200) {
         toast.success("¡Creado!", {
           description: `El usuario ${values.username} ha sido creado correctamente.`
@@ -98,6 +108,34 @@ const RegisterForm = () => {
           </p>
         </div>
         <div className="grid gap-4">
+          <div className="flex items-center gap-2">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre</FormLabel>
+                <FormControl>
+                  <Input placeholder="Maria" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apellido</FormLabel>
+                <FormControl>
+                  <Input placeholder="Lopez" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          </div>
           <FormField
             control={form.control}
             name="username"
@@ -139,14 +177,17 @@ const RegisterForm = () => {
                   <SelectContent>
                     <SelectItem value="SELLER">Vendedor</SelectItem>
                     <SelectItem value="AUDITOR">Auditor</SelectItem>
-                    <SelectItem value="ADMIN">Administrador</SelectItem>
+                    <SelectItem value="MANAGER">Gerente</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
+          {
+            form.watch('user_role') != "AUDITOR" && form.watch('user_role') != "ADMIN" && (
+              <FormField
             control={form.control}
             name="branchId"
             render={({ field }) => (
@@ -175,6 +216,9 @@ const RegisterForm = () => {
               </FormItem>
             )}
           />
+            )
+          }
+          
           <Button disabled={isLoading} type="submit" className="w-full">
             {
               isLoading ? <Loader2 className='size-4 animate-spin' /> : <p>Registrar</p>

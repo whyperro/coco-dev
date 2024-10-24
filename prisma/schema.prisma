@@ -16,6 +16,7 @@ datasource db {
 enum Role {
   SELLER
   ADMIN
+  MANAGER
   AUDITOR
 }
 
@@ -34,6 +35,7 @@ enum ProviderType {
 enum TicketStatus {
   PAGADO
   PENDIENTE
+  CANCELADO
 }
 
 enum TicketType {
@@ -54,15 +56,18 @@ enum PaymentMethod {
   DEBITO
 }
 model User {
-  id        String @id @default(cuid())
-  username  String @unique
-  password  String
-  user_role Role   @default(SELLER)
-  branch    Branch?  @relation(fields: [branchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  branchId  String?
+  id         String @id @default(cuid())
+  first_name String
+  last_name  String
+  username   String @unique
+  password   String
+  user_role  Role   @default(SELLER)
+  branch     Branch?  @relation(fields: [branchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  branchId   String?
+  updated_by String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Branch {
@@ -77,25 +82,29 @@ model Branch {
 }
 
 model Provider{
-  id             String  @id @default(cuid())
+  id              String  @id @default(cuid())
   provider_number String  @unique
-  name           String
-  provider_type  ProviderType
-  tickets        Ticket[]
+  name            String
+  // credit          Int
+  provider_type   ProviderType
+  tickets         Ticket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Client{
-  id          String @id @default(cuid())
-  first_name  String
-  last_name   String
-  dni         String @unique
-  passenger   Passanger[]
+  id           String @id @default(cuid())
+  first_name   String
+  last_name    String
+  dni          String @unique
+  email        String?
+  phone_number String?
+  passenger    Passanger[]
+  updated_by   String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Passanger {
@@ -119,15 +128,23 @@ model Ticket {
   ticket_number String @unique
   booking_ref   String
   purchase_date String
-  quantity      Int
   flight_date   String
   registered_by String
+  updated_by    String?
   issued_by     String
   served_by     String
   status        TicketStatus @default(PENDIENTE)
-  transaction   Transaction?
   ticket_type   TicketType @default(B)
   doc_order     Boolean    @default(true)
+  description   String
+
+  ticket_price     Float
+  fee              Float
+  total            Float
+  rate             Float
+  total_bs         Float
+
+  transaction      Transaction?
 
   passanger     Passanger  @relation(fields: [passangerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   passangerId   String
@@ -141,6 +158,20 @@ model Ticket {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+model Transaction {
+  id               String @id @default(cuid())
+  payment_ref      String?
+  payment_method   PaymentMethod? @default(EFECTIVO)
+  image_ref        String?
+  registered_by    String
+  updated_by       String?
+  transaction_date DateTime
+  ticket           Ticket @relation(fields: [ticketId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  ticketId         String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 model Route {
   id         String @id @default(cuid())
@@ -150,23 +181,6 @@ model Route {
   route_type RouteType @default(NACIONAL)
 
   tickets    Ticket[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-model Transaction {
-  id               String @id @default(cuid())
-  ticket_price     Float
-  fee              Float
-  total            Float
-  rate             Float
-  total_bs         Float
-  payment_ref      String
-  payment_method   PaymentMethod @default(EFECTIVO)
-  registered_by    String
-  transaction_date DateTime
-  ticket           Ticket @relation(fields: [ticketId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  ticketId         String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

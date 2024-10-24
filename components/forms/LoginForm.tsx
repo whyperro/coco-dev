@@ -20,6 +20,7 @@ import { signIn, useSession } from 'next-auth/react'
 import { toast } from "sonner";
 
 const formSchema = z.object({
+
   username: z.string({
     message: "Debe ingresar un nombre de usuario."
   }),

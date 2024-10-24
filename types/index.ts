@@ -1,7 +1,10 @@
 export type User = {
   id: string,
+  first_name: string,
+  last_name: string
   username: string,
   user_role: string,
+  branch?: Branch
 }
 
 
@@ -9,6 +12,8 @@ export type Client = {
     id: string,
     first_name: string,
     last_name: string,
+    email:        string | null,
+    phone_number: string | null,
     dni: string,
   }
 
@@ -51,28 +56,32 @@ export type Client = {
     purchase_date: string,
     flight_date: string,
     booking_ref: string,
-    quantity: number,
-    status: "PENDIENTE" | "PAGADO"
+    status: "PENDIENTE" | "PAGADO" | "CANCELADO"
     ticket_type: "B" | "X",
     doc_order : boolean,
     registered_by: string,
     issued_by:string,
     served_by :string,
+    description: string
+
     route: Route
     passanger: Passanger,
     transaction?: Transaction,
     branchId: string,
     provider: Provider
-  }
 
-  export type Transaction = {
-    id: string,
     ticket_price: number,
     fee: number,
     total: number,
     rate: number,
     total_bs : number,
+  }
+
+  export type Transaction = {
+    id: string,
+    payment_method: string,
     payment_ref:string,
+    image_ref: string,
     registered_by: string,
     transaction_date: Date,
     ticket: Ticket,

@@ -22,29 +22,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { convertAmountToMiliunits } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CreditCard, HandCoins, Loader2, MoreHorizontal } from "lucide-react"
+import axios from "axios"
+import { CreditCard, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { FaCreditCard, FaMoneyBillWave } from "react-icons/fa"
 import { IoIosPhonePortrait } from "react-icons/io"
 import { SiZelle } from 'react-icons/si'
+import { toast } from "sonner"
 import { z } from "zod"
-import { AmountInput } from "../misc/AmountInput"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 
+
+
 const formSchema = z.object({
-  ticket_price: z.string(),
-  fee: z.string(),
-  total: z.string(),
-  rate: z.string(),
-  total_bs: z.string(),
-  payment_ref: z.string(),
-  payment_method: z.string(),
+  isCanceled: z.boolean().default(false),
+  payment_ref: z.string().optional(),
+  payment_method: z.string().optional(),
+  image_ref: z.instanceof(File).optional()
 });
 
 
@@ -52,6 +51,7 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false); // Delete dialog
+  const [openVoid, setOpenVoid] = useState<boolean>(false); // Delete dialog
   const { createTransaction } = useCreateTransaction();
   const { updateStatusTicket } = useUpdateStatusTicket();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,51 +60,71 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
 
     },
   });
-  const { watch, setValue } = form
-  const ticket_price = watch('ticket_price')
-  const fee = watch('fee')
-  const rate = watch('rate')
-  useEffect(() => {
-    const total = (parseFloat(ticket_price || "0") + parseFloat(fee || "0")).toFixed(2);
-    setValue('total', total);
-    const total_bs = (parseFloat(total || "0") * parseFloat(rate || "0")).toFixed(2);
-    setValue('total_bs', total_bs)
-  }, [ticket_price, fee, rate, setValue]);
-
-
+  const { watch } = form
+  const isCanceled = watch('isCanceled')
+  console.log(isCanceled)
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const ticketPriceInMiliunits = convertAmountToMiliunits(parseFloat(values.ticket_price))
-    const feeInMiliunits = convertAmountToMiliunits(parseFloat(values.fee))
-    const totalInMiliunits = convertAmountToMiliunits(parseFloat(values.total))
-    const totalBsMiliunits = convertAmountToMiliunits(parseFloat(values.total_bs))
-    const rateMiliunits = convertAmountToMiliunits(parseFloat(values.rate))
     try {
-      const res = await createTransaction.mutateAsync({
+      let imageUrl = '';
+
+      // Handle the image upload
+      const file = values.image_ref; // Get the file from the form input
+      if (file) {
+        // Create a FormData object to send the file in a multipart form request
+        const formData = new FormData();
+        formData.append('file', file); // Append the file
+        formData.append('fileName', `referencia_${values.payment_ref}`); // Append a unique file name
+
+        // Send the file to your API to store it
+        const { data } = await axios.post('/api/upload', formData);
+
+        const { fileUrl } = data; // Extract the file URL from the response
+        imageUrl = fileUrl; // Store the uploaded image URL
+      }
+
+      // Now, save the transaction with the image URL in the database
+      await createTransaction.mutateAsync({
         ...values,
-        ticket_price: ticketPriceInMiliunits,
-        fee: feeInMiliunits,
-        total: totalInMiliunits,
-        rate: rateMiliunits,
-        total_bs: totalBsMiliunits,
+        image_ref: imageUrl || "", // Store the image URL
         ticketId: id,
+        payment_method: values.payment_method || "",
+        payment_ref: values.payment_ref || "",
         registered_by: session?.user.username || "",
         transaction_date: new Date()
       });
-      if (res.status === 200) {
-        await updateStatusTicket.mutateAsync({
-          id: id,
-          status: "PAGADO",
-          registered_by: session?.user.username || ""
-        })
-      }
+
+      await updateStatusTicket.mutateAsync({
+        id: id,
+        status: "PAGADO",
+        registered_by: session?.user.username || ""
+      });
+
+      toast.success("¡Pagado!", {
+        description: "¡El boleto ha sido pagado correctamente!",
+      });
+
       setOpen(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
 
+  const onVoidTicket = async () => {
+    try {
+      await updateStatusTicket.mutateAsync({
+        id: id,
+        status: "CANCELADO",
+        registered_by: session?.user.username || ""
+      })
+      toast.error("¡Cancelado!", {
+        description: "¡El boleto ha sido cancelado correctamente!",
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -124,6 +144,13 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
           }}>
             <HandCoins className='size-5 text-green-500' />
           </DropdownMenuItem>
+          {/* Void Option */}
+          <DropdownMenuItem className="cursor-pointer" onClick={() => {
+            setOpenVoid(true);
+            setIsDropdownMenuOpen(false);
+          }}>
+            <TicketX className='size-5 text-rose-500' />
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -139,52 +166,14 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="grid gap-4 grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="ticket_price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Precio del Boleto</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold"><span className="italic">Fee</span> de Emisión</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="total"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Total a Cobrar</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="payment_method"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="font-bold">Tipo de Pago</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Seleccione el tipo de pago..." />
@@ -222,33 +211,6 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="rate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Tasa</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} prefix="Bs " placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="total_bs"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Total en Bolivares</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} prefix="Bs " placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="payment_ref"
@@ -265,7 +227,23 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                     </FormItem>
                   )}
                 />
-                <DialogFooter className="flex flex-col gap-2 md:gap-0">
+                <FormField
+                  control={form.control}
+                  name="image_ref"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel className="font-bold">Imagen Comprobante de pago</FormLabel>
+                      <FormControl>
+                        <Input type="file" onChange={(e) => field.onChange(e.target.files)} className="w-[400px]" />
+                      </FormControl>
+                      <FormDescription>
+                        Añade una imagen del comprobante de pago referencia
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter className="flex flex-col gap-2 md:gap-0 col-span-2">
                   <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
                     Cancelar
                   </Button>
@@ -273,13 +251,38 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                     disabled={createTransaction.isPending} // Disable button while mutation is pending
                     className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
                   >
-                    {createTransaction.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
+                    {updateStatusTicket.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
                   </Button>
                 </DialogFooter>
               </div>
             </form>
           </Form>
 
+        </DialogContent>
+      </Dialog>
+      <Dialog open={openVoid} onOpenChange={setOpenVoid}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              Seleccione el campo para cancelar el boleto
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 grid-cols-2">
+            <DialogFooter className="flex flex-col gap-2 md:gap-0">
+              <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
+                Cancelar
+              </Button>
+              <Button
+                name="is"
+                disabled={updateStatusTicket.isPending} // Disable button while mutation is pending
+                className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
+                onClick={() => onVoidTicket()}
+              >
+                {updateStatusTicket.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </>

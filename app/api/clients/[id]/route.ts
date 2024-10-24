@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     if (!client) {
       return NextResponse.json(
         {
-          message: "No se encontró la sucursal.",
+          message: "No se encontró el cliente.",
         },
         {
           status: 404,
@@ -107,6 +107,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         first_name: data.first_name,
         last_name: data.last_name ,
         dni: data.dni ,
+        email: data.email ?? null,
+        phone_number: data.phone_number ?? null,
+        updated_by: data.updated_by ?? null,
       },
     });
 

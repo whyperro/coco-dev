@@ -27,10 +27,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const newUser = await db.user.create({
       data: {
+        first_name: data.first_name,
+        last_name: data.last_name,
         username: data.username,
         password: hashedPwd,
         user_role: data.user_role,
-        branchId: data.branchId,
+        branchId: data.branchId ?? null,
       },
     });
 

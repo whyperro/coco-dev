@@ -24,8 +24,8 @@ const DashboardPage = () => {
   }
   return (
     <ContentLayout title='Estadisticas'>
-      <ProtectedRoute roles={['ADMIN', 'AUDITOR']}>
-        <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} />
+      <ProtectedRoute roles={['ADMIN', 'AUDITOR', 'MANAGER']}>
+        <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount}/>
         <DataCharts pieTitle='Sucursales' pieDescription='Ingresos según las sucursales.' transactions={data.transactionsByBranch} branches={data.branches} />
       </ProtectedRoute>
     </ContentLayout>

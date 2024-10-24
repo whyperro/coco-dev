@@ -1,5 +1,5 @@
 'use client';
-import { useGetClients } from "@/actions/clients/actions";
+import { useGetClient, useGetClients } from "@/actions/clients/actions";
 import { useCreatePassenger, useGetPassangerByDni } from "@/actions/passangers/actions";
 import { useGetProviders } from "@/actions/providers/actions";
 import { useGetRoutes } from "@/actions/routes/actions";
@@ -26,13 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { Passanger } from "@/types";
+import { cn, convertAmountToMiliunits } from "@/lib/utils";
+import { Client, Passanger } from "@/types";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 import { CalendarIcon, Check, ChevronsUpDown, Loader2, RotateCw } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -45,11 +47,12 @@ import { RegisterRouteDialog } from "../dialogs/RegisterRouteDialog";
 import { Button } from '../ui/button';
 import { Checkbox } from "../ui/checkbox";
 import { Input } from '../ui/input';
-import { driver } from 'driver.js'
-import 'driver.js/dist/driver.css'
 
+import { useGetBranches } from "@/actions/branches/actions";
+import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
+import { AmountInput } from "../misc/AmountInput";
 import { Separator } from "../ui/separator";
-import { QuestionMarkIcon } from "@radix-ui/react-icons";
+import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -58,18 +61,28 @@ const formSchema = z.object({
   dni_number: z.string(),
   phone_number: z.string().optional(),
   email: z.string().email().optional(),
+  isClient: z.boolean().default(false),
   clientId: z.string(),
   routeId: z.string(),
   providerId: z.string(),
+  branchId: z.string().optional(),
+
   ticket_number: z.string(),
   purchase_date: z.date(),
   flight_date: z.date(),
   booking_ref: z.string(),
-  quantity: z.coerce.number().nonnegative(),
+
   doc_order: z.boolean(),
-  issued_by: z.string(),
+  issued_by: z.string().optional(),//optional
   served_by: z.string(),
   ticket_type: z.string(),
+  description: z.string(),
+
+  ticket_price: z.string(),
+  fee: z.string(),
+  total: z.string(),
+  rate: z.string(),
+  total_bs: z.string(),
 });
 
 
@@ -80,26 +93,68 @@ const TicketForm = () => {
       dni_type: "V"
     },
   });
+
   const { data: session } = useSession()
   const today = new Date()
+
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
+
   const queryClient = useQueryClient()
   const [openClient, setOpenClient] = useState(false)
   const [openRoute, setOpenRoute] = useState(false)
   const [openProvider, setOpenProvider] = useState(false)
+  const [openBranch, setOpenBranch] = useState(false)
   const [openPurchaseDate, setOpenPurchaseDate] = useState(false)
   const [openFlightDate, setOpenFlightDate] = useState(false)
   const { data: routes, loading: routesLoading, error: routesError } = useGetRoutes()
   const { data: clients, loading: clientsLoading, error: clientsError } = useGetClients()
+  const { data: branches, loading: branchLoading, error: branchError } = useGetBranches()
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
   const { createPassenger } = useCreatePassenger()
   const { createTicket } = useCreateTicket();
   const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
+  const { data: dataClient } = useGetClient(form.watch("clientId") ?? null);
 
+  const { watch, setValue } = form
+  const ticket_price = watch('ticket_price')
+  const fee = watch('fee')
+  const rate = watch('rate')
+  const isClient = watch('isClient')
+
+
+  /** Para llenar los datos del pasajero si este es el cliente - TODO: Tratar de cambiar a peticion POST para usar el mutate en useEffect. */
+
+
+  useEffect(() => {
+    if (isClient && dataClient) {
+      form.setValue("first_name", dataClient.first_name);
+      form.setValue("last_name", dataClient.last_name);
+      form.setValue("email", dataClient.email ?? "");
+      form.setValue("dni_number", dataClient.dni);
+      form.setValue("phone_number", dataClient.phone_number ?? "");
+
+    } else {
+      resetFormFields();
+    }
+  }, [dataClient, isClient, form, queryClient]);
+
+
+  const resetFormFields = () => {
+    setFetchedPassanger(null);
+    form.setValue("first_name", "");
+    form.setValue("last_name", "");
+    form.setValue("email", "");
+    form.setValue("dni_number", "");
+    form.setValue("phone_number", "");
+  };
+
+  console.log(dataClient)
+  /** Llena los datos del pasajero si este ya se encuentra registrado en la base de datos  */
   useEffect(() => {
     if (debouncedPassangerDni && passanger) {
       // Autocomplete form fields when DNI matches a passenger
+
       setFetchedPassanger(passanger);
       form.setValue("first_name", passanger.first_name || "");
       form.setValue("last_name", passanger.last_name || "");
@@ -107,19 +162,16 @@ const TicketForm = () => {
       form.setValue("dni_type", passanger.dni_type || "V");
       form.setValue("phone_number", passanger.phone_number || "");
     } else {
-      // Clear form fields and reset passenger when DNI is removed or doesn't match
+
       setFetchedPassanger(null);
       form.setValue("first_name", "");
       form.setValue("last_name", "");
       form.setValue("email", "");
       form.setValue("dni_type", "V");
       form.setValue("phone_number", "");
-
-      // Explicitly set query data to null to clear any cached passenger data
       queryClient.setQueryData(['passanger'], null);
     }
   }, [debouncedPassangerDni, passanger, form, queryClient]);
-
 
   useEffect(() => {
     if (fetchedPassanger) {
@@ -128,13 +180,18 @@ const TicketForm = () => {
       form.setValue("email", fetchedPassanger.email ?? "");
       form.setValue("dni_type", fetchedPassanger.dni_type);
       form.setValue("phone_number", fetchedPassanger.phone_number ?? "");
-      form.setValue("clientId", fetchedPassanger.client.id)
+      if (fetchedPassanger.client && fetchedPassanger.client.id) {
+        form.setValue("clientId", fetchedPassanger.client.id);
+      } else {
+
+        form.setValue("clientId", "");
+      }
+
     }
   }, [fetchedPassanger, form]);
 
 
   const onResetPassengerForm = () => {
-    // Clear fetched passenger and form values
     setFetchedPassanger(null);
     form.reset({
       dni_number: "",
@@ -150,25 +207,47 @@ const TicketForm = () => {
     form.reset()
   }
 
+  /** Transaccion */
+  useEffect(() => {
+    const total = (parseFloat(ticket_price || "0") + parseFloat(fee || "0")).toFixed(2);
+    setValue('total', total);
+    const total_bs = (parseFloat(total || "0") * parseFloat(rate || "0")).toFixed(2);
+    setValue('total_bs', total_bs)
+  }, [ticket_price, fee, rate, setValue]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+
+    const ticketPriceInMiliunits = convertAmountToMiliunits(parseFloat(values.ticket_price))
+    const feeInMiliunits = convertAmountToMiliunits(parseFloat(values.fee))
+    const totalInMiliunits = convertAmountToMiliunits(parseFloat(values.total))
+    const totalBsMiliunits = convertAmountToMiliunits(parseFloat(values.total_bs))
+    const rateMiliunits = convertAmountToMiliunits(parseFloat(values.rate))
     try {
       if (fetchedPassanger) {
+
         await createTicket.mutateAsync({
           ticket_number: values.ticket_number.toUpperCase(),
           booking_ref: values.booking_ref.toUpperCase(),
           purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
-          quantity: values.quantity,
           doc_order: values.doc_order,
-          issued_by: values.issued_by,
+          issued_by: session?.user.username || "",
           served_by: values.served_by,
           ticket_type: values.ticket_type,
           flight_date: format(values.flight_date, 'yyyy-MM-dd'),
           status: "PENDIENTE",
+          description: values.description,
+
           passangerId: fetchedPassanger.id,
           routeId: values.routeId,
-          branchId: session?.user.branchId || "",
+          branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
           providerId: values.providerId,
-          registered_by: session?.user.username || ""
+          registered_by: session?.user.username || "",
+
+          ticket_price: ticketPriceInMiliunits,
+          fee: feeInMiliunits,
+          total: totalInMiliunits,
+          rate: rateMiliunits,
+          total_bs: totalBsMiliunits,
         })
       } else {
         const res = await createPassenger.mutateAsync({
@@ -181,23 +260,31 @@ const TicketForm = () => {
           clientId: values.clientId
         })
         if (res.status === 200) {
+
           setFetchedPassanger(res.data)
           await createTicket.mutateAsync({
             ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
-            quantity: values.quantity,
+            description: values.description,
             doc_order: values.doc_order,
-            issued_by: values.issued_by,
+            issued_by: session?.user.username || "",
             served_by: values.served_by,
             ticket_type: values.ticket_type,
             flight_date: format(values.flight_date, 'yyyy-MM-dd'),
             status: "PENDIENTE",
+
             passangerId: res.data.id,
             routeId: values.routeId,
-            branchId: session?.user.branchId || "",
+            branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
             providerId: values.providerId,
-            registered_by: session?.user.username || ""
+            registered_by: session?.user.username || "",
+
+            ticket_price: ticketPriceInMiliunits,
+            fee: feeInMiliunits,
+            total: totalInMiliunits,
+            rate: rateMiliunits,
+            total_bs: totalBsMiliunits,
           })
         }
       }
@@ -238,7 +325,9 @@ const TicketForm = () => {
         element: '#ticket-info-container', // The id or className of the div which you want to focous of highlight
         popover: {
           title: 'Información del Boleto',
-          description: 'Luego, ingrese la información correspondiente al boleto a registrar.'
+          description: 'Luego, ingrese la información correspondiente al boleto a registrar.',
+          align: "center",
+          side: "left"
         }
       },
     ]
@@ -248,6 +337,8 @@ const TicketForm = () => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
+
+          {/* CLIENTE / PROVEEDOR */}
           <div id="client-provider" className="flex flex-col lg:flex-row gap-8">
             <FormField
               control={form.control}
@@ -405,12 +496,102 @@ const TicketForm = () => {
                 </FormItem>
               )}
             />
+            {
+              (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') && (
+                <FormField
+                  control={form.control}
+                  name="branchId"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="font-bold">Sucursales</FormLabel>
+                      <Popover open={openBranch} onOpenChange={setOpenBranch}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              disabled={loading}
+                              variant="outline"
+                              role="combobox"
+                              className={cn(
+                                "w-[200px] justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {branchLoading && <Loader2 className="size-4 animate-spin mr-2" />}
+                              {field.value
+                                ? <p>{branches?.find(branch => branch.id === field.value)?.location_name}</p>
+                                : "Elige una sucursal..."}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Busque una sucursal..." />
+                            <CreateBranchDialog />
+                            <CommandList>
+                              <CommandEmpty>No se ha encontrado una sucursal.</CommandEmpty>
+                              <CommandGroup>
+                                {branches?.map(branch => (
+                                  <CommandItem
+                                    value={`${branch.location_name}`}
+                                    key={branch.id}
+                                    onSelect={() => {
+                                      form.setValue("branchId", branch.id);
+                                      setOpenBranch(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        branch.id === field.value ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    <p>{branch.location_name}</p>
+                                  </CommandItem>
+                                ))}
+                                {branchError && (
+                                  <p className="text-muted-foreground text-sm">
+                                    Ha ocurrido un error al cargar los datos...
+                                  </p>
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        Seleccione la sucursal
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )
+            }
             <Button className="w-[20px] h-[20px] mt-4" type="button" onClick={() => driverObj.drive()} size={"icon"}>?</Button>
+
           </div>
+          <FormField
+            control={form.control}
+            name="isClient"
+            render={({ field }) => (
+              <FormItem className=" w-[300px] flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    ¿El pasajero paga su boleto?
+                  </FormLabel>
 
-
+                </div>
+              </FormItem>
+            )}
+          />
           {/* FORMULARIO DEL PASAJERO */}
-
           <div className='flex flex-col'>
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56' />
@@ -543,8 +724,12 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
+
+
             </div>
           </div>
+
+
 
           {/* FORMULARIO DEL BOLETO */}
 
@@ -584,22 +769,7 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Cantidad</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="0" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Cantidad del boleto
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <FormField
                 control={form.control}
                 name="purchase_date"
@@ -838,23 +1008,9 @@ const TicketForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-bold">Emitido por</FormLabel>
-                    <Select onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
-                          <SelectValue placeholder="Seleccione el agente" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="DUBRASKA">DUBRASKA</SelectItem>
-                        <SelectItem value="STEFANY">STEFANY</SelectItem>
-                        <SelectItem value="DORA">DORA</SelectItem>
-                        <SelectItem value="DIOSENNYS">DIOSENNYS</SelectItem>
-                        <SelectItem value="GLYSMAR">GLYSMAR</SelectItem>
-                        <SelectItem value="KAREN">KAREN</SelectItem>
-                        <SelectItem value="SARAY">SARAY</SelectItem>
-                        <SelectItem value="ALINA">ALINA</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={session?.user.username} />
+                    </FormControl>
                     <FormDescription>
                       Agente que emitio el Boleto
                     </FormDescription>
@@ -863,9 +1019,104 @@ const TicketForm = () => {
                 )}
               />
 
+            </div>
+
+          </div>
+
+          {/* FORMULARIO DE  TRANSACTION*/}
+
+          <div className="flex flex-col ">
+            <h1 className='text-3xl font-bold italic flex items-center gap-3'>Info. del Transaccion <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <Separator className='w-57' />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
+              <FormField
+                control={form.control}
+                name="ticket_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Precio del Boleto</FormLabel>
+                    <FormControl>
+                      <AmountInput  {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold"><span className="italic">Fee</span> de Emisión</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Total a Cobrar</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="rate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Tasa</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} prefix="Bs " placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_bs"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Total en Bolivares</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} prefix="Bs " placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
             </div>
+
           </div>
+          <div className="flex flex-col items-center">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Observaciones</FormLabel>
+                  <FormControl>
+                    <Textarea className="w-[850px] shadow-none" placeholder="..." {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+          </div>
+
           <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
         </div>
       </form>

@@ -30,6 +30,7 @@ interface SummaryResponse {
   ticketCount: number
   chartPie: PieData[],
   pendingCount: number,
+  paidCount: number,
 }
 
 // Define your GET method handler
@@ -48,6 +49,15 @@ export async function GET(request: Request, { params }: { params: { username: st
     const startDate = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
     const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
+    // const branchId = await db.user.findUnique({
+    //   where:{
+    //     username:username
+    //   }, 
+    //   select:{
+    //     branchId:true
+    //   }
+    // })
+
     // Fetch all transactions within the date range
     const transactions = await db.transaction.findMany({
       where: {
@@ -55,21 +65,31 @@ export async function GET(request: Request, { params }: { params: { username: st
           gte: startDate,
           lte: endDate,
         },
-        registered_by: username
-      },
+        ticket:{
+          registered_by:username,
+          // issued_by:username
+          OR:[ {issued_by:username} ]
+           
+        }
+        //     
+      },   
       select: {
         transaction_date: true,
-        total: true,
-        ticketId: true, // Include ticketId to link transactions to chartPie
+        ticketId: true, // Include ticketId to link transactions to branches
+        ticket: {         
+          select: {
+            total: true, // Select the total from the ticket
+          },
+        },
       },
     });
-
 
     // Fetch related tickets to get the branchId and branchName
     const tickets = await db.ticket.findMany({
       where: {
         id: { in: transactions.map(t => t.ticketId) },
-        registered_by: username
+        issued_by: username
+        // registered_by: username
       },
       select: {
         id: true,
@@ -101,22 +121,30 @@ export async function GET(request: Request, { params }: { params: { username: st
     const pendingCount = await db.ticket.count({
       where: {
         status: "PENDIENTE",
-        registered_by: username
+        issued_by: username
+        // registered_by: username
+      }
+    })
+    
+    const paidCount = await db.ticket.count({
+      where: {
+        status: "PAGADO",
+        issued_by: username
       }
     })
 
-    // Step 1: Generate the full date range
+    // 1: Generate the full date range
     const dateRange = generateDateRange(startDate, endDate);
 
-    // Step 2: Initialize an object to store transactions grouped by branch and date
+    // 2: Initialize an object to store transactions grouped by branch and date
     const branchTransactions: { [key: string]: { branchName: string, transactions: TransactionByBranch[] } } = {};
 
-    // Step 3: Process transactions to calculate total amounts per branch and date
+    // 3: Process transactions to calculate total amounts per branch and date
     transactions.forEach(transaction => {
       const ticket = tickets.find(t => t.id === transaction.ticketId); // Find the corresponding ticket to get the branchId
       const branchId = ticket ? ticket.branchId : 'unknown'; // Get the branch ID from the ticket
       const branchName = ticket?.branch?.location_name || 'Unknown Branch'; // Get the branch name
-
+      
       const formattedDate = format(transaction.transaction_date, "yyyy-MM-dd");
 
       if (!branchTransactions[branchId]) {
@@ -125,16 +153,16 @@ export async function GET(request: Request, { params }: { params: { username: st
 
       const existingTransaction = branchTransactions[branchId].transactions.find(item => item.date === formattedDate);
       if (existingTransaction) {
-        existingTransaction.amount += transaction.total || 0; // Add to existing amount
+        existingTransaction.amount += transaction.ticket.total || 0; // Add to existing amount
       } else {
         branchTransactions[branchId].transactions.push({
           date: formattedDate,
-          amount: transaction.total || 0, // Use transaction total or 0
+          amount: transaction.ticket.total || 0, // Use transaction total or 0
         });
       }
     });
 
-    // Step 4: Fill in missing dates for each branch
+    // 4: Fill in missing dates for each branch
     const filledData: BranchTransactions[] = Object.keys(branchTransactions).map(branchId => {
       const { branchName, transactions } = branchTransactions[branchId];
 
@@ -154,7 +182,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     });
 
     // Aggregate total amount across all transactions
-    const totalAmount = transactions.reduce((sum, t) => sum + (t.total || 0), 0);
+    const totalAmount = transactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
 
 
 
@@ -166,7 +194,7 @@ export async function GET(request: Request, { params }: { params: { username: st
       if (!pieData[client]) {
         pieData[client] = 0;
       }
-      pieData[client] += transaction.total || 0; // Accumulate amounts per branch
+      pieData[client] += transaction.ticket.total || 0; // Accumulate amounts per branch
     });
 
     // Format data for the Pie chart
@@ -181,7 +209,8 @@ export async function GET(request: Request, { params }: { params: { username: st
       transactionsByBranch: filledData, // Data for each branch
       ticketCount, // Number of tickets in the date range
       chartPie,
-      pendingCount
+      pendingCount,
+      paidCount,
     };
 
     return NextResponse.json(response, { status: 200 });

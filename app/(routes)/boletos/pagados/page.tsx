@@ -17,7 +17,7 @@ const PaidTicketsPage = () => {
 
   useEffect(() => {
     if (tickets && session) {
-      if (session.user.user_role === 'ADMIN') {
+      if (session.user.user_role === 'ADMIN' || session.user.user_role === 'AUDITOR') {
         setFilteredTickets(tickets);
       } else {
         setFilteredTickets(tickets.filter(ticket => ticket.branchId === session.user.branchId));

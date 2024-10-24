@@ -64,7 +64,7 @@ export const useGetPassanger = (id: string | null) => {
         clientId: string;    // New location name
       }) => {
         const res = await axios.post(`/api/passangers`, {
-            ...values
+          ...values
         });
 
         return res

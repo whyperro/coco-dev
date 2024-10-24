@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { useSession } from "next-auth/react";
 
 const formSchema = z.object({
   first_name: z.string({
@@ -23,6 +24,9 @@ const formSchema = z.object({
   dni: z.string({
     required_error: "Identificacion requerido (V, E, J)",
   }),
+  email: z.string().optional(),
+  phone_number: z.string().optional(),
+  
 });
 
 interface FormProps {
@@ -33,6 +37,7 @@ interface FormProps {
 
 const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
   const [initialValues, setInitialValues] = useState<Client | null>(null);
+  const {data: session} = useSession()
   const { updateClient } = useUpdateClient();
   const {createClient} = useCreateClient();
   const {data} = useGetClient(id ?? null);
@@ -40,10 +45,12 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialValues || { // Set default values for editing
-      first_name: "",
-      last_name: "",
-      dni: "", // Ensure this is an empty string instead of null
+    defaultValues: { 
+      first_name: initialValues?.first_name ?? "",
+      last_name: initialValues?.last_name ?? "",
+      dni: initialValues?.dni ?? "", 
+      email: initialValues?.email ?? undefined,
+      phone_number: initialValues?.phone_number ?? undefined,
     },
   });
 
@@ -53,6 +60,8 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
       form.setValue("first_name", data.first_name)
       form.setValue("last_name", data.last_name )
       form.setValue("dni", data.dni )
+      form.setValue("email", data.email ?? "" )
+      form.setValue("phone_number", data.phone_number ?? "" )
     }
   }, [data, form])
 
@@ -66,19 +75,24 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
           first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
           last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
           dni: values.dni,
+          email: values?.email ? values.email : null,
+          phone_number: values?.phone_number ? values.phone_number : null,
+          updated_by: session!.user.username,
         });
       } else {
         await createClient.mutateAsync({
           first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
           last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
           dni: values.dni,
+          email: values?.email ? values.email : null,
+          phone_number: values?.phone_number ? values.phone_number : null,
         });
       }
-// Reset form after successful submission
+        
       form.reset(); 
       onClose();
     } catch (error) {
-      console.error(error); // Log the error for debugging
+      console.error(error);
       toast.error("Error al guardar la sucursal", {
         description: "Ocurrió un error, por favor intenta nuevamente.",
       });
@@ -129,6 +143,36 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
               </FormItem>
             )}
           />
+          <div className="flex items-center gap-2">
+          
+            <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Correo electronico" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        
+          <FormField
+          control={form.control}
+          name="phone_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Numero de Telefono</FormLabel>
+              <FormControl>
+                <Input placeholder="424123456" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+          />
+          </div>
           <Button disabled={createClient.isPending || updateClient.isPending} type="submit" className="w-full">
             {createClient.isPending || updateClient.isPending ? <Loader2 className='size-4 animate-spin' /> : <p>{isEditing ? "Actualizar" : "Registrar"}</p>}
           </Button>

@@ -22,10 +22,6 @@ export const useUpdateStatusTicket = () => {
       await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["tickets"] });
-
-      toast.success("¡Pagado!", {
-        description: "¡El boleto ha sido pagado correctamente!",
-      });
     },
     onError: (error: Error) => {
       toast.error("Oops!", {

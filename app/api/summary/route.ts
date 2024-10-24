@@ -33,6 +33,7 @@ interface SummaryResponse {
   ticketCount: number
   branches: BranchData[],
   pendingCount: number,
+  paidCount: number
 }
 
 // Define your GET method handler
@@ -60,8 +61,12 @@ export async function GET(request: Request) {
       },
       select: {
         transaction_date: true,
-        total: true,
         ticketId: true, // Include ticketId to link transactions to branches
+        ticket: {
+          select: {
+            total: true, // Select the total from the ticket
+          },
+        },
       },
     });
 
@@ -97,7 +102,11 @@ export async function GET(request: Request) {
         status: "PENDIENTE"
       }
     })
-
+    const paidCount = await db.ticket.count({
+      where: {
+        status: "PAGADO",
+      }
+    })
     // Step 1: Generate the full date range
     const dateRange = generateDateRange(startDate, endDate);
 
@@ -118,11 +127,11 @@ export async function GET(request: Request) {
 
       const existingTransaction = branchTransactions[branchId].transactions.find(item => item.date === formattedDate);
       if (existingTransaction) {
-        existingTransaction.amount += transaction.total || 0; // Add to existing amount
+        existingTransaction.amount += transaction.ticket.total || 0; // Add to existing amount
       } else {
         branchTransactions[branchId].transactions.push({
           date: formattedDate,
-          amount: transaction.total || 0, // Use transaction total or 0
+          amount: transaction.ticket.total || 0, // Use transaction total or 0
         });
       }
     });
@@ -147,9 +156,7 @@ export async function GET(request: Request) {
     });
 
     // Aggregate total amount across all transactions
-    const totalAmount = transactions.reduce((sum, t) => sum + (t.total || 0), 0);
-
-
+    const totalAmount = transactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
 
     const branchData: { [key: string]: number } = {};
     transactions.forEach(transaction => {
@@ -159,7 +166,7 @@ export async function GET(request: Request) {
       if (!branchData[branch]) {
         branchData[branch] = 0;
       }
-      branchData[branch] += transaction.total || 0; // Accumulate amounts per branch
+      branchData[branch] += transaction.ticket.total || 0; // Accumulate amounts per branch
     });
 
     // Format data for the Pie chart
@@ -174,7 +181,8 @@ export async function GET(request: Request) {
       transactionsByBranch: filledData, // Data for each branch
       ticketCount, // Number of tickets in the date range
       branches,
-      pendingCount
+      pendingCount,
+      paidCount
     };
 
     return NextResponse.json(response, { status: 200 });

@@ -10,12 +10,13 @@ import { useState } from "react"
 import CreateClientForm from "../forms/ClientForm"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { useSession } from "next-auth/react"
 
 const ClientDropdownActions = ({ id }: { id: string }) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [isDialogOpen1, setIsDialogOpen1] = useState<boolean>(false); // Delete dialog
   const [isDialogOpen2, setIsDialogOpen2] = useState<boolean>(false); // Edit dialog
-
+  const {data: session} = useSession();
   const { deleteClient } = useDeleteClient();
 
   const handleDelete = async (id: string) => {
@@ -35,14 +36,14 @@ const ClientDropdownActions = ({ id }: { id: string }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="flex gap-2 justify-center">
           {/* Delete Option */}
-          <DropdownMenuItem onClick={() => {
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "MANAGER"}  onClick={() => {
             setIsDialogOpen1(true);
             setIsDropdownMenuOpen(false);
           }}>
             <Trash2 className='size-5 text-red-500' />
           </DropdownMenuItem>
           {/* Edit Option */}
-          <DropdownMenuItem onClick={() => {
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR"} onClick={() => {
             setIsDialogOpen2(true);
             setIsDropdownMenuOpen(false);
           }}>

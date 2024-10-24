@@ -13,7 +13,7 @@ const ProviderPage = () => {
     <ContentLayout title='Proveedores'>
         <div className="text-center mt-6">
             <h1 className='text-5xl font-bold'>Proveedores</h1>
-            <p className="text-muted-foreground italic text-sm">Lorem ipsum dolor</p>
+            <p className="text-muted-foreground italic text-sm">Aquí puede llevar el control de los proveedores que han sido registrados en el sistema.</p>
         </div>
         {
           loading && <div className='w-full flex justify-center'>

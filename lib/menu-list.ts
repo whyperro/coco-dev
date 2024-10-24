@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   LucideIcon,
   Map,
+  NotebookText,
   Signature,
   Store,
   TicketsPlane,
@@ -100,6 +101,13 @@ export function getMenuList(pathname: string, role: string): Group[] {
           ]
         },
         {
+          href: "/reportes",
+          label: "Reportes",
+          active: pathname.includes("/reportes"),
+          icon: NotebookText,
+          submenus: []
+        },
+        {
           href: "",
           label: "Rutas",
           active: pathname.includes("/rutas"),
@@ -165,6 +173,16 @@ export function getMenuList(pathname: string, role: string): Group[] {
           };
         }
         return menu;
+      })
+      .filter(menu => {
+        // General filtering for SELLER role
+        if (role !== "AUDITOR" && role !== "ADMIN") {
+          // Exclude specific menus for SELLER
+          if (menu.label === "Reportes") {
+            return false;
+          }
+        }
+        return true;
       })
   }));
 }

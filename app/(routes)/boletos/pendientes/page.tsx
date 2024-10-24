@@ -21,18 +21,19 @@ const PendingTicketsPage = () => {
       const userRole = session?.user?.user_role;
       const userBranchId = session?.user?.branchId;
 
-      if (userRole === 'ADMIN') {
+      if (userRole === 'ADMIN' || userRole === 'AUDITOR') {
         setFilteredTickets(tickets)
       } else if (userBranchId) {
+
         // Ensure branchId exists and filter tickets by the user's branchId
         setFilteredTickets(tickets.filter((ticket) => ticket.branchId === userBranchId))
       }
     }
-  }, [tickets, session]) // Add session to the dependency array
+  }, [tickets, session])
 
 
   return (
-    <ProtectedRoute roles={["ADMIN", "AUDITOR"]}>
+    <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
       <ContentLayout title='Boletos Pendientes'>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold mb-4'>Boletos Pendientes</h1>

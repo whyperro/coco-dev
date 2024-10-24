@@ -13,6 +13,8 @@ const AnaliticsPage = () => {
 
   const { data: session } = useSession()
   const { data, loading } = useGetAnalitics(session?.user.username || null);
+
+
   return (
     <ContentLayout title='Estadisticas'>
       {loading && <>
@@ -27,7 +29,7 @@ const AnaliticsPage = () => {
       </>}
       {
         data && <>
-          <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} />
+          <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
           <DataCharts pieTitle='Clientes' pieDescription="Ingresos según los clientes." transactions={data.transactionsByBranch} branches={data.chartPie} />
         </>
       }

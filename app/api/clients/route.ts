@@ -43,6 +43,8 @@ export async function POST(request: Request) {
         first_name: data.first_name,
         last_name: data.last_name,
         dni: data.dni,
+        email: data.email ?? null,
+        phone_number: data.phone_number ?? null,
       },
     });
 

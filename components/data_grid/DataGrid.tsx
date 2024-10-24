@@ -13,9 +13,10 @@ interface DataGridProps {
   total_amount: number,
   ticketCount: number,
   pendingCount: number,
+  paidCount: number,
 }
 
-const DataGrid = ({ total_amount, ticketCount, pendingCount }: DataGridProps) => {
+const DataGrid = ({ total_amount, ticketCount, pendingCount, paidCount }: DataGridProps) => {
   const params = useSearchParams();
   const from = params.get('from') || undefined
   const to = params.get('to') || undefined
@@ -55,6 +56,13 @@ const DataGrid = ({ total_amount, ticketCount, pendingCount }: DataGridProps) =>
           description: 'Muestra la cantidad de boletos que aún se encuentran por pagar.'
         }
       },
+      {
+        element: '#paid-card', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Pagados',
+          description: 'Muestra la cantidad de boletos pagados.'
+        }
+      },
     ]
   });
 
@@ -67,11 +75,11 @@ const DataGrid = ({ total_amount, ticketCount, pendingCount }: DataGridProps) =>
         <div id="ingresos-card">
           <DataCard percentageChange={24.33} isCurrency title="Ingresos" value={total_amount} icon={PiggyBank} variant="success" dateRange={dateRangeLabel} />
         </div>
-        <div id="count-card">
-          <DataCard percentageChange={24.33} title="Boletos Registrados" value={ticketCount} icon={Tickets} variant="success" dateRange={dateRangeLabel} />
-        </div>
         <div id="pending-card">
           <DataCard percentageChange={24.33} title="Boletos Pendientes" value={pendingCount} icon={Tickets} variant="success" dateRange={dateRangeLabel} />
+        </div>
+        <div id="paid-card">
+          <DataCard percentageChange={24.33} title="Boletos Pagados" value={paidCount} icon={Tickets} variant="success" dateRange={dateRangeLabel} />
         </div>
       </div>
     </>

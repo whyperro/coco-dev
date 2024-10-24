@@ -41,11 +41,11 @@ export const useCreateClient = () => {
         first_name: string;    // New location name
         last_name: string;    // New location name
         dni: string;    // New location name
+        email: string | null;
+        phone_number: string | null ;
       }) => {
         await axios.post(`/api/clients`, {
-            first_name: values.first_name,
-            last_name: values.last_name, 
-            dni: values.dni 
+          ...values
         });
       },
       onSuccess: () => {
@@ -67,6 +67,22 @@ export const useCreateClient = () => {
       createClient: createMutation, // Function to call the mutation
     };
   };
+
+  // export const useGetClientByDni = (dni: string | null) => {
+  //   const clientQuery = useQuery({
+  //     queryKey: ["client"],
+  //     queryFn: async () => {
+  //       const {data} = await axios.get(`/api/clients/dni/${dni}`); // Adjust the endpoint as needed
+  //       return data as Client;
+  //     },
+  //     enabled: !!dni
+  //   });
+  //   return {
+  //     data: clientQuery.data,
+  //     loading: clientQuery.isLoading,
+  //     error: clientQuery.isError // Function to call the query
+  //   };
+  // };
   
   export const useUpdateClient = () => {
 
@@ -78,12 +94,12 @@ export const useCreateClient = () => {
         first_name: string;    // New location name
         last_name: string;    // New location name
         dni: string;   // New fiscal address
+        email: string | null;
+        phone_number: string | null ;
+        updated_by: string;
       }) => {
         await await axios.patch(`/api/clients/${values.id}`, {
-            id: values.id,
-            first_name: values.first_name,
-            last_name: values.last_name, 
-            dni: values.dni
+            ...values
         });
       },
       onSuccess: () => {

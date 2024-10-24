@@ -90,7 +90,8 @@ const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      dni_type: "V"
+      dni_type: "V",
+      doc_order: false,
     },
   });
 
@@ -134,11 +135,8 @@ const TicketForm = () => {
       form.setValue("dni_number", dataClient.dni);
       form.setValue("phone_number", dataClient.phone_number ?? "");
 
-    } else {
-      resetFormFields();
     }
-  }, [dataClient, isClient, form, queryClient]);
-
+  }, [dataClient, isClient, form]);
 
   const resetFormFields = () => {
     setFetchedPassanger(null);
@@ -149,27 +147,16 @@ const TicketForm = () => {
     form.setValue("phone_number", "");
   };
 
-  console.log(dataClient)
   /** Llena los datos del pasajero si este ya se encuentra registrado en la base de datos  */
   useEffect(() => {
     if (debouncedPassangerDni && passanger) {
       // Autocomplete form fields when DNI matches a passenger
-
       setFetchedPassanger(passanger);
       form.setValue("first_name", passanger.first_name || "");
       form.setValue("last_name", passanger.last_name || "");
       form.setValue("email", passanger.email || "");
       form.setValue("dni_type", passanger.dni_type || "V");
       form.setValue("phone_number", passanger.phone_number || "");
-    } else {
-
-      setFetchedPassanger(null);
-      form.setValue("first_name", "");
-      form.setValue("last_name", "");
-      form.setValue("email", "");
-      form.setValue("dni_type", "V");
-      form.setValue("phone_number", "");
-      queryClient.setQueryData(['passanger'], null);
     }
   }, [debouncedPassangerDni, passanger, form, queryClient]);
 

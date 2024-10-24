@@ -85,7 +85,7 @@ export const useCreateTicket = () => {
           purchase_date: string,
           flight_date: string,
           booking_ref: string,
-          status: "PENDIENTE" | "PAGADO"
+          status: "PENDIENTE" | "PAGADO" | "CANCELADO"
           ticket_type: string,
           doc_order : boolean,
           description: string,

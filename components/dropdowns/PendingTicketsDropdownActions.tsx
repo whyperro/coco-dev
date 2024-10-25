@@ -1,3 +1,4 @@
+import { useUpdateCreditProvider } from "@/actions/providers/actions"
 import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
 import { useCreateTransaction } from "@/actions/transactions/actions"
 import {
@@ -22,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { CreditCard, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
@@ -40,64 +42,63 @@ import { Input } from "../ui/input"
 
 
 const formSchema = z.object({
-  isCanceled: z.boolean().default(false),
   payment_ref: z.string().optional(),
   payment_method: z.string().optional(),
   image_ref: z.instanceof(File).optional()
+
 });
 
 
-const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
+const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false); // Delete dialog
   const [openVoid, setOpenVoid] = useState<boolean>(false); // Delete dialog
   const { createTransaction } = useCreateTransaction();
+  const { updateCreditProvider } = useUpdateCreditProvider();
   const { updateStatusTicket } = useUpdateStatusTicket();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-
+      payment_ref: "",
     },
   });
-  const { watch } = form
-  const isCanceled = watch('isCanceled')
-  console.log(isCanceled)
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       let imageUrl = '';
 
-      // Handle the image upload
-      const file = values.image_ref; // Get the file from the form input
+      const file = values.image_ref;
       if (file) {
-        // Create a FormData object to send the file in a multipart form request
         const formData = new FormData();
-        formData.append('file', file); // Append the file
-        formData.append('fileName', `referencia_${values.payment_ref}`); // Append a unique file name
+        formData.append('file', file);
+        formData.append('fileName', `referencia_${values.payment_ref}`);
 
-        // Send the file to your API to store it
         const { data } = await axios.post('/api/upload', formData);
 
-        const { fileUrl } = data; // Extract the file URL from the response
-        imageUrl = fileUrl; // Store the uploaded image URL
+        const { fileUrl } = data;
+        imageUrl = fileUrl;
       }
 
-      // Now, save the transaction with the image URL in the database
-      await createTransaction.mutateAsync({
+      const res = await createTransaction.mutateAsync({
         ...values,
-        image_ref: imageUrl || "", // Store the image URL
-        ticketId: id,
+        image_ref: imageUrl || "",
+        ticketId: ticket.id,
         payment_method: values.payment_method || "",
         payment_ref: values.payment_ref || "",
         registered_by: session?.user.username || "",
         transaction_date: new Date()
       });
+      if(res.status == 200 ){
+            await updateCreditProvider.mutateAsync({
+            id: ticket.provider.id,
+            credit: ticket.provider.credit + ticket.ticket_price,
+          })
+      }
 
       await updateStatusTicket.mutateAsync({
-        id: id,
+        id: ticket.id,
         status: "PAGADO",
-        registered_by: session?.user.username || ""
+        updated_by: `${session?.user.first_name} ${session?.user.last_name}` || ""
       });
 
       toast.success("¡Pagado!", {
@@ -114,9 +115,9 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
   const onVoidTicket = async () => {
     try {
       await updateStatusTicket.mutateAsync({
-        id: id,
+        id: ticket.id,
         status: "CANCELADO",
-        registered_by: session?.user.username || ""
+        updated_by: session?.user.username || ""
       })
       toast.error("¡Cancelado!", {
         description: "¡El boleto ha sido cancelado correctamente!",
@@ -251,7 +252,7 @@ const PendingTicketsDropdownActions = ({ id }: { id: string }) => {
                     disabled={createTransaction.isPending} // Disable button while mutation is pending
                     className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
                   >
-                    {updateStatusTicket.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
+                    {updateStatusTicket.isPending || updateCreditProvider.isPending || createTransaction.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
                   </Button>
                 </DialogFooter>
               </div>

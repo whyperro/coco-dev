@@ -13,7 +13,6 @@ export const useGetTicket = (ticket_number: string) => {
     // Optional: you can set retry and staleTime here
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
-
   return {
     data: ticketQuery.data,
     loading: ticketQuery.isLoading,
@@ -57,6 +56,24 @@ export const useGetPaidTickets = () => {
   };
 };
 
+export const useGetCancelledTickets = () => {
+  const ticketsQuery = useQuery({
+    queryKey: ["cancelled-tickets"], // Updated to reflect flight type
+    queryFn: async () => {
+      const {data} = await axios.get('/api/tickets/cancelled');
+      return data as Ticket[];
+    },
+    // Optional: you can set retry and staleTime here
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  });
+
+  return {
+    data: ticketsQuery.data,
+    loading: ticketsQuery.isLoading,
+    error: ticketsQuery.isError ? ticketsQuery.error : null, // Improved error handling
+  };
+};
+
 export const useGetPaidTicketsReport = () => {
 
   const ticketsQuery = useQuery({
@@ -85,7 +102,7 @@ export const useCreateTicket = () => {
           purchase_date: string,
           flight_date: string,
           booking_ref: string,
-          status: "PENDIENTE" | "PAGADO" | "CANCELADO"
+          status: "PENDIENTE" | "PAGADO"
           ticket_type: string,
           doc_order : boolean,
           description: string,

@@ -2,7 +2,9 @@
 
 import ProviderDropdownActions from "@/components/dropdowns/ProviderDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
+import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn, convertAmountFromMiliunits } from "@/lib/utils"
 import { Provider } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -62,6 +64,17 @@ export const columns: ColumnDef<Provider>[] = [
     ),
     cell: ({ row }) => {   
         return <div className="text-center font-bold">{row.original.provider_type}</div>
+      },
+  },
+  {
+    accessorKey: "credit",
+    header: ({column}) => (
+        <DataTableColumnHeader filter column={column} title='Credito'/>
+    ),
+    cell: ({ row }) => {   
+        return <div className="flex justify-center">
+          <Badge className={cn("text-sm text-center font-bold", convertAmountFromMiliunits(row.original.credit) > 0 ? "bg-rose-500" : "bg-primary") }>${convertAmountFromMiliunits(row.original.credit)}</Badge>
+        </div>
       },
   },
   {

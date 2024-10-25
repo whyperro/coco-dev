@@ -10,11 +10,11 @@ export const useUpdateStatusTicket = () => {
     mutationFn: async (values: {
       id: string,
       status: string,
-      registered_by: string,
+      updated_by: string,
     }) => {
       await axios.patch(`/api/tickets/transaction/${values.id}`, {
         status: values.status,
-        registered_by: values.registered_by
+        updated_by: values.updated_by
       });
     },
     onSuccess: async() => {

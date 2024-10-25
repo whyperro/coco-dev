@@ -77,7 +77,7 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
           dni: values.dni,
           email: values?.email ? values.email : null,
           phone_number: values?.phone_number ? values.phone_number : null,
-          updated_by: session!.user.username,
+          updated_by: `${session?.user.first_name} ${session?.user.last_name}`,
         });
       } else {
         await createClient.mutateAsync({

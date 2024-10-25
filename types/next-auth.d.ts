@@ -9,6 +9,8 @@ declare module "next-auth" {
       username: string;
       branchId: string;
       user_role: string;
+      first_name: string;
+      last_name: string;
     };
   }
 }

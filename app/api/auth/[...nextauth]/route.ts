@@ -36,6 +36,8 @@ const authOptions = {
           username: userFound.username,
           branchId: userFound.branchId,
           user_role: userFound.user_role,
+          first_name: userFound.first_name,
+          last_name: userFound.last_name,
         };
       },
     }),
@@ -55,6 +57,8 @@ const authOptions = {
         session.user.branchId = token.branchId;
         session.user.user_role = token.user_role;
         session.user.username = token.username;
+        session.user.first_name = token.first_name;
+        session.user.last_name = token.last_name;
       }
       return session;
     },
@@ -66,6 +70,8 @@ const authOptions = {
         token.branchId = user.branchId;
         token.user_role = user.user_role;
         token.username = user.username;
+        token.first_name = user.first_name,
+        token.last_name = user.last_name
       }
       return token;
     },

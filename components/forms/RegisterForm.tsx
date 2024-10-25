@@ -79,7 +79,7 @@ const RegisterForm = () => {
       setIsLoading(true)
       const res = await axios.post('/api/auth/register', {
         ...values,
-        branchId:values.branchId ?? null
+        branchId:values.branchId ?? null,
       });
       if (res.status == 200) {
         toast.success("¡Creado!", {

@@ -13,7 +13,7 @@ export type Client = {
     first_name: string,
     last_name: string,
     email:        string | null,
-    phone_number: string | null,
+    phone_number: string | null, 
     dni: string,
   }
 
@@ -35,6 +35,7 @@ export type Client = {
     id: string
     provider_number: string
     name: string
+    credit: number
     provider_type: "AEROLINEA" | "AGENCIA_TERCERO"
   }
 
@@ -69,7 +70,7 @@ export type Client = {
     transaction?: Transaction,
     branchId: string,
     provider: Provider
-
+    
     ticket_price: number,
     fee: number,
     total: number,

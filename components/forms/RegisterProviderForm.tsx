@@ -142,22 +142,7 @@ const RegisterProviderForm = ({ id, onClose, isEditing = false }: FormProps) => 
                 </FormItem>
               )}
             />
-            {/* {
-              form.watch("flight_type") === 'INTERNACIONAL' && <>
-                <FormField
-                  control={form.control}
-                  name="scale"
-                  render={({ field }) => (
-                    <FormItem className="w-auto">
-                      <FormLabel>Escala(s)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Nombre" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                /></>
-            } */}
+      
 
           </div>
           <Button disabled={createProvider.isPending || updateProvider.isPending} type="submit" className="w-full">

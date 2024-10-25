@@ -49,15 +49,6 @@ export async function GET(request: Request, { params }: { params: { username: st
     const startDate = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
     const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
-    // const branchId = await db.user.findUnique({
-    //   where:{
-    //     username:username
-    //   }, 
-    //   select:{
-    //     branchId:true
-    //   }
-    // })
-
     // Fetch all transactions within the date range
     const transactions = await db.transaction.findMany({
       where: {
@@ -67,8 +58,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         },
         ticket:{
           registered_by:username,
+      
           // issued_by:username
-          OR:[ {issued_by:username} ]
            
         }
         //     
@@ -88,8 +79,9 @@ export async function GET(request: Request, { params }: { params: { username: st
     const tickets = await db.ticket.findMany({
       where: {
         id: { in: transactions.map(t => t.ticketId) },
-        issued_by: username
-        // registered_by: username
+        // issued_by: username
+        registered_by:username,
+        
       },
       select: {
         id: true,
@@ -121,15 +113,18 @@ export async function GET(request: Request, { params }: { params: { username: st
     const pendingCount = await db.ticket.count({
       where: {
         status: "PENDIENTE",
-        issued_by: username
-        // registered_by: username
+        // issued_by: username
+  
+        registered_by:username,
+        
       }
     })
     
     const paidCount = await db.ticket.count({
       where: {
         status: "PAGADO",
-        issued_by: username
+        registered_by:username,
+        
       }
     })
 

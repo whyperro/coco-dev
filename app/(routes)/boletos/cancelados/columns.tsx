@@ -1,9 +1,9 @@
 "use client"
 
-import PendingTicketsDropdownActions from "@/components/dropdowns/PendingTicketsDropdownActions"
+import PaidTicketsDropdownActions from "@/components/dropdowns/PaidTicketsDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
-import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { convertAmountFromMiliunits } from "@/lib/utils"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -66,12 +66,12 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "flight_date",
+    accessorKey: "passanger",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Fecha de Vuelo' />
+      <DataTableColumnHeader column={column} title='Cliente' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center text-muted-foreground italic font-medium">{row.original.flight_date}</div>
+      return <div className="text-center font-bold">{row.original.passanger.client.first_name} {row.original.passanger.client.last_name}</div>
     },
   },
   {
@@ -80,26 +80,23 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Pasajero(s)' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</p>
+      return <div className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</div>
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "total",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Total ticket' />
     ),
     cell: ({ row }) => {
-      return <div className="flex justify-center">
-        <Badge className="text-center font-bold bg-yellow-500">{row.original.status}</Badge>
-      </div>
+      return <p className="text-center font-bold">${convertAmountFromMiliunits(row.original.total)}</p>
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const id = row.original.id
       return (
-        <PendingTicketsDropdownActions ticket={row.original} />
+        <PaidTicketsDropdownActions ticket_number={row.original.ticket_number} />
       )
     },
   }

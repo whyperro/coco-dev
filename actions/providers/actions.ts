@@ -43,9 +43,7 @@ export const useGetProviders = () => {
         provider_type: string, // New location name
       }) => {
         await axios.post(`/api/providers`, {
-          provider_number: values.provider_number,
-          name: values.name,
-          provider_type: values.provider_type,
+          ...values
         });
       },
       onSuccess: () => {
@@ -126,6 +124,36 @@ export const useGetProviders = () => {
   
     return {
       deleteProvider: deleteMutation,
+    };
+  };
+
+  export const useUpdateCreditProvider = () => {
+
+    const queryClient = useQueryClient();
+  
+    const updateMutation = useMutation({
+      mutationFn: async (values: {
+        id: string,
+        credit: number,
+      }) => {
+        await axios.patch(`/api/providers/${values.id}`, {
+          ...values
+        });
+      },
+      onSuccess: async() => {
+        // Invalidate the 'branches' query to refresh the data
+        await queryClient.invalidateQueries({ queryKey: ["providers"] });
+      
+      },
+      onError: (error: Error) => {
+        toast.error("Oops!", {
+          description: `¡Hubo un error al pagar el boleto!: ${error}`,
+        });
+      },
+    });
+  
+    return {
+      updateCreditProvider: updateMutation, // Function to call the mutation
     };
   };
   

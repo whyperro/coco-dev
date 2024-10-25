@@ -90,8 +90,7 @@ const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      dni_type: "V",
-      doc_order: false,
+      dni_type: "V"
     },
   });
 
@@ -136,7 +135,8 @@ const TicketForm = () => {
       form.setValue("phone_number", dataClient.phone_number ?? "");
 
     }
-  }, [dataClient, isClient, form]);
+  }, [dataClient, isClient, form, queryClient]);
+
 
   const resetFormFields = () => {
     setFetchedPassanger(null);
@@ -147,16 +147,27 @@ const TicketForm = () => {
     form.setValue("phone_number", "");
   };
 
+  console.log(dataClient)
   /** Llena los datos del pasajero si este ya se encuentra registrado en la base de datos  */
   useEffect(() => {
     if (debouncedPassangerDni && passanger) {
       // Autocomplete form fields when DNI matches a passenger
+
       setFetchedPassanger(passanger);
       form.setValue("first_name", passanger.first_name || "");
       form.setValue("last_name", passanger.last_name || "");
       form.setValue("email", passanger.email || "");
       form.setValue("dni_type", passanger.dni_type || "V");
       form.setValue("phone_number", passanger.phone_number || "");
+    } else {
+
+      setFetchedPassanger(null);
+      form.setValue("first_name", "");
+      form.setValue("last_name", "");
+      form.setValue("email", "");
+      form.setValue("dni_type", "V");
+      form.setValue("phone_number", "");
+      queryClient.setQueryData(['passanger'], null);
     }
   }, [debouncedPassangerDni, passanger, form, queryClient]);
 
@@ -170,7 +181,6 @@ const TicketForm = () => {
       if (fetchedPassanger.client && fetchedPassanger.client.id) {
         form.setValue("clientId", fetchedPassanger.client.id);
       } else {
-
         form.setValue("clientId", "");
       }
 
@@ -217,7 +227,7 @@ const TicketForm = () => {
           booking_ref: values.booking_ref.toUpperCase(),
           purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
           doc_order: values.doc_order,
-          issued_by: session?.user.username || "",
+          issued_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
           served_by: values.served_by,
           ticket_type: values.ticket_type,
           flight_date: format(values.flight_date, 'yyyy-MM-dd'),
@@ -228,7 +238,7 @@ const TicketForm = () => {
           routeId: values.routeId,
           branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
           providerId: values.providerId,
-          registered_by: session?.user.username || "",
+          registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
 
           ticket_price: ticketPriceInMiliunits,
           fee: feeInMiliunits,
@@ -255,7 +265,7 @@ const TicketForm = () => {
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
             description: values.description,
             doc_order: values.doc_order,
-            issued_by: session?.user.username || "",
+            issued_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
             served_by: values.served_by,
             ticket_type: values.ticket_type,
             flight_date: format(values.flight_date, 'yyyy-MM-dd'),
@@ -265,7 +275,7 @@ const TicketForm = () => {
             routeId: values.routeId,
             branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
             providerId: values.providerId,
-            registered_by: session?.user.username || "",
+            registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
 
             ticket_price: ticketPriceInMiliunits,
             fee: feeInMiliunits,
@@ -996,7 +1006,7 @@ const TicketForm = () => {
                   <FormItem>
                     <FormLabel className="font-bold">Emitido por</FormLabel>
                     <FormControl>
-                      <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={session?.user.username} />
+                      <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={`${session?.user.first_name} ${session?.user.last_name}`} />
                     </FormControl>
                     <FormDescription>
                       Agente que emitio el Boleto

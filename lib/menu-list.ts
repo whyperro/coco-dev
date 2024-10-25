@@ -89,14 +89,19 @@ export function getMenuList(pathname: string, role: string): Group[] {
               active: pathname === "/boletos/registro_boleto"
             },
             {
+              href: "/boletos/pendientes",
+              label: "Pendientes",
+              active: pathname === "/boletos/pendientes"
+            },
+            {
               href: "/boletos/pagados",
               label: "Pagados",
               active: pathname === "/boletos/pagados"
             },
             {
-              href: "/boletos/pendientes",
-              label: "Pendientes",
-              active: pathname === "/boletos/pendientes"
+              href: "/boletos/cancelados",
+              label: "Cancelados",
+              active: pathname === "/boletos/cancelados"
             }
           ]
         },

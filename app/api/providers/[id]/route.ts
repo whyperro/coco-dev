@@ -62,7 +62,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       const updatedProvider = await db.provider.update({
         where: { id },
         data: {
-          ...data
+          ...data,
         },
       });
 

@@ -1,174 +1,166 @@
-"use client"
+"use client";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-
-import { useGetPaidTickets, useGetPaidTicketsReport } from "@/actions/tickets/actions";
+import { convertAmountFromMiliunits, formatCurrency } from "@/lib/utils";
 import { Ticket } from "@/types";
-import { convertAmountFromMiliunits, convertAmountToMiliunits } from "@/lib/utils";
+import '@fontsource/poppins';
 
-  interface PdfFileProps {
-    tickets: Ticket[] | undefined; // Puede ser undefined si aún no se han cargado
-    error: Error | null; // Puede ser null si no hay error
-  }
+interface PdfFileProps {
+  paidTickets: Ticket[];
+  pendingTickets: Ticket[];
+  date: string;
+}
 
+const styles = StyleSheet.create({
+  page: {
+    padding: 30,
+    fontSize: 10,
+    backgroundColor: "#f7f7f7", // Fondo claro
+  },
+  header: {
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: "#4CAF50", // Color verde
+  },
+  subtitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#333", // Color gris oscuro
+  },
+  date: {
+    fontSize: 12,
+    marginBottom: 15,
+    color: "#555", // Color gris medio
+  },
+  sectionTitle: {
+    fontSize: 16,
+    marginVertical: 10,
+    textDecoration: "underline", // Subrayado
+  },
+  tableHeader: {
+    flexDirection: "row",
+    borderBottomWidth: 2,
+    borderBottomColor: "#000",
+    backgroundColor: "#e0e0e0",
+    padding: 5,
+    fontWeight: "bold", // Negrita para el encabezado
+  },
+  tableRow: {
+    flexDirection: "row",
+    padding: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+    backgroundColor: "#fff", // Color blanco para las filas
+  },
+  column: {
+    width: "12%",
+    textAlign: "center",
+    padding: 5,
+  },
+  columnWide: {
+    width: "20%",
+    textAlign: "center",
+    padding: 5,
+  },
+  footer: {
+    marginTop: 20,
+    textAlign: "center",
+    fontSize: 12,
+    color: "#777", // Color gris claro
+  },
+  noRecords: {
+    textAlign: "center",
+    fontSize: 12,
+    marginVertical: 10,
+    color: "#f44336", // Color rojo para el mensaje de error
+  },
+});
 
-const PdfFile = ({tickets, error}: PdfFileProps) => {
-    
-    const style = StyleSheet.create({
-        page:{
-            padding:20,
-        },
-        header:{
-            flexDirection:"row",
-            marginBottom:"35px",
-            gap:5,
-            justifyContent:"space-between",
-            alignItems:"center"
-        },
-        logo:{
-            color:'#63c144',
-            height:"auto",
-            fontWeight:"bold"
-        },
-        textConteiner:{
-            alignItems:"center",
-            marginLeft:"20px"
-        },
-        textOne:{
-            fontSize:"18px",
-            fontWeight:"bold",
-            letterSpacing:"2px",
-            marginBottom:"3px"
-
-        },
-        tableHeader:{
-            flexDirection:'row',
-            border:1,
-            borderColor:'#000000'
-        },
-        tableHeaderColumn1:{
-            width:"70%",
-            textAlign:"center",
-            fontSize:"9px",
-            paddingBottom:"10px",
-            paddingTop:"10px",
-            backgroundColor: '#E4E4E4',
-            // marginLeft:"11px",
-            borderColor:'#000000'
-
-        },
-        tableHeaderColumn2:{
-            width:"50%",
-            textAlign:"center",
-            fontSize:"9px",
-            backgroundColor: '#E4E4E4',
-            // paddingBottom:"10px",
-            borderLeft:1,
-            // paddingTop:"10px",
-            padding:"10px",
-            borderColor:'#000000'
-        },
-        tableHeaderColumn3:{
-            width:"70%",
-            textAlign:"center",
-            fontSize:"9px",
-            paddingBottom:"10px",
-            backgroundColor: '#E4E4E4',
-            borderLeft:1,
-            paddingTop:"10px",
-            // marginLeft:"11px",
-            borderColor:'#000000'
-
-        },
-        tableColumn1:{
-            width:"70%",
-            textAlign:"center",
-            fontSize:"9px",
-            paddingBottom:"10px",
-            paddingTop:"10px",
-            // marginLeft:"11px",
-            borderColor:'#000000'
-
-        },
-        tableColumn2:{
-            width:"50%",
-            textAlign:"center",
-            fontSize:"9px",
-            // paddingBottom:"10px",
-            borderLeft:1,
-            // paddingTop:"10px",
-            padding:"10px",
-            borderColor:'#000000'
-        },
-        tableColumn3:{
-            width:"70%",
-            textAlign:"center",
-            fontSize:"9px",
-            paddingBottom:"10px",
-            borderLeft:1,
-            paddingTop:"10px",
-            // marginLeft:"11px",
-            borderColor:'#000000'
-
-        },
-        tableRow:{
-            flexDirection:"row",
-            border:1,
-            borderTop:"none",
-            borderColor:'#000000'
-        },        
-
-
-    })
-
-    if (error) {
-        return <div>Error fetching tickets: {error.message}</div>;
-    }    
-
+const PdfFile = ({ paidTickets, pendingTickets, date }: PdfFileProps) => {
   return (
     <Document>
-        <Page size='A4' style={style.page}>
-            <View style={style.header}>
-                <View>
-                    <Text style={style.logo}>Berkana</Text>
-                </View>
-                <View style={style.textConteiner}>
-                    <Text style={style.textOne}>Reporte Diario</Text>
-                </View>
-            </View>
-            <View style={style.tableHeader}>                
-                <Text style={style.tableHeaderColumn1}>TICKET</Text>
-                <Text style={style.tableHeaderColumn2}>FARE</Text>
-                <Text style={style.tableHeaderColumn2}>TAX</Text>
-                <Text style={style.tableHeaderColumn2}>FEE</Text>
-                <Text style={style.tableHeaderColumn2}>COMM</Text>
-                <Text style={style.tableHeaderColumn2}>NET</Text>
-                <Text style={style.tableHeaderColumn2}>FP</Text>
-                <Text style={style.tableHeaderColumn2}>TRANS</Text>
-                <Text style={style.tableHeaderColumn2}>RELOC</Text>
-                <Text style={style.tableHeaderColumn3}>PAX NAME</Text>
-                <Text style={style.tableHeaderColumn3}>OBS</Text>
-            </View>
-            {tickets?.map((ticket, index) =>(
-                <View style={style.tableRow} key={index}>                   
-                    <Text style={style.tableColumn1}>{ticket.ticket_number}</Text>
-                    <Text style={style.tableColumn2}>{convertAmountFromMiliunits(ticket.ticket_price)}</Text>
-                    <Text style={style.tableColumn2}>TAX</Text>
-                    <Text style={style.tableColumn2}>{convertAmountFromMiliunits(ticket.fee)}</Text>
-                    <Text style={style.tableColumn2}>COMM</Text>
-                    <Text style={style.tableColumn2}>{convertAmountFromMiliunits(ticket.total)}</Text>
-                    <Text style={style.tableColumn2}>{ticket.transaction?.payment_method || 'N/A'}</Text>
-                    <Text style={style.tableColumn2}>TKTT</Text>
-                    <Text style={style.tableColumn2}>{ticket.booking_ref}</Text>
-                    <Text style={style.tableColumn3}>{`${ticket.passanger.first_name} ${ticket.passanger.last_name}`}</Text>
-                    <Text style={style.tableColumn3}>{ticket.description}</Text>
-                </View>
-            ))}
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Berkana</Text>
+          <Text style={styles.subtitle}>Reporte Diario</Text>
+          <Text style={styles.date}>Fecha: {date}</Text>
+        </View>
 
-        </Page>
+        {/* Paid Tickets Section */}
+        <Text style={styles.sectionTitle}>Boletos Pagados</Text>
+        {paidTickets.length > 0 ? (
+          <>
+            <View style={styles.tableHeader}>
+              <Text style={styles.column}>Nro. Ticket</Text>
+              <Text style={styles.columnWide}>Booking Ref</Text>
+              <Text style={styles.columnWide}>Fare</Text>
+              <Text style={styles.columnWide}>Fee</Text>
+              <Text style={styles.columnWide}>Total</Text>
+              <Text style={styles.columnWide}>Método Pago</Text>
+              <Text style={styles.columnWide}>Pasajero</Text>
+              <Text style={styles.columnWide}>Proveedor</Text>
+              <Text style={styles.columnWide}>Ruta</Text>
+            </View>
+            {paidTickets.map((ticket) => (
+              <View style={styles.tableRow} key={ticket.ticket_number}>
+                <Text style={styles.column}>{ticket.ticket_number}</Text>
+                <Text style={styles.columnWide}>{ticket.booking_ref}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
+                <Text style={styles.columnWide}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : "ZELLE"}</Text>
+                <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
+                <Text style={styles.columnWide}>{ticket.provider.name}</Text>
+                <Text style={styles.columnWide}>{ticket.route.origin} - {ticket.route.destiny}</Text>
+              </View>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.noRecords}>No hay boletos pagados en este reporte.</Text>
+        )}
+
+        {/* Pending Tickets Section */}
+        <Text style={styles.sectionTitle}>Boletos Pendientes</Text>
+        {pendingTickets.length > 0 ? (
+          <>
+            <View style={styles.tableHeader}>
+              <Text style={styles.column}>Nro. Ticket</Text>
+              <Text style={styles.column}>Booking Ref</Text>
+              <Text style={styles.columnWide}>Fare</Text>
+              <Text style={styles.columnWide}>Fee</Text>
+              <Text style={styles.columnWide}>Total</Text>
+              <Text style={styles.columnWide}>Proveedor</Text>
+              <Text style={styles.columnWide}>Pasajero</Text>
+              <Text style={styles.columnWide}>Ruta</Text>
+            </View>
+            {pendingTickets.map((ticket) => (
+              <View style={styles.tableRow} key={ticket.ticket_number}>
+                <Text style={styles.column}>{ticket.ticket_number}</Text>
+                <Text style={styles.column}>{ticket.booking_ref}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
+                <Text style={styles.columnWide}>{ticket.provider.name}</Text>
+                <Text style={styles.columnWide}>{`${ticket.passanger.first_name} ${ticket.passanger.last_name}`}</Text>
+                <Text style={styles.columnWide}>{ticket.route.origin} - {ticket.route.destiny}</Text>
+              </View>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.noRecords}>No hay boletos pendientes en este reporte.</Text>
+        )}
+
+        {/* Footer */}
+        <Text style={styles.footer}>Este es un documento generado automáticamente. Por favor, conservenlo para sus registros.</Text>
+      </Page>
     </Document>
   );
 };
 
 export default PdfFile;
-
-

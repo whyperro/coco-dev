@@ -88,11 +88,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         registered_by: session?.user.username || "",
         transaction_date: new Date()
       });
-      if(res.status == 200 ){
-            await updateCreditProvider.mutateAsync({
-            id: ticket.provider.id,
-            credit: ticket.provider.credit + ticket.ticket_price,
-          })
+      if (res.status == 200) {
+        await updateCreditProvider.mutateAsync({
+          id: ticket.provider.id,
+          credit: ticket.provider.credit + ticket.ticket_price,
+        })
       }
 
       await updateStatusTicket.mutateAsync({

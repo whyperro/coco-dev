@@ -593,6 +593,38 @@ const TicketForm = () => {
             <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56' />
             <div id="passanger-info-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Nombre</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Maria" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Primer nombre del pasajero a registrar o registrado
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Apellido</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Perez" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Apellido el pasajero registrar o registrado
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div id="dni-number">
                 <FormField
                   control={form.control}
@@ -632,38 +664,6 @@ const TicketForm = () => {
                     </Select>
                     <FormDescription>
                       Tipo del documento de identificación
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="first_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Nombre</FormLabel>
-                    <FormControl>
-                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Maria" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Primer nombre del pasajero a registrar o registrado
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="last_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Apellido</FormLabel>
-                    <FormControl>
-                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Perez" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Apellido el pasajero registrar o registrado
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

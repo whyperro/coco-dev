@@ -53,6 +53,7 @@ import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
 import { AmountInput } from "../misc/AmountInput";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
+import { Badge } from "../ui/badge";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -60,11 +61,11 @@ const formSchema = z.object({
   dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO"]),
   dni_number: z.string(),
   phone_number: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   isClient: z.boolean().default(false),
   clientId: z.string(),
-  routeId: z.string(),
-  providerId: z.string(),
+  routes: z.array(z.string()),
+  providers: z.array(z.string()),
   branchId: z.string().optional(),
 
   ticket_number: z.string(),
@@ -76,7 +77,7 @@ const formSchema = z.object({
   issued_by: z.string().optional(),//optional
   served_by: z.string(),
   ticket_type: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
 
   ticket_price: z.string(),
   fee: z.string(),
@@ -95,14 +96,15 @@ const TicketForm = () => {
   });
 
   const { data: session } = useSession()
-  const today = new Date()
 
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
 
   const queryClient = useQueryClient()
   const [openClient, setOpenClient] = useState(false)
   const [openRoute, setOpenRoute] = useState(false)
+  const [selectedRoutes, setSelectedRoutes] = useState<string[]>([])
   const [openProvider, setOpenProvider] = useState(false)
+  const [selectedProviders, setSelectedProviders] = useState<string[]>([])
   const [openBranch, setOpenBranch] = useState(false)
   const [openPurchaseDate, setOpenPurchaseDate] = useState(false)
   const [openFlightDate, setOpenFlightDate] = useState(false)
@@ -133,7 +135,6 @@ const TicketForm = () => {
       form.setValue("email", dataClient.email ?? "");
       form.setValue("dni_number", dataClient.dni);
       form.setValue("phone_number", dataClient.phone_number ?? "");
-
     }
   }, [dataClient, isClient, form, queryClient]);
 
@@ -147,7 +148,6 @@ const TicketForm = () => {
     form.setValue("phone_number", "");
   };
 
-  console.log(dataClient)
   /** Llena los datos del pasajero si este ya se encuentra registrado en la base de datos  */
   useEffect(() => {
     if (debouncedPassangerDni && passanger) {
@@ -159,16 +159,17 @@ const TicketForm = () => {
       form.setValue("email", passanger.email || "");
       form.setValue("dni_type", passanger.dni_type || "V");
       form.setValue("phone_number", passanger.phone_number || "");
-    } else {
-
-      setFetchedPassanger(null);
-      form.setValue("first_name", "");
-      form.setValue("last_name", "");
-      form.setValue("email", "");
-      form.setValue("dni_type", "V");
-      form.setValue("phone_number", "");
-      queryClient.setQueryData(['passanger'], null);
     }
+    // else {
+
+    //   setFetchedPassanger(null);
+    //   form.setValue("first_name", "");
+    //   form.setValue("last_name", "");
+    //   form.setValue("email", "");
+    //   form.setValue("dni_type", "V");
+    //   form.setValue("phone_number", "");
+    //   queryClient.setQueryData(['passanger'], null);
+    // }
   }, [debouncedPassangerDni, passanger, form, queryClient]);
 
   useEffect(() => {
@@ -204,6 +205,14 @@ const TicketForm = () => {
     form.reset()
   }
 
+  useEffect(() => {
+    form.setValue('providers', selectedProviders);
+  }, [selectedProviders, form]);
+
+  useEffect(() => {
+    form.setValue('routes', selectedRoutes);
+  }, [selectedRoutes, form]);
+
   /** Transaccion */
   useEffect(() => {
     const total = (parseFloat(ticket_price || "0") + parseFloat(fee || "0")).toFixed(2);
@@ -211,6 +220,25 @@ const TicketForm = () => {
     const total_bs = (parseFloat(total || "0") * parseFloat(rate || "0")).toFixed(2);
     setValue('total_bs', total_bs)
   }, [ticket_price, fee, rate, setValue]);
+
+  const isRoleSelected = (value: string) => selectedProviders.includes(value);
+  const isRouteSelected = (value: string) => selectedRoutes.includes(value);
+
+  const handleProviderSelect = (currentValue: string) => {
+    setSelectedProviders((prevSelected) =>
+      prevSelected.includes(currentValue)
+        ? prevSelected.filter((value) => value !== currentValue)
+        : [...prevSelected, currentValue]
+    );
+  };
+
+  const handleRoutesSelect = (currentValue: string) => {
+    setSelectedRoutes((prevSelected) =>
+      prevSelected.includes(currentValue)
+        ? prevSelected.filter((value) => value !== currentValue)
+        : [...prevSelected, currentValue]
+    );
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
@@ -232,12 +260,12 @@ const TicketForm = () => {
           ticket_type: values.ticket_type,
           flight_date: format(values.flight_date, 'yyyy-MM-dd'),
           status: "PENDIENTE",
-          description: values.description,
+          description: values.description ?? "",
 
           passangerId: fetchedPassanger.id,
-          routeId: values.routeId,
+          routes: values.routes,
           branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-          providerId: values.providerId,
+          providers: values.providers,
           registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
 
           ticket_price: ticketPriceInMiliunits,
@@ -263,7 +291,7 @@ const TicketForm = () => {
             ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
-            description: values.description,
+            description: values.description ?? "",
             doc_order: values.doc_order,
             issued_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
             served_by: values.served_by,
@@ -272,9 +300,9 @@ const TicketForm = () => {
             status: "PENDIENTE",
 
             passangerId: res.data.id,
-            routeId: values.routeId,
+            routes: values.routes,
             branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-            providerId: values.providerId,
+            providers: values.providers,
             registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
 
             ticket_price: ticketPriceInMiliunits,
@@ -415,71 +443,82 @@ const TicketForm = () => {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
-              name="providerId"
+              name="providers"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="font-bold">Proveedor</FormLabel>
+                  <FormLabel>Proveedor(es)</FormLabel>
                   <Popover open={openProvider} onOpenChange={setOpenProvider}>
                     <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          disabled={loading}
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "w-[200px] justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {
-                            providersLoading && <Loader2 className="size-4 animate-spin mr-2" />
-                          }
-                          {field.value
-                            ? <p>{providers?.find(
-                              (provider) => provider.id === field.value
-                            )?.name} </p>
-                            : "Elige un proveedor..."
-                          }
-
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-
+                      <Button
+                        variant="outline"
+                        className="w-[200px] justify-between"
+                      >
+                        {selectedProviders?.length > 0 && (
+                          <>
+                            <Separator orientation="vertical" className="mx-2 h-4" />
+                            <Badge
+                              variant="secondary"
+                              className="rounded-sm px-1 font-normal lg:hidden"
+                            >
+                              {selectedProviders.length}
+                            </Badge>
+                            <div className="hidden space-x-1 lg:flex">
+                              {selectedProviders.length > 2 ? (
+                                <Badge
+                                  variant="secondary"
+                                  className="rounded-sm px-1 font-normal"
+                                >
+                                  {selectedProviders.length} seleccionados
+                                </Badge>
+                              ) : (
+                                providers?.filter((option) => selectedProviders.includes(option.id.toString()))
+                                  .map((option) => (
+                                    <Badge
+                                      variant="secondary"
+                                      key={option.name}
+                                      className="rounded-sm px-1 font-medium"
+                                    >
+                                      {option.name}
+                                    </Badge>
+                                  ))
+                              )}
+                            </div>
+                          </>
+                        )}
+                        {
+                          selectedProviders.length <= 0 && <p className="text-sm text-muted-foreground">Seleccione el prov...</p>
+                        }
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
-                        <CommandInput placeholder="Busque su proveedor..." />
-                        <RegisterProviderDialog />
+                        <CommandInput placeholder="Buscar rol..." />
                         <CommandList>
-                          <CommandEmpty>No se ha encontrado un proveedor.</CommandEmpty>
+                          <CommandEmpty>No company found.</CommandEmpty>
                           <CommandGroup>
+                            {
+                              providersLoading && <Loader2 className="animate-spin size-4" />
+                            }
                             {providers?.map((provider) => (
                               <CommandItem
-                                value={`${provider.name}`}
                                 key={provider.id}
-                                onSelect={() => {
-                                  form.setValue("providerId", provider.id)
-                                  setOpenProvider(false)
-                                }}
+                                value={provider.id}
+                                onSelect={() => handleProviderSelect(provider.id)}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    provider.id === field.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                    isRoleSelected(provider.id) ? "opacity-100" : "opacity-0"
                                   )}
                                 />
-                                {
-                                  <p>{provider.name}</p>
-                                }
+                                {provider.name}
                               </CommandItem>
                             ))}
                             {
-                              providersError && <p className="text-muted-foreground text-sm">Ha ocurrido un error al cargar los datos...</p>
+                              providersError && <p className="text-center text-muted-foreground text-sm">Ha ocurrido un error al cargar los proveedores...</p>
                             }
                           </CommandGroup>
                         </CommandList>
@@ -487,7 +526,7 @@ const TicketForm = () => {
                     </PopoverContent>
                   </Popover>
                   <FormDescription>
-                    Seleccione al proveedor
+                    Seleccione el o los proveedores
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -797,7 +836,7 @@ const TicketForm = () => {
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value ?? today}
+                          selected={field.value}
                           onSelect={(e) => {
                             field.onChange(e)
                             setOpenPurchaseDate(false)
@@ -865,70 +904,80 @@ const TicketForm = () => {
 
               <FormField
                 control={form.control}
-                name="routeId"
+                name="routes"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className="font-bold">Ruta del Vuelo</FormLabel>
+                    <FormLabel>Ruta(s)</FormLabel>
                     <Popover open={openRoute} onOpenChange={setOpenRoute}>
                       <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            disabled={loading}
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-[200px] justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {
-                              routesLoading && <Loader2 className="size-4 animate-spin mr-2" />
-                            }
-                            {field.value
-                              ? <p>{routes?.find(
-                                (route) => route.id === field.value
-                              )?.origin} - {routes?.find(
-                                (route) => route.id === field.value
-                              )?.destiny}</p>
-                              : "Seleccione su ruta..."
-                            }
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
+                        <Button
+                          variant="outline"
+                          className="w-[200px] justify-between"
+                        >
+                          {selectedRoutes?.length > 0 && (
+                            <>
+                              <Separator orientation="vertical" className="mx-2 h-4" />
+                              <Badge
+                                variant="secondary"
+                                className="rounded-sm px-1 font-normal lg:hidden"
+                              >
+                                {selectedRoutes.length}
+                              </Badge>
+                              <div className="hidden space-x-1 lg:flex">
+                                {selectedRoutes.length > 2 ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="rounded-sm px-1 font-normal"
+                                  >
+                                    {selectedRoutes.length} seleccionados
+                                  </Badge>
+                                ) : (
+                                  routes?.filter((option) => selectedRoutes.includes(option.id))
+                                    .map((option) => (
+                                      <Badge
+                                        variant="secondary"
+                                        key={option.id}
+                                        className="rounded-sm px-1 font-medium"
+                                      >
+                                        {option.origin}/{option.destiny}
+                                      </Badge>
+                                    ))
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {
+                            selectedRoutes.length <= 0 && <p className="text-sm text-muted-foreground">Seleccione rutas...</p>
+                          }
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
-                          <CommandInput placeholder="Busque su ruta..." />
-                          <RegisterRouteDialog />
+                          <CommandInput placeholder="Buscar rol..." />
                           <CommandList>
-                            <CommandEmpty>No se ha encontrado su ruta.</CommandEmpty>
+                            <CommandEmpty>No se encontraron rutas...</CommandEmpty>
                             <CommandGroup>
+                              {
+                                routesLoading && <Loader2 className="animate-spin size-4" />
+                              }
                               {routes?.map((route) => (
                                 <CommandItem
-                                  value={`${route.origin} ${route.scale} ${route.destiny}`}
                                   key={route.id}
-                                  onSelect={() => {
-                                    form.setValue("routeId", route.id)
-                                    setOpenRoute(false)
-                                  }}
+                                  value={route.id}
+                                  onSelect={() => handleRoutesSelect(route.id)}
                                 >
                                   <Check
                                     className={cn(
                                       "mr-2 h-4 w-4",
-                                      route.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
+                                      isRouteSelected(route.id) ? "opacity-100" : "opacity-0"
                                     )}
                                   />
-                                  {
-                                    !!route.scale ?
-                                      <p>{route.origin} - {route.scale} - {route.destiny}</p> :
-                                      <p>{route.origin} - {route.destiny}</p>
-                                  }
+                                  {route.origin} - {route.destiny}
                                 </CommandItem>
                               ))}
                               {
-                                routesError && <p className="text-muted-foreground text-sm">Ha ocurrido un error al cargar los datos...</p>
+                                routesError && <p className="text-center text-muted-foreground text-sm">Ha ocurrido un error al cargar las rutas...</p>
                               }
                             </CommandGroup>
                           </CommandList>
@@ -936,13 +985,12 @@ const TicketForm = () => {
                       </PopoverContent>
                     </Popover>
                     <FormDescription>
-                      Seleccione la ruta de vuelo del boleto
+                      Seleccione la o las rutas
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="ticket_type"
@@ -981,6 +1029,7 @@ const TicketForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="RAUL R.">RAUL R.</SelectItem>
                         <SelectItem value="DUBRASKA">DUBRASKA</SelectItem>
                         <SelectItem value="STEFANY">STEFANY</SelectItem>
                         <SelectItem value="DORA">DORA</SelectItem>
@@ -1065,7 +1114,6 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="rate"
@@ -1111,9 +1159,7 @@ const TicketForm = () => {
                 </FormItem>
               )}
             />
-
           </div>
-
           <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
         </div>
       </form>

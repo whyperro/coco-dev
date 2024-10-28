@@ -6,6 +6,22 @@ import axios from 'axios';
 interface DailyReport {
   paidTickets: Ticket[];
   pendingTickets: Ticket[];
+  clientsReport: {
+    name: string,
+    paidCount: number,
+    pendingCount: number,
+    paidAmount: number, // Amount for paid tickets
+    pendingAmount: number, // Amount for pending tickets
+    totalAmount: number, // Total amount generated
+  }[],
+  providersReport: {
+    provider: string,
+    paidCount: number,
+    pendingCount: number,
+    paidAmount: number, // Amount for paid tickets
+    pendingAmount: number, // Amount for pending tickets
+    totalAmount: number, // Total amount generated
+  }
 }
 
 export const useGetDailyReport = () => {

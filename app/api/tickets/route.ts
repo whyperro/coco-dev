@@ -24,10 +24,13 @@ export async function POST(request: Request) {
         }
 
         // Create a new branch if the name is unique
-       
+
         const newTicket = await db.ticket.create({
           data: {
-            ...data
+            ...data,
+            providers: {
+              connect: data.providers.map((providerId: string) => ({ id: providerId })),
+          },
           },
         });
 

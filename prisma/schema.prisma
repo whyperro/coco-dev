@@ -88,7 +88,7 @@ model Provider {
   name            String
   credit          Float        @default(0)
   provider_type   ProviderType
-  tickets         Ticket[]
+  tickets         Ticket[]     @relation("TicketProviders")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -150,12 +150,13 @@ model Ticket {
 
   passanger   Passanger @relation(fields: [passangerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   passangerId String
-  route       Route     @relation(fields: [routeId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  routeId     String
+
   branch      Branch    @relation(fields: [branchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   branchId    String
-  provider    Provider  @relation(fields: [providerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  providerId  String
+
+
+  providers    Provider[] @relation("TicketProviders")
+  routes    Route[] @relation("TicketRoutes")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -183,7 +184,7 @@ model Route {
   scale      String?
   route_type RouteType @default(NACIONAL)
 
-  tickets Ticket[]
+  tickets         Ticket[]     @relation("TicketRoutes")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

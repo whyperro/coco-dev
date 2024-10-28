@@ -55,7 +55,11 @@ export async function POST(request: Request) {
       const data = await db.passanger.findMany({
         include: {
           client: true,
-          ticket: true,
+          ticket: {
+            select: {
+              
+            }
+          },
         }
       })
       return NextResponse.json(data,{

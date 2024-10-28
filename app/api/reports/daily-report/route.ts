@@ -1,8 +1,6 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { convertAmountFromMiliunits } from "@/lib/utils";
-import { endOfDay, parse, startOfDay } from "date-fns";
-import { NextApiRequest, NextApiResponse } from "next";
+import { endOfDay, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request){
@@ -22,7 +20,7 @@ export async function GET(request: Request){
         }
       },
       include: {
-        passanger: { select: { first_name: true, last_name: true, dni_number: true } },
+        passanger: { select: { first_name: true, last_name: true, dni_number: true, client: true } },
         provider: { select: { name: true } },
         route: { select: { origin: true, destiny: true, route_type: true } },
         branch: { select: { location_name: true } },
@@ -34,6 +32,99 @@ export async function GET(request: Request){
     // Formateamos los datos para separar boletos pagados y pendientes
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
     const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
+
+    const clientsData = await db.client.findMany({
+      include: {
+        passenger: {
+          include: {
+            ticket: {
+              where: {
+                createdAt: {
+                  gte: startDate,
+                  lte: endDate,
+                },
+                status: {
+                  not: "CANCELADO",
+                },
+              },
+              select: {
+                status: true,
+                total: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const clientsReport = clientsData.map(client => {
+      // Extract tickets from all passengers
+      const allTickets = client.passenger.flatMap(passenger => passenger.ticket);
+
+      // Calculate paid tickets
+      const paidTickets = allTickets.filter(ticket => ticket.status === "PAGADO");
+      const paidCount = paidTickets.length;
+      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0);
+
+      // Calculate pending tickets
+      const pendingTickets = allTickets.filter(ticket => ticket.status === "PENDIENTE");
+      const pendingCount = pendingTickets.length;
+      const pendingAmount = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0);
+
+      // Calculate total amount (paid + pending)
+      const totalAmount = paidAmount + pendingAmount;
+
+      return {
+        name: `${client.first_name} ${client.last_name}`,
+        paidCount,
+        pendingCount,
+        paidAmount,
+        pendingAmount,
+        totalAmount,
+      };
+    });
+
+    const providersData = await db.provider.findMany({
+      include: {
+        tickets: {
+          where: {
+            createdAt: {
+              gte: startDate,
+              lte: endDate,
+            },
+            status: {
+              not: "CANCELADO",
+            },
+          },
+          select: {
+            status: true,
+            total: true, // Include total to calculate revenue
+          },
+        },
+      },
+    });
+
+    const providersReport = providersData.map(provider => {
+      const paidTickets = provider.tickets.filter(ticket => ticket.status === "PAGADO");
+      const pendingTickets = provider.tickets.filter(ticket => ticket.status === "PENDIENTE");
+
+      const paidCount = paidTickets.length;
+      const pendingCount = pendingTickets.length;
+
+      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for paid tickets
+      const pendingAmount = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for pending tickets
+      const totalAmount = paidAmount + pendingAmount; // Calculate total amount (paid + pending)
+
+      return {
+        provider: provider.name,
+        paidCount,
+        pendingCount,
+        paidAmount, // Amount for paid tickets
+        pendingAmount, // Amount for pending tickets
+        totalAmount, // Total amount generated
+      };
+    });
+
 
     // Respuesta del endpoint
     return NextResponse.json({
@@ -62,6 +153,8 @@ export async function GET(request: Request){
         route: ticket.route,
         branch: ticket.branch.location_name,
       })),
+      clientsReport,
+      providersReport
     });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);

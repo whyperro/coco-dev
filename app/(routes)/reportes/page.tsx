@@ -1,7 +1,6 @@
 "use client"
 
 import { useGetDailyReport } from '@/actions/reports/actions'
-import { useGetPaidTicketsReport } from '@/actions/tickets/actions'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
 import LoadingPage from '@/components/misc/LoadingPage'
 import PdfFile from '@/components/pdf/PdfFile'
@@ -13,9 +12,10 @@ import { es } from 'date-fns/locale'
 
 const DailyReportPage = () => {
 
-  const { data: tickets, isLoading, isError  } = useGetDailyReport()
-
-  if(isLoading) {
+  const date = format(new Date(), "yyyy-MM-dd", { locale: es })
+  const { data: tickets, isLoading, isError } = useGetDailyReport()
+  console.log(tickets)
+  if (isLoading) {
     return <LoadingPage />
   }
 
@@ -32,16 +32,16 @@ const DailyReportPage = () => {
         <div className='flex flex-col gap-6'>
           <div>
             {
-              tickets && <PDFDownloadLink fileName='Reporte Diario' document={<PdfFile paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} date={format(new Date(), "PPP", {locale: es})}/>}>
-              <Button disabled={isError}>Descargar PDF</Button>
-            </PDFDownloadLink>
+              tickets && <PDFDownloadLink fileName={`reporte_diario_${date}`} document={<PdfFile providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} clientsReport={tickets.clientsReport} date={format(new Date(), "PPP", { locale: es })} />}>
+                <Button disabled={isError}>Descargar PDF</Button>
+              </PDFDownloadLink>
             }
           </div>
           <div>
             {
               tickets && <PDFViewer style={{ width: '100%', height: '600px' }}>
-              <PdfFile paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} date={format(new Date(), "PPP", {locale: es})} />
-            </PDFViewer>
+                <PdfFile providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} clientsReport={tickets.clientsReport} date={format(new Date(), "PPP", { locale: es })} />
+              </PDFViewer>
             }
             {
               isError && <p className='text-sm text-muted-foreground text-center'>Ha ocurrido un error al cargar el reporte diario...</p>

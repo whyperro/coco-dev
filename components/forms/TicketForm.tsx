@@ -249,7 +249,6 @@ const TicketForm = () => {
     const rateMiliunits = convertAmountToMiliunits(parseFloat(values.rate))
     try {
       if (fetchedPassanger) {
-
         await createTicket.mutateAsync({
           ticket_number: values.ticket_number.toUpperCase(),
           booking_ref: values.booking_ref.toUpperCase(),
@@ -261,13 +260,11 @@ const TicketForm = () => {
           flight_date: format(values.flight_date, 'yyyy-MM-dd'),
           status: "PENDIENTE",
           description: values.description ?? "",
-
           passangerId: fetchedPassanger.id,
           routes: values.routes,
           branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-          providers: values.providers,
+          providerId: values.providers[0],
           registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
-
           ticket_price: ticketPriceInMiliunits,
           fee: feeInMiliunits,
           total: totalInMiliunits,
@@ -302,9 +299,8 @@ const TicketForm = () => {
             passangerId: res.data.id,
             routes: values.routes,
             branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-            providers: values.providers,
-            registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
-
+            providerId: values.providers[0],
+            registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",  
             ticket_price: ticketPriceInMiliunits,
             fee: feeInMiliunits,
             total: totalInMiliunits,

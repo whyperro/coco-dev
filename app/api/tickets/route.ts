@@ -28,8 +28,8 @@ export async function POST(request: Request) {
         const newTicket = await db.ticket.create({
           data: {
             ...data,
-            providers: {
-              connect: data.providers.map((providerId: string) => ({ id: providerId })),
+            routes: {
+              connect: data.routes.map((routeId: string) => ({ id: routeId })),
           },
           },
         });

@@ -118,7 +118,7 @@ export const useCreateTicket = () => {
 
           passangerId: string,
           branchId:string,
-          providers: string[],
+          providerId: string,
           routes:string[]
         }) => {
           await axios.post(`/api/tickets`, {

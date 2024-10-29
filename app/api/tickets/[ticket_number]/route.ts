@@ -29,10 +29,10 @@ export async function GET(request: Request,{ params }: { params: { ticket_number
             },
             transaction: true,
             provider: true,
-            route: true,
+            routes: true,
           }
         });
-    
+
         if (!ticket) {
           return NextResponse.json(
             {
@@ -43,7 +43,7 @@ export async function GET(request: Request,{ params }: { params: { ticket_number
             }
           );
         }
-    
+
         return NextResponse.json(ticket, {
           status: 200,
         });

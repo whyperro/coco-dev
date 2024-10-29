@@ -6,6 +6,7 @@ import DataCharts from '@/components/data_charts/DataCharts'
 import { DataCardLoading } from '@/components/data_grid/DataCard'
 import DataGrid from '@/components/data_grid/DataGrid'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
+import DateFilter from '@/components/misc/DateFilter'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
 import React from 'react'
 
@@ -25,8 +26,11 @@ const DashboardPage = () => {
   return (
     <ContentLayout title='Estadisticas'>
       <ProtectedRoute roles={['ADMIN', 'AUDITOR', 'MANAGER']}>
-        <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount}/>
-        <DataCharts pieTitle='Sucursales' pieDescription='Ingresos según las sucursales.' transactions={data.transactionsByBranch} branches={data.branches} />
+        <div className='flex flex-col justify-center space-y-3'>
+          <DateFilter />
+          <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
+          <DataCharts pieTitle='Sucursales' pieDescription='Ingresos según las sucursales.' transactions={data.transactionsByBranch} branches={data.branches} />
+        </div>
       </ProtectedRoute>
     </ContentLayout>
   )

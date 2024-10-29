@@ -8,7 +8,7 @@ export async function GET() {
         status: "PAGADO"
       },
       include: {
-        route: true,
+        routes: true,
         passanger: {
           select:{
             id: true,

@@ -16,7 +16,7 @@ interface DataGridProps {
   paidCount: number,
 }
 
-const DataGrid = ({ total_amount, ticketCount, pendingCount, paidCount }: DataGridProps) => {
+const DataGrid = ({ total_amount, pendingCount, paidCount }: DataGridProps) => {
   const params = useSearchParams();
   const from = params.get('from') || undefined
   const to = params.get('to') || undefined

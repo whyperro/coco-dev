@@ -13,7 +13,7 @@ export type Client = {
     first_name: string,
     last_name: string,
     email:        string | null,
-    phone_number: string | null, 
+    phone_number: string | null,
     dni: string,
   }
 
@@ -65,12 +65,12 @@ export type Client = {
     served_by :string,
     description: string
 
-    route: Route
+    routes: Route[]
     passanger: Passanger,
     transaction?: Transaction,
     branchId: string,
     provider: Provider
-    
+
     ticket_price: number,
     fee: number,
     total: number,

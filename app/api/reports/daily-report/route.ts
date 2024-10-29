@@ -1,11 +1,13 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { endOfDay, startOfDay } from "date-fns";
+import { addDays, endOfDay, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request){
+  const { searchParams } = new URL(request.url);
   try {
-    const currentDate = new Date();
+    const date = searchParams.get("date") || new Date();
+    const currentDate = addDays(date, 1)
     const startDate = startOfDay(currentDate); // Inicio del día actual
     const endDate = endOfDay(currentDate); // Fin del día actual
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
@@ -22,7 +24,7 @@ export async function GET(request: Request){
       include: {
         passanger: { select: { first_name: true, last_name: true, dni_number: true, client: true } },
         provider: { select: { name: true } },
-        route: { select: { origin: true, destiny: true, route_type: true } },
+        routes: { select: { origin: true, destiny: true, route_type: true } },
         branch: { select: { location_name: true } },
         transaction: { select: { payment_ref: true, payment_method: true } },
       },
@@ -128,7 +130,7 @@ export async function GET(request: Request){
 
     // Respuesta del endpoint
     return NextResponse.json({
-      currentDate,
+      date: currentDate,
       paidTickets: paidTickets.map(ticket => ({
         ticket_number: ticket.ticket_number,
         booking_ref: ticket.booking_ref,
@@ -139,7 +141,7 @@ export async function GET(request: Request){
         transaction: ticket.transaction,
         passanger: ticket.passanger,
         provider: ticket.provider,
-        route: ticket.route,
+        routes: ticket.routes,
         branch: ticket.branch.location_name,
       })),
       pendingTickets: pendingTickets.map(ticket => ({
@@ -150,7 +152,7 @@ export async function GET(request: Request){
         total: ticket.total,
         passanger: ticket.passanger,
         provider: ticket.provider,
-        route: ticket.route,
+        routes: ticket.routes,
         branch: ticket.branch.location_name,
       })),
       clientsReport,

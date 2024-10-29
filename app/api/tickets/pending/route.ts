@@ -8,7 +8,7 @@ export async function GET() {
         status: "PENDIENTE"
       },
       include: {
-        route: true,
+        routes: true,
         passanger: {
           include: {
             client: true,

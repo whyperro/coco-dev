@@ -88,7 +88,7 @@ model Provider {
   name            String
   credit          Float        @default(0)
   provider_type   ProviderType
-  tickets         Ticket[]     @relation("TicketProviders")
+  tickets         Ticket[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,7 +155,9 @@ model Ticket {
   branchId    String
 
 
-  providers    Provider[] @relation("TicketProviders")
+  provider Provider @relation(fields: [providerId], references: [id])
+  providerId String
+
   routes    Route[] @relation("TicketRoutes")
 
   createdAt DateTime @default(now())

@@ -235,7 +235,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                     <FormItem className="col-span-2">
                       <FormLabel className="font-bold">Imagen Comprobante de pago</FormLabel>
                       <FormControl>
-                        <Input type="file" onChange={(e) => field.onChange(e.target.files)} className="w-[400px]" />
+                        <Input type="file" onChange={(e) => form.setValue("image_ref", e.target.files![0])} className="w-[400px]" />
                       </FormControl>
                       <FormDescription>
                         Añade una imagen del comprobante de pago referencia

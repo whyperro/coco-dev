@@ -5,19 +5,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { Loader2, MoreHorizontal, Notebook, Pencil, Trash2 } from "lucide-react"
 import { useState } from "react"
 import CreateClientForm from "../forms/ClientForm"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
-const ClientDropdownActions = ({ id }: { id: string }) => {
+const ClientDropdownActions = ({ id, dni }: { id: string, dni: string }) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [isDialogOpen1, setIsDialogOpen1] = useState<boolean>(false); // Delete dialog
   const [isDialogOpen2, setIsDialogOpen2] = useState<boolean>(false); // Edit dialog
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const { deleteClient } = useDeleteClient();
+  const router = useRouter();
 
   const handleDelete = async (id: string) => {
     await deleteClient.mutateAsync(id);
@@ -36,7 +38,7 @@ const ClientDropdownActions = ({ id }: { id: string }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="flex gap-2 justify-center">
           {/* Delete Option */}
-          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "MANAGER"}  onClick={() => {
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "MANAGER"} onClick={() => {
             setIsDialogOpen1(true);
             setIsDropdownMenuOpen(false);
           }}>
@@ -48,6 +50,9 @@ const ClientDropdownActions = ({ id }: { id: string }) => {
             setIsDropdownMenuOpen(false);
           }}>
             <Pencil className="size-4 cursor-pointer" />
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR"} onClick={() => router.push(`/reportes/cliente/${dni}`)}>
+            <Notebook className="size-4 cursor-pointer" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

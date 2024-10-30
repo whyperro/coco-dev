@@ -1,9 +1,36 @@
 import { Ticket } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useSearchParams } from 'next/navigation';
-
-// Define la interfaz para los datos del reporte diario
+import { useParams, useSearchParams } from 'next/navigation';
+interface Passenger {
+  first_name: string;
+  last_name: string;
+  dni_type: string;
+  dni_number: string;
+  phone_number: string | null;
+  email: string | null;
+}
+interface ClientTicket {
+  ticket_number: string;
+  booking_ref: string;
+  purchase_date: string;
+  flight_date: string;
+  status: string;
+  ticket_price: number;
+  fee: number;
+  total: number;
+  provider: { name: string };
+  transaction: { payment_ref: string | null; payment_method: string | null } | null;
+  routes: { origin: string; destiny: string; route_type: string }[];
+  branch: { location_name: string };
+}
+interface ClientReport {
+  client: string;  // Client's full name
+  passengers: Passenger[];  // Array of associated passengers
+  paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
+  pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status
+  date: string,
+}
 interface DailyReport {
   paidTickets: Ticket[];
   pendingTickets: Ticket[];
@@ -35,6 +62,28 @@ export const useGetDailyReport = () => {
      const {data} = await axios.get('/api/reports/daily-report', {
       params: {
         date
+      },
+    }); // Cambia la URL según tu configuración de API
+     return data; // Devuelve los datos del reporte
+   },
+    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useGetClientReport = () => {
+  const searchParams = useSearchParams();
+  const params = useParams<{dni: string}>()
+  const dni = params.dni;
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+  return useQuery<ClientReport, Error>({
+    queryKey: ["daily-report", from, to, dni],
+    queryFn: async () => {
+     const {data} = await axios.get(`/api/reports/client/${dni}`, {
+      params: {
+        from,
+        to
       },
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte

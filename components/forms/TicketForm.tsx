@@ -91,7 +91,8 @@ const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      dni_type: "V"
+      dni_type: "V",
+      doc_order: false,
     },
   });
 
@@ -205,6 +206,18 @@ const TicketForm = () => {
     form.reset()
   }
 
+  const onTicketFormReset = () => {
+    form.reset({
+      ticket_number: "",
+      booking_ref: "",
+      flight_date: undefined,
+      purchase_date: undefined,
+      routes: [],
+      ticket_type: "B",
+      served_by: undefined,
+    })
+  }
+
   useEffect(() => {
     form.setValue('providers', selectedProviders);
   }, [selectedProviders, form]);
@@ -282,7 +295,6 @@ const TicketForm = () => {
           clientId: values.clientId
         })
         if (res.status === 200) {
-
           setFetchedPassanger(res.data)
           await createTicket.mutateAsync({
             ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
@@ -300,7 +312,7 @@ const TicketForm = () => {
             routes: values.routes,
             branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
             providerId: values.providers[0],
-            registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",  
+            registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
             ticket_price: ticketPriceInMiliunits,
             fee: feeInMiliunits,
             total: totalInMiliunits,
@@ -309,12 +321,15 @@ const TicketForm = () => {
           })
         }
       }
+      onResetTicketForm()
+      onResetTicketForm()
     } catch (error) {
       console.error(error); // Log the error for debugging
       toast.error("Error al guardar el boleto", {
         description: "Ocurrió un error, por favor intenta nuevamente.",
       });
     }
+
   };
 
 
@@ -766,7 +781,7 @@ const TicketForm = () => {
           {/* FORMULARIO DEL BOLETO */}
 
           <div className='flex flex-col'>
-            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onResetTicketForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onTicketFormReset()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-56 mb-4' />
             <div id="ticket-info-container" className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
               <FormField

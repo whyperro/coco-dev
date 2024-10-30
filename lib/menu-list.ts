@@ -106,8 +106,8 @@ export function getMenuList(pathname: string, role: string): Group[] {
           ]
         },
         {
-          href: "/reportes",
-          label: "Reportes",
+          href: "/reportes/diario",
+          label: "Reporte Diario",
           active: pathname.includes("/reportes"),
           icon: NotebookText,
           submenus: []

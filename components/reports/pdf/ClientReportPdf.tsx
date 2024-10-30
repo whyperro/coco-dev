@@ -1,27 +1,35 @@
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { convertAmountFromMiliunits, formatCurrency } from "@/lib/utils";
 import { Ticket } from "@/types";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
-interface PdfFileProps {
-  paidTickets: Ticket[];
-  pendingTickets: Ticket[];
-  clientsReport: {
-    name: string,
-    paidCount: number,
-    pendingCount: number,
-    paidAmount: number,
-    pendingAmount: number,
-    totalAmount: number,
-  }[],
-  providersReport: {
-    provider: string,
-    paidCount: number,
-    pendingCount: number,
-    paidAmount: number,
-    pendingAmount: number,
-    totalAmount: number,
-  }[],
-  date: string;
+interface Passenger {
+  first_name: string;
+  last_name: string;
+  dni_type: string;
+  dni_number: string;
+  phone_number: string | null;
+  email: string | null
+}
+interface ClientTicket {
+  ticket_number: string;
+  booking_ref: string;
+  purchase_date: string;
+  flight_date: string;
+  status: string;
+  ticket_price: number;
+  fee: number;
+  total: number;
+  provider: { name: string };
+  transaction: { payment_ref: string | null; payment_method: string | null } | null;
+  routes: { origin: string; destiny: string; route_type: string }[];
+  branch: { location_name: string };
+}
+interface ClientReportPdf {
+  client: string;  // Client's full name
+  passengers: Passenger[];  // Array of associated passengers
+  paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
+  pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status
+  date: string,
 }
 
 const styles = StyleSheet.create({
@@ -114,16 +122,17 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, date }: PdfFileProps) => {
-
+const ClientReportPdf = ({ client, paidTickets, pendingTickets, passengers, date }: ClientReportPdf) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Berkana</Text>
-          <Text style={styles.subtitle}>Reporte Diario</Text>
-          <Text style={styles.date}>Fecha: {date}</Text>
+          <Text style={styles.subtitle}>Reporte de Cliente</Text>
+          <Text style={styles.subtitle}>{client}</Text>
+          <Text style={styles.date}>Rango de Fecha</Text>
+          <Text style={styles.date}>{date}</Text>
         </View>
 
         {/* Paid Tickets Section */}
@@ -132,26 +141,24 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
           <>
             <View style={styles.tableHeader}>
               <Text style={styles.columnExtraWide}>Nro. Ticket</Text>
-              <Text style={styles.columnWide}>Book. Ref.</Text>
-              <Text style={styles.column}>Fare</Text>
-              <Text style={styles.column}>Fee</Text>
-              <Text style={styles.column}>Total</Text>
+              <Text style={styles.columnExtraWide}>Book. Ref.</Text>
+              <Text style={styles.columnWide}>Fare</Text>
+              <Text style={styles.columnWide}>Fee</Text>
+              <Text style={styles.columnWide}>Total</Text>
               <Text style={styles.columnWide}>Método Pago</Text>
-              <Text style={styles.columnWide}>Pasajero</Text>
               <Text style={styles.columnWide}>Proveedor</Text>
               <Text style={styles.columnWide}>Ruta</Text>
             </View>
             {paidTickets.map((ticket) => (
               <View style={styles.tableRow} key={ticket.ticket_number}>
                 <Text style={styles.columnExtraWide}>{ticket.ticket_number}</Text>
-                <Text style={styles.columnWide}>{ticket.booking_ref}</Text>
-                <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
-                <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
-                <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
+                <Text style={styles.columnExtraWide}>{ticket.booking_ref}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : "ZELLE"}</Text>
-                <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-                <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
+              <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
               </View>
             ))}
           </>
@@ -181,7 +188,6 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-                <Text style={styles.columnWide}>{`${ticket.passanger.first_name} ${ticket.passanger.last_name}`}</Text>
                 <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
               </View>
             ))}
@@ -191,61 +197,34 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
         )}
 
         {/* Client Report Section */}
-        <Text style={styles.sectionTitle}>Resumen por Cliente</Text>
-        {clientsReport.length > 0 ? (
+        <Text style={styles.sectionTitle}>Pasajeros del Cliente</Text>
+        {passengers.length > 0 ? (
           <>
             <View style={styles.tableHeader}>
-              <Text style={styles.columnWide}>Cliente</Text>
-              <Text style={styles.columnWide}>B. Pendientes</Text>
-              <Text style={styles.columnWide}>B. Pagados</Text>
-              <Text style={styles.columnWide}>Monto Pend.</Text>
-              <Text style={styles.columnWide}>Monto Pag.</Text>
-              <Text style={styles.columnWide}>Total General</Text>
+              <Text style={styles.columnWide}>Nombre</Text>
+              <Text style={styles.columnWide}>Apellido</Text>
+              <Text style={styles.columnWide}>Identificación</Text>
+              <Text style={styles.columnWide}>Nro. TLF</Text>
+              <Text style={styles.columnWide}>Correo</Text>
             </View>
-            {clientsReport.map((client) => (
-              <View style={styles.tableRow} key={client.name}>
-                <Text style={styles.columnWide}>{client.name}</Text>
-                <Text style={styles.columnWide}>{client.pendingCount}</Text>
-                <Text style={styles.columnWide}>{client.paidCount}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(client.pendingAmount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(client.paidAmount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(client.totalAmount))}</Text>
+            {passengers.map((passanger) => (
+              <View style={styles.tableRow} key={passanger.dni_number}>
+                <Text style={styles.columnWide}>{passanger.first_name}</Text>
+                <Text style={styles.columnWide}>{passanger.last_name}</Text>
+                <Text style={styles.columnWide}>{passanger.dni_type}-{passanger.dni_number}</Text>
+                <Text style={styles.columnWide}>{passanger.phone_number ?? "N/A"}</Text>
+                <Text style={styles.columnWide}>{passanger.email ?? "N/A"}</Text>
               </View>
             ))}
           </>
         ) : (
-          <Text style={styles.noRecords}>No hay datos de clientes en este reporte.</Text>
+          <Text style={styles.noRecords}>No hay datos de pasajeros en este reporte.</Text>
         )}
-        {/* Provider Information Box */}
-        <Text style={styles.sectionTitle}>Resumen por Proveedor</Text>
-        {providersReport.length > 0 ? (
-          <>
-            <View style={styles.tableHeader}>
-              <Text style={styles.columnWide}>Proveedor</Text>
-              <Text style={styles.column}>B. Pagados</Text>
-              <Text style={styles.column}>B. Pendientes</Text>
-              <Text style={styles.columnWide}>Deuda Pendiente</Text>
-              <Text style={styles.columnWide}>Ingresos Realizados</Text>
-              <Text style={styles.columnWide}>Total General</Text>
-            </View>
-            {providersReport.map((provider) => (
-              <View style={styles.tableRow} key={provider.provider}>
-                <Text style={styles.columnWide}>{provider.provider}</Text>
-                <Text style={styles.column}>{provider.paidCount}</Text>
-                <Text style={styles.column}>{provider.pendingCount}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidCount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.totalAmount))}</Text>
-              </View>
-            ))}
-          </>
-        ) : (
-          <Text style={styles.noRecords}>No hay datos de proveedores en este reporte.</Text>
-        )}
+        {/* Footer */}
         <Text style={styles.footer}>Este es un documento generado automáticamente. Por favor, consérvelo para sus registros.</Text>
       </Page>
     </Document>
   );
 };
 
-export default PdfFile;
+export default ClientReportPdf;

@@ -11,67 +11,67 @@ import { ColumnDef } from "@tanstack/react-table"
 
 
 export const columns: ColumnDef<Client>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-          <div className="w-full flex justify-center">
-            <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-          />
-          </div>
-        ),
-        cell: ({ row }) => (
-          <div className="w-full flex justify-center">
-            <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-          </div>
-        ),
-        enableSorting: false,
-        enableHiding: false,
-      },
   {
-    accessorKey: "first_name",
-    header: ({column}) => (
-        <DataTableColumnHeader filter column={column} title='Nombre' />
+    id: "select",
+    header: ({ table }) => (
+      <div className="w-full flex justify-center">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      </div>
     ),
-    cell: ({ row }) => {
-        return <div className="text-center font-bold">{row.original.first_name}</div>
-      },
+    cell: ({ row }) => (
+      <div className="w-full flex justify-center">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
   },
   {
-    accessorKey:"last_name",
-    header: ({column}) => (
-        <DataTableColumnHeader filter column={column} title='Apellido' />
+    accessorKey: "first_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Nombre' />
     ),
     cell: ({ row }) => {
-        return <div className="text-center font-bold">{row.original.last_name}</div>
-      },
+      return <div className="text-center font-bold">{row.original.first_name}</div>
+    },
+  },
+  {
+    accessorKey: "last_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Apellido' />
+    ),
+    cell: ({ row }) => {
+      return <div className="text-center font-bold">{row.original.last_name}</div>
+    },
   },
   {
     accessorKey: "dni",
-    header: ({column}) => (
-        <DataTableColumnHeader filter column={column} title='Identificacion'/>
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Identificacion' />
     ),
-    cell: ({ row }) => {   
-        return <div className="text-center font-bold">{row.original.dni}</div>
-      },
+    cell: ({ row }) => {
+      return <div className="text-center font-bold">{row.original.dni}</div>
+    },
   },
   {
     id: "actions",
     cell: ({ row }) => {
       const id = row.original.id
+      const dni = row.original.dni
       return (
-        <ClientDropdownActions id={id.toString()} />
+        <ClientDropdownActions id={id.toString()} dni={dni} />
       )
     },
   }
 ]
-

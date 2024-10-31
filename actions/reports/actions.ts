@@ -21,12 +21,30 @@ interface ClientTicket {
   total: number;
   provider: { name: string };
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
+  passanger: {first_name:string, last_name:string} | null;
   routes: { origin: string; destiny: string; route_type: string }[];
   branch: { location_name: string };
 }
 interface ClientReport {
   client: string;  // Client's full name
   passengers: Passenger[];  // Array of associated passengers
+  paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
+  pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status
+  date: string,
+}
+
+interface ProviderReport {
+  client: string;  // Client's full name
+  routeCounts: {
+    id: string,
+    origin: string,
+    scale:string[],
+    destiny: string,
+    route_type:string,
+    _count: {
+      tickets: number,
+    }
+  }[];  // Array of associated passengers
   paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
   pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status
   date: string,
@@ -81,6 +99,28 @@ export const useGetClientReport = () => {
     queryKey: ["daily-report", from, to, dni],
     queryFn: async () => {
      const {data} = await axios.get(`/api/reports/client/${dni}`, {
+      params: {
+        from,
+        to
+      },
+    }); // Cambia la URL según tu configuración de API
+     return data; // Devuelve los datos del reporte
+   },
+    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useGetProviderReport = () => {
+  const searchParams = useSearchParams();
+  const params = useParams<{provider_number: string}>()
+  const provider_number = params.provider_number;
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+  return useQuery<ProviderReport, Error>({
+    queryKey: ["daily-report", from, to, provider_number],
+    queryFn: async () => {
+     const {data} = await axios.get(`/api/reports/provider/${provider_number}`, {
       params: {
         from,
         to

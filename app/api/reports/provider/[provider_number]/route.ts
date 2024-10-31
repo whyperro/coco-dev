@@ -7,8 +7,8 @@ interface branchData {
   amount: number;
 }
 
-export async function GET(request: Request, { params }: { params: { dni: string } }) {
-  const { dni } = params;
+export async function GET(request: Request, { params }: { params: { provider_number: string } }) {
+  const { provider_number } = params;
 
   // Parse query parameters for date range
   const { searchParams } = new URL(request.url);
@@ -21,45 +21,57 @@ export async function GET(request: Request, { params }: { params: { dni: string 
 
   const startDate = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
   const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
-  console.log(searchParams)
   try {
     // Fetch client data
-    const client = await db.client.findUnique({
-      where: { dni },
+    const provider = await db.provider.findUnique({
+      where: { provider_number },
     });
 
-    if (!client) {
-      return NextResponse.json({ message: "Client not found" }, { status: 404 });
+    if (!provider) {
+      return NextResponse.json({ message: "Provider not found" }, { status: 404 });
     }
 
     // Fetch tickets within date range
     const tickets = await db.ticket.findMany({
       where: {
         createdAt: { gte: startDate, lte: endDate },
-        passanger: { client: { dni } },
+        provider: { provider_number },
       },
       include: {
         provider: { select: { name: true } },
-        routes: true,
+        routes: { select: { origin: true, destiny: true, route_type: true } },
         branch: { select: { location_name: true } },
         transaction: { select: { payment_ref: true, payment_method: true } },
+        passanger:{select:{first_name:true, last_name:true}}
       },
       orderBy: { status: "asc" }
     });
 
-    // Fetch associated passengers for the client
-    const passengers = await db.passanger.findMany({
-      where: { client: { dni } },
+    // // Fetch associated passengers for the client
+    const routeCounts = await db.route.findMany({
+      where: {
+        tickets: {
+          some: {
+            provider: {provider_number}
+          }
+        }
+      },
       select: {
-        first_name: true,
-        last_name: true,
-        dni_type: true,
-        dni_number: true,
-        phone_number: true,
-        email: true,
+        id: true,
+        origin: true,
+        scale:true,
+        destiny: true,
+        route_type:true,
+        _count: {
+          select: {
+            tickets: true, // Cuenta los tickets asociados a esta ruta
+          },
+        },
+      },
+      orderBy:{
+        tickets:{_count:"desc"}
       }
     });
-
     // Separate tickets by status
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
     const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
@@ -67,8 +79,8 @@ export async function GET(request: Request, { params }: { params: { dni: string 
     // Prepare final report
     const report = {
       date: `${format(startDate, "yyyy-MM-dd")} al ${format(endDate, "yyyy-MM-dd")}`,
-      client: `${client.first_name} ${client.last_name}`,
-      passengers,
+      client: `${provider.name}`,
+      routeCounts,
       paidTickets,
       pendingTickets,
     };

@@ -9,7 +9,7 @@ import {
   PopoverClose,
 } from "@/components/ui/popover"
 import { Button } from "../ui/button";
-import { format, subDays } from "date-fns";
+import { format, parseISO, subDays } from "date-fns";
 import { formatDateRange } from "@/lib/utils";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -32,8 +32,8 @@ const DateFilter = () => {
   const defaultFrom = subDays(defaultTo, 30);
 
   const paramState = {
-    from: from ? new Date(from) : defaultFrom,
-    to: to ? new Date(to) : defaultTo,
+    from: from ? parseISO(from) : defaultFrom,
+    to: to ? parseISO(to) : defaultTo,
   }
 
   const [date, setDate] = useState<DateRange | undefined>(paramState);

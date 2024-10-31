@@ -5,7 +5,6 @@ export async function POST(request: Request) {
     try {
         const data = await request.json();
         // Check if the branch name already exists
-        console.log(data)
         const ticketFound = await db.ticket.findFirst({
           where: {
             ticket_number: data.ticket_number,

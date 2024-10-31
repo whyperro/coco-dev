@@ -81,8 +81,10 @@ export const columns: ColumnDef<Provider>[] = [
     id: "actions",
     cell: ({ row }) => {
       const id = row.original.id
+      const provider_number = row.original.provider_number
+
       return (
-        <ProviderDropdownActions id={id.toString()} />
+        <ProviderDropdownActions id={id.toString()} provider_number={provider_number} />
       )
     },
   }

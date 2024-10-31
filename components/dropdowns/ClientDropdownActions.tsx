@@ -51,7 +51,7 @@ const ClientDropdownActions = ({ id, dni }: { id: string, dni: string }) => {
           }}>
             <Pencil className="size-4 cursor-pointer" />
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR"} onClick={() => router.push(`/reportes/cliente/${dni}`)}>
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "ADMIN" } onClick={() => router.push(`/reportes/cliente/${dni}`)}>
             <Notebook className="size-4 cursor-pointer" />
           </DropdownMenuItem>
         </DropdownMenuContent>

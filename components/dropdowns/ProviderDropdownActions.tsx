@@ -5,17 +5,20 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { Loader2, MoreHorizontal, Notebook, Pencil, Trash2 } from "lucide-react"
 import { useState } from "react"
 import RegisterProviderForm from "../forms/RegisterProviderForm"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
-const ProviderDropdownActions = ({ id }: { id: string }) => {
+const ProviderDropdownActions = ({ id, provider_number }: { id: string, provider_number: string }) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [isDialogOpen1, setIsDialogOpen1] = useState<boolean>(false); // Delete dialog
   const [isDialogOpen2, setIsDialogOpen2] = useState<boolean>(false); // Edit dialog
-
+  const router = useRouter();
+  const { data: session } = useSession();
   const { deleteProvider } = useDeleteProvider();
 
   const handleDelete = async (id: string) => {
@@ -48,6 +51,9 @@ const ProviderDropdownActions = ({ id }: { id: string }) => {
           }}>
             <Pencil className="size-4 cursor-pointer" />
           </DropdownMenuItem>
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "ADMIN"} onClick={() => router.push(`/reportes/proveedor/${provider_number}`)}>
+            <Notebook className="size-4 cursor-pointer" />
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -55,9 +61,9 @@ const ProviderDropdownActions = ({ id }: { id: string }) => {
       <Dialog open={isDialogOpen1} onOpenChange={setIsDialogOpen1}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-center">¿Seguro que desea eliminar la cliente?</DialogTitle>
+            <DialogTitle className="text-center">¿Seguro que desea eliminar al proveedor?</DialogTitle>
             <DialogDescription className="text-center p-2 mb-0 pb-0">
-              Esta acción es irreversible y estaría eliminando por completo la cliente seleccionada.
+              Esta acción es irreversible y estaría eliminando por completo al proveedor seleccionada.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col gap-2 md:gap-0">
@@ -79,9 +85,9 @@ const ProviderDropdownActions = ({ id }: { id: string }) => {
       <Dialog open={isDialogOpen2} onOpenChange={setIsDialogOpen2}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Editar sucursal</DialogTitle>
+            <DialogTitle>Editar proveedor</DialogTitle>
             <DialogDescription>
-              Actualiza los detalles de la sucursal
+              Actualiza los detalles de la proveedor
             </DialogDescription>
           </DialogHeader>
           <RegisterProviderForm isEditing id={id} onClose={() => setIsDialogOpen2(false)} />

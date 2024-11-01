@@ -28,6 +28,7 @@ export async function POST(request: Request) {
     where: {
       origin: data.origin,
       destiny: data.destiny,
+      scale: data.scale,
     },
   });
 

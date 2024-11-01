@@ -270,18 +270,19 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               Ingrese la razón del cancelamiento del boleto.
             </DialogDescription>
           </DialogHeader>
-          <Select onValueChange={(e: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo") => setReason(e)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Razón..." />
-            </SelectTrigger>
-            <SelectContent >
-              <SelectItem value="CancelledByClient">Cancelado por cliente</SelectItem>
-              <SelectItem value="WrongSellerInput">Ingreso erróneo de datos</SelectItem>
-              <SelectItem value="WrongClientInfo">Información recibida errónea</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="grid gap-4 grid-cols-2">
-            <DialogFooter className="flex flex-col gap-2 md:gap-0">
+          <div className="flex flex-col gap-6 items-center justify-center w-full">
+            <Select onValueChange={(e: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo") => setReason(e)}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Razón..." />
+              </SelectTrigger>
+              <SelectContent >
+                <SelectItem value="CancelledByClient">Cancelado por cliente</SelectItem>
+                <SelectItem value="WrongSellerInput">Ingreso erróneo de datos</SelectItem>
+                <SelectItem value="WrongClientInfo">Información recibida errónea</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <DialogFooter className="flex gap-2 md:gap-0">
               <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
                 Cancelar
               </Button>

@@ -1,5 +1,6 @@
 "use client"
 
+import CancelledTicketDropdownActions from "@/components/dropdowns/CancelledTicketDropdownActions"
 import PaidTicketsDropdownActions from "@/components/dropdowns/PaidTicketsDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -104,7 +105,7 @@ export const columns: ColumnDef<Ticket>[] = [
     id: "actions",
     cell: ({ row }) => {
       return (
-        <PaidTicketsDropdownActions ticket_number={row.original.ticket_number} />
+        <CancelledTicketDropdownActions ticket_number={row.original.ticket_number} />
       )
     },
   }

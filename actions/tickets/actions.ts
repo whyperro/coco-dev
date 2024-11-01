@@ -146,3 +146,29 @@ export const useCreateTicket = () => {
       createTicket: createMutation, // Function to call the mutation
     };
   };
+
+  export const useDeleteTicket = () => {
+
+    const queryClient = useQueryClient();
+  
+    const deleteMutation = useMutation({
+      mutationFn: async (ticket_number: string) => {
+        await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["tickets"] });
+        toast.success("¡Eliminado!", {
+          description: "¡El boleto ha sido eliminada correctamente!"
+        });
+      },
+      onError: () => {
+        toast.error("Oops!", {
+          description: "¡Hubo un error al eliminar el boleto!"
+        });
+      },
+    });
+  
+    return {
+      deleteTicket: deleteMutation,
+    };
+  };

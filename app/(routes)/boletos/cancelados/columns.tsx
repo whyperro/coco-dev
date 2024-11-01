@@ -56,15 +56,22 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="text-center italic text-muted-foreground">{row.original.booking_ref}</div>
     },
   },
-  // {
-  //   accessorKey: "route",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title='Ruta' />
-  //   ),
-  //   cell: ({ row }) => {
-  //     return <div className="text-center font-bold">{row.original.route.origin} - {row.original.route.destiny}</div>
-  //   },
-  // },
+  {
+    accessorKey: "routes",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Ruta de Vuelo' />
+    ),
+    cell: ({ row }) => {
+      const routes = row.original.routes
+      return <div className="text-center flex flex-col gap-2 justify-center">
+        {
+          routes.map((route) => (
+            <p className="italic text-muted-foreground">{route.origin} - {route.destiny}</p>
+          ))
+        }
+      </div>
+    },
+  },
   {
     accessorKey: "passanger",
     header: ({ column }) => (

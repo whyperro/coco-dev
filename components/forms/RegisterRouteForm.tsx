@@ -49,31 +49,31 @@ type ScaleField = {
 };
 
 const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
-  
+
   const [initialValues, setInitialValues] = useState<Route | null>(null);
   const [checked, setChecked] = useState(false)
   const { updateRoute } = useUpdateRoute();
   const { createRoute } = useCreateRoute();
   const { data } = useGetRoute(id ?? null);
- 
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       origin: initialValues?.origin ?? "",
       destiny: initialValues?.destiny ?? "",
-      route_type: initialValues?.route_type ?? "",
+      route_type: initialValues?.route_type ?? undefined,
       scale: initialValues?.scale ?? undefined,
-     
+
     },
   });
   const { control } = useForm();
 
-  
+
   // Estado para almacenar los campos de escala
   const [scaleFields, setScaleFields] = useState<ScaleField[]>([{
     id: Date.now(), value: ""
   }]);
-  
+
   const [debouncedScale, setDebouncedScale] = useState('');
 
   useEffect(() => {
@@ -83,12 +83,12 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
       form.setValue("destiny", data.destiny)
       form.setValue("scale", data.scale ?? undefined)
       form.setValue("route_type", data.route_type)
-      
+
     }
   }, [data, form])
 
   const onAddInput = () => {
-      setScaleFields([...scaleFields, { id: Date.now(), value: '' }]); 
+    setScaleFields([...scaleFields, { id: Date.now(), value: '' }]);
   };
 
   const onRemoveInput = (index: number) => {
@@ -120,7 +120,7 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
     }
   }, [debouncedScale]);
 
-  
+
   const onSubmitRoute = async (values: z.infer<typeof formSchema>) => {
     console.log(values)
     try {
@@ -187,71 +187,71 @@ const RegisterRouteForm = ({ id, onClose, isEditing = false }: FormProps) => {
 
           <div className={cn("flex gap-2 items-center", checked ? "flex-col" : "")}>
             <div className="flex gap-2">
-            <FormField
-              control={form.control}
-              name="origin"
-              render={({ field }) => (
-                <FormItem className="w-auto">
-                  <FormLabel>Origen</FormLabel>
-                  <FormControl>
-                    <Input placeholder="LCH" {...field} /> 
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-              />              
-            <FormField
-              control={form.control}
-              name="destiny"
-              render={({ field }) => (
-                <FormItem className="w-auto">
-                  <FormLabel>Destino</FormLabel>
-                  <FormControl>
-                    <Input placeholder="MCBO" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            </div>
-            {checked && 
-              <>
-              <div className="flex gap-2 items-center p-2">
-              <MinusCircle
-                className="size-4 cursor-pointer hover:scale-125 transition-all ease-in duration-100"
-                onClick={() => onRemoveInput(scaleFields.length - 1)} // Get the last field's index
+              <FormField
+                control={form.control}
+                name="origin"
+                render={({ field }) => (
+                  <FormItem className="w-auto">
+                    <FormLabel>Origen</FormLabel>
+                    <FormControl>
+                      <Input placeholder="LCH" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <Label>Escala(s)</Label>
-              <PlusCircle className="size-4 cursor-pointer hover:scale-125 transition-all ease-in duration-100" onClick={() => onAddInput()} />
-              </div>
-              <div className={cn("grid grid-cols-1 gap-2", scaleFields.length > 1 ? "grid-cols-2" : "")}>
-              {
-                scaleFields.map((field) => (
-                  <FormField
-                  key={field.id}
-                  control={control}
-                  name={`scale-${field.id}`} // Nombre único para cada campo
-                  render={({ field: inputField }) => (
-                    <FormItem className="w-auto">
-                      <FormControl>
-                        <Input 
-                          placeholder="CCS" 
-                          {...inputField} 
-                          onChange={(e) => {
-                            inputField.onChange(e); // Mantiene la funcionalidad de react-hook-form
-                            handleInputChange(field.id, e.target.value); // Maneja el cambio del input
-                          }} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                ))
-              }
-              </div>
+              <FormField
+                control={form.control}
+                name="destiny"
+                render={({ field }) => (
+                  <FormItem className="w-auto">
+                    <FormLabel>Destino</FormLabel>
+                    <FormControl>
+                      <Input placeholder="MCBO" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {checked &&
+              <>
+                <div className="flex gap-2 items-center p-2">
+                  <MinusCircle
+                    className="size-4 cursor-pointer hover:scale-125 transition-all ease-in duration-100"
+                    onClick={() => onRemoveInput(scaleFields.length - 1)} // Get the last field's index
+                  />
+                  <Label>Escala(s)</Label>
+                  <PlusCircle className="size-4 cursor-pointer hover:scale-125 transition-all ease-in duration-100" onClick={() => onAddInput()} />
+                </div>
+                <div className={cn("grid grid-cols-1 gap-2", scaleFields.length > 1 ? "grid-cols-2" : "")}>
+                  {
+                    scaleFields.map((field) => (
+                      <FormField
+                        key={field.id}
+                        control={control}
+                        name={`scale-${field.id}`} // Nombre único para cada campo
+                        render={({ field: inputField }) => (
+                          <FormItem className="w-auto">
+                            <FormControl>
+                              <Input
+                                placeholder="CCS"
+                                {...inputField}
+                                onChange={(e) => {
+                                  inputField.onChange(e); // Mantiene la funcionalidad de react-hook-form
+                                  handleInputChange(field.id, e.target.value); // Maneja el cambio del input
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))
+                  }
+                </div>
               </>
-              }
+            }
           </div>
           <Button disabled={createRoute.isPending || updateRoute.isPending} type="submit" className="w-full">
             {createRoute.isPending || updateRoute.isPending ? <Loader2 className='size-4 animate-spin' /> : <p>{isEditing ? "Actualizar" : "Registrar"}</p>}

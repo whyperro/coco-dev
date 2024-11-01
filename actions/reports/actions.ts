@@ -34,7 +34,7 @@ interface ClientReport {
 }
 
 interface ProviderReport {
-  client: string;  // Client's full name
+  provider: string;  // Client's full name
   routeCounts: {
     id: string,
     origin: string,
@@ -67,6 +67,13 @@ interface DailyReport {
     paidAmount: number, // Amount for paid tickets
     pendingAmount: number, // Amount for pending tickets
     totalAmount: number, // Total amount generated
+  }[],
+  branchReport: {
+    name: string,
+    totalAmount: number;
+    ticketCount: number;
+    paidCount: number;
+    pendingCount: number;
   }[],
   date: string,
 }

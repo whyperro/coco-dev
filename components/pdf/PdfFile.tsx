@@ -1,7 +1,6 @@
 import { convertAmountFromMiliunits, formatCurrency } from "@/lib/utils";
 import { Ticket } from "@/types";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-
+import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 interface PdfFileProps {
   paidTickets: Ticket[];
   pendingTickets: Ticket[];
@@ -21,6 +20,13 @@ interface PdfFileProps {
     pendingAmount: number,
     totalAmount: number,
   }[],
+  branchReport: {
+    name: string,
+    totalAmount: number;
+    ticketCount: number;
+    paidCount: number;
+    pendingCount: number;
+  }[],
   date: string;
 }
 
@@ -30,9 +36,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     backgroundColor: "#f7f7f7",
   },
+  image: {
+    width: 100,
+    height: 100,
+  },
   header: {
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   title: {
     fontSize: 26,
@@ -108,14 +118,14 @@ const styles = StyleSheet.create({
   providerTitle: {
     fontWeight: "bold",
     fontSize: 14,
+    marginBottom: 4,
   },
   providerText: {
     fontSize: 12,
   },
 });
 
-const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, date }: PdfFileProps) => {
-
+const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, branchReport, date }: PdfFileProps) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -234,13 +244,37 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{provider.paidCount}</Text>
                 <Text style={styles.column}>{provider.pendingCount}</Text>
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidCount))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidAmount))}</Text>
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.totalAmount))}</Text>
               </View>
             ))}
           </>
         ) : (
           <Text style={styles.noRecords}>No hay datos de proveedores en este reporte.</Text>
+        )}
+        {/* Branch Information Box */}
+        <Text style={styles.sectionTitle}>Resumen por Sucursal</Text>
+        {branchReport.length > 0 ? (
+          <>
+            <View style={styles.tableHeader}>
+              <Text style={styles.column}>Sucursal</Text>
+              <Text style={styles.column}>B. Pagados</Text>
+              <Text style={styles.columnWide}>B. Pendientes</Text>
+              <Text style={styles.column}>B. Totales</Text>
+              <Text style={styles.columnWide}>Ingresos Realizados</Text>
+            </View>
+            {branchReport.map((branch) => (
+              <View style={styles.tableRow} key={branch.name}>
+                <Text style={styles.column}>{branch.name}</Text>
+                <Text style={styles.column}>{branch.paidCount}</Text>
+                <Text style={styles.columnWide}>{branch.pendingCount}</Text>
+                <Text style={styles.column}>{branch.ticketCount}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(branch.totalAmount))}</Text>
+              </View>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.noRecords}>No hay datos de sucursales en este reporte.</Text>
         )}
         <Text style={styles.footer}>Este es un documento generado automáticamente. Por favor, consérvelo para sus registros.</Text>
       </Page>

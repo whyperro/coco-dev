@@ -1,10 +1,9 @@
 "use client"
 
-import { useGetClientReport, useGetProviderReport } from '@/actions/reports/actions'
+import { useGetProviderReport } from '@/actions/reports/actions'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
 import DateFilter from '@/components/misc/DateFilter'
 import LoadingPage from '@/components/misc/LoadingPage'
-import ClientReportPdf from '@/components/reports/pdf/ClientReportPdf'
 import ProviderReportPdf from '@/components/reports/pdf/ProviderReportPdf'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
 import { Button } from '@/components/ui/button'
@@ -22,7 +21,7 @@ const DailyReportPage = () => {
       <ProtectedRoute roles={['ADMIN', 'AUDITOR']}>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold'>Reporte de Cliente</h1>
-          <h1 className='text-4xl font-bold italic'>{providerReport?.client}</h1>
+          <h1 className='text-4xl font-bold italic'>{providerReport?.provider}</h1>
           <p className="mt-2 text-muted-foreground italic text-sm">
             Aquí se generaran los reportes formatos PDF cada 24 horas.
           </p>
@@ -31,7 +30,7 @@ const DailyReportPage = () => {
           <div className='flex justify-between items-center'>
             <DateFilter />
             {
-              providerReport && <PDFDownloadLink fileName={`reporte_${providerReport.client}_${providerReport.date}`} document={<ProviderReportPdf client={providerReport.client}  paidTickets={providerReport.paidTickets} pendingTickets={providerReport.pendingTickets}  routeCounts={providerReport.routeCounts} date={providerReport.date} />}>
+              providerReport && <PDFDownloadLink fileName={`reporte_${providerReport.provider}_${providerReport.date}`} document={<ProviderReportPdf provider={providerReport.provider} paidTickets={providerReport.paidTickets} pendingTickets={providerReport.pendingTickets} routeCounts={providerReport.routeCounts} date={providerReport.date} />}>
                 <Button disabled={isError}>Descargar PDF</Button>
               </PDFDownloadLink>
             }
@@ -39,7 +38,7 @@ const DailyReportPage = () => {
           <div>
             {
               providerReport && <PDFViewer style={{ width: '100%', height: '600px' }}>
-                <ProviderReportPdf client={providerReport.client}  paidTickets={providerReport.paidTickets} pendingTickets={providerReport.pendingTickets} routeCounts={providerReport.routeCounts}  date={providerReport.date} />
+                <ProviderReportPdf provider={providerReport.provider} paidTickets={providerReport.paidTickets} pendingTickets={providerReport.pendingTickets} routeCounts={providerReport.routeCounts} date={providerReport.date} />
               </PDFViewer>
             }
             {

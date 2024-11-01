@@ -84,6 +84,22 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
+    accessorKey: "routes",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Ruta de Vuelo' />
+    ),
+    cell: ({ row }) => {
+      const routes = row.original.routes
+      return <div className="text-center flex flex-col gap-2 justify-center">
+        {
+          routes.map((route) => (
+            <p className="italic text-muted-foreground">{route.origin} - {route.scale ?? ""}  - {route.destiny}</p>
+          ))
+        }
+      </div>
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Status' />

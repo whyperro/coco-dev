@@ -1,13 +1,5 @@
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { convertAmountFromMiliunits, formatCurrency } from "@/lib/utils";
-import { Ticket } from "@/types";
-
-interface Route {
-    origin:     string;
-    destiny:    string;
-    scale:      string | null;
-    route_type: "NACIONAL" | "INTERNACIONAL";
-}
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 interface ClientTicket {
   ticket_number: string;
   booking_ref: string;
@@ -19,12 +11,12 @@ interface ClientTicket {
   total: number;
   provider: { name: string };
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
-  passanger: {first_name:string, last_name:string} | null;
+  passanger: { first_name: string, last_name: string } | null;
   routes: { origin: string; destiny: string; route_type: string }[];
   branch: { location_name: string };
 }
 interface ProviderReportPdf {
-  client: string;  // Client's full name
+  provider: string;  // Client's full name
   routeCounts: {
     id: string,
     origin: string,
@@ -130,15 +122,15 @@ const styles = StyleSheet.create({
   },
 });
 
-const ProviderReportPdf = ({ client, paidTickets, pendingTickets, routeCounts, date }: ProviderReportPdf) => {
+const ProviderReportPdf = ({ provider, paidTickets, pendingTickets, routeCounts, date }: ProviderReportPdf) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Berkana</Text>
-          <Text style={styles.subtitle}>Reporte de Cliente</Text>
-          <Text style={styles.subtitle}>{client}</Text>
+          <Text style={styles.subtitle}>Reporte de Proveedor</Text>
+          <Text style={styles.subtitle}>{provider}</Text>
           <Text style={styles.date}>Rango de Fecha</Text>
           <Text style={styles.date}>{date}</Text>
         </View>
@@ -211,7 +203,7 @@ const ProviderReportPdf = ({ client, paidTickets, pendingTickets, routeCounts, d
               <Text style={styles.columnWide}>Destinos</Text>
               <Text style={styles.columnWide}>Tipo de ruta</Text>
               <Text style={styles.columnWide}>Vuelos realizados</Text>
-            
+
             </View >
             {routeCounts.map((route) => (
               <View style={styles.tableRow} key={route.origin}>
@@ -220,7 +212,7 @@ const ProviderReportPdf = ({ client, paidTickets, pendingTickets, routeCounts, d
                 <Text style={styles.columnWide}>{route.destiny}</Text>
                 <Text style={styles.columnWide}>{route.route_type}</Text>
                 <Text style={styles.columnWide}>{route._count.tickets}</Text>
-     
+
               </View>
             ))}
           </>

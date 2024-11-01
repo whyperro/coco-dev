@@ -3,9 +3,13 @@ import db from "@/lib/db";
 import { addDays, endOfDay, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
 
-interface IClientData {
-  name: string;
-  amount: number;
+
+interface IBranchData {
+    name: string,
+    totalAmount: number;
+    ticketCount: number;
+    paidCount: number;
+    pendingCount: number;
 }
 
 export async function GET(request: Request){
@@ -151,24 +155,50 @@ export async function GET(request: Request){
       };
     });
 
-    const branchData: { [key: string]: number } = {};
+    const branchData: {
+      [key: string]: {
+        totalAmount: number;
+        ticketCount: number;
+        paidCount: number;
+        pendingCount: number;
+      };
+    } = {};
+
+    // Populate branch data from transactions
     transactions.forEach(transaction => {
       const ticket = tickets.find(t => t.id === transaction.ticketId);
       const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';
 
       if (!branchData[branch]) {
-        branchData[branch] = 0;
+        branchData[branch] = { totalAmount: 0, ticketCount: 0, paidCount: 0, pendingCount: 0 };
       }
-      branchData[branch] += transaction.ticket.total || 0; // Accumulate amounts per branch
+
+      // Increment total amount
+      branchData[branch].totalAmount += transaction.ticket?.total || 0;
+
+      // Increment ticket count
+      branchData[branch].ticketCount += 1;
+
+      // Check ticket status and increment appropriate count
+      if (ticket) {
+        if (ticket.status === 'PAGADO') {
+          branchData[branch].paidCount += 1;
+        } else if (ticket.status === 'PENDIENTE') {
+          branchData[branch].pendingCount += 1;
+        }
+      }
     });
 
-    // Format data for the Pie chart
-    const branchReport: IClientData[] = Object.keys(branchData).map(client => ({
-      name: client,
-      amount: branchData[client],
+    // Format data for chart or report
+    const branchReport: IBranchData[] = Object.keys(branchData).map(branch => ({
+      name: branch,
+      amount: branchData[branch].totalAmount,
+      ticketCount: branchData[branch].ticketCount,
+      paidCount: branchData[branch].paidCount,
+      pendingCount: branchData[branch].pendingCount,
+      totalAmount: branchData[branch].totalAmount,
     }));
 
-    console.log(branchReport)
     // Respuesta del endpoint
     return NextResponse.json({
       date: searchParams.get("date") ? currentDate : defaultCurrentDate,

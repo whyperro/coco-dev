@@ -56,6 +56,12 @@ enum PaymentMethod {
   DEBITO
 }
 
+enum VoidReason {
+  CancelledByClient
+  WrongSellerInput
+  WrongClientInfo
+}
+
 model User {
   id         String  @id @default(cuid())
   first_name String
@@ -139,6 +145,7 @@ model Ticket {
   ticket_type   TicketType   @default(B)
   doc_order     Boolean      @default(true)
   description   String
+  void_description VoidReason?
 
   ticket_price Float
   fee          Float

@@ -64,6 +64,7 @@ export type Client = {
     issued_by:string,
     served_by :string,
     description: string
+    void_description?: string,
 
     routes: Route[]
     passanger: Passanger,

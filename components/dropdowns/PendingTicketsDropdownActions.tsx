@@ -48,12 +48,12 @@ const formSchema = z.object({
 
 });
 
-
 const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false); // Delete dialog
   const [openVoid, setOpenVoid] = useState<boolean>(false); // Delete dialog
+  const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
   const { updateCreditProvider } = useUpdateCreditProvider();
   const { updateStatusTicket } = useUpdateStatusTicket();
@@ -117,6 +117,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       await updateStatusTicket.mutateAsync({
         id: ticket.id,
         status: "CANCELADO",
+        void_description: reason ?? null,
         updated_by: session?.user.username || ""
       })
       toast.error("¡Cancelado!", {
@@ -125,6 +126,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     } catch (error) {
       console.log(error)
     }
+    setOpenVoid(false);
   }
 
   return (
@@ -167,7 +169,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="grid gap-4 grid-cols-2">
-
                 <FormField
                   control={form.control}
                   name="payment_method"
@@ -264,11 +265,21 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       <Dialog open={openVoid} onOpenChange={setOpenVoid}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle>¿Seguro que desea cancelar el boleto?</DialogTitle>
             <DialogDescription>
-              Seleccione el campo para cancelar el boleto
+              Ingrese la razón del cancelamiento del boleto.
             </DialogDescription>
           </DialogHeader>
+          <Select onValueChange={(e: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo") => setReason(e)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Razón..." />
+            </SelectTrigger>
+            <SelectContent >
+              <SelectItem value="CancelledByClient">Cancelado por cliente</SelectItem>
+              <SelectItem value="WrongSellerInput">Ingreso erróneo de datos</SelectItem>
+              <SelectItem value="WrongClientInfo">Información recibida errónea</SelectItem>
+            </SelectContent>
+          </Select>
           <div className="grid gap-4 grid-cols-2">
             <DialogFooter className="flex flex-col gap-2 md:gap-0">
               <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">

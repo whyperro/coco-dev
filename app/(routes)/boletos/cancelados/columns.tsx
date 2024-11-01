@@ -92,12 +92,12 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "total",
+    accessorKey: "void_description",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Total ticket' />
+      <DataTableColumnHeader column={column} title='Razón' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">${convertAmountFromMiliunits(row.original.total)}</p>
+      return <p className="text-center font-bold">{row.original.void_description === 'CancelledByClient' ? "Canc. por Cliente" : row.original.void_description === 'WrongSellerInfo' ? "Ingr. de datos erroneo" : "Información recibida errónea."}</p>
     },
   },
   {

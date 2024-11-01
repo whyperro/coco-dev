@@ -59,3 +59,41 @@ export async function GET(request: Request,{ params }: { params: { ticket_number
         );
       }
 }
+
+export async function DELETE(request: Request, { params }: { params: { ticket_number: string } }) {
+  try {
+    const { ticket_number } = params; // Get ticket_number from URL parameters
+
+    if (!ticket_number) {
+      return NextResponse.json(
+        {
+          message: 'El numero del ticket es requerido',
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Delete the branch by its ID
+    const deleteTicket = await db.ticket.delete({
+      where: { ticket_number },
+    });
+
+    return NextResponse.json({
+      message: 'Boleto eliminada exitosamente',
+      deleteTicket,
+    });
+  } catch (error) {
+    console.error('Error al eliminar el boleto:', error);
+
+    return NextResponse.json(
+      {
+        message: 'Ha ocurrido un error al eliminar el boleto.',
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}

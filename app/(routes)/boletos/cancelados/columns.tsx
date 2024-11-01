@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { convertAmountFromMiliunits } from "@/lib/utils"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
+import { TicketX } from "lucide-react"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -44,7 +45,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader filter column={column} title='Nro. de Ticket' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{row.original.ticket_number}</div>
+      return <div className="text-center font-bold flex gap-2 items-center justify-center"><TicketX className="size-4 text-red-500" /> {row.original.ticket_number}</div>
     },
   },
   {

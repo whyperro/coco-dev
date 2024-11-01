@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
+import { TicketMinus } from "lucide-react"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -44,7 +45,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader filter column={column} title='Nro. de Ticket' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{row.original.ticket_number}</div>
+      return <div className="text-center font-bold flex gap-2 items-center justify-center"><TicketMinus className="size-4 text-yellow-600" /> {row.original.ticket_number}</div>
     },
   },
   {
@@ -93,7 +94,7 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="text-center flex flex-col gap-2 justify-center">
         {
           routes.map((route) => (
-            <p className="italic text-muted-foreground">{route.origin} - {route.scale ?? ""}  - {route.destiny}</p>
+            <p className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
           ))
         }
       </div>

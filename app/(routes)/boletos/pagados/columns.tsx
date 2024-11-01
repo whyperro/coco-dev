@@ -11,7 +11,7 @@ import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { Download } from "lucide-react"
+import { Download, TicketCheck } from "lucide-react"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -50,7 +50,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader filter column={column} title='Nro. de Ticket' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{row.original.ticket_number}</div>
+      return <div className="text-center font-bold flex gap-2 items-center justify-center"><TicketCheck className="size-4 text-green-700" /> {row.original.ticket_number}</div>
     },
   },
   {
@@ -72,7 +72,7 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="text-center flex flex-col gap-2 justify-center">
         {
           routes.map((route) => (
-            <p className="italic text-muted-foreground">{route.origin} - {route.destiny}</p>
+            <p className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
           ))
         }
       </div>
@@ -102,7 +102,9 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Total Pagado' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">${convertAmountFromMiliunits(row.original.total)}</p>
+      return <div className="flex justify-center">
+        <Badge className="text-center font-bold hover:cursor-default">${convertAmountFromMiliunits(row.original.total)}</Badge>
+      </div>
     },
   },
   {
@@ -116,8 +118,8 @@ export const columns: ColumnDef<Ticket>[] = [
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <a href={row.original.transaction?.image_ref} download className="text-green-500">
-                  <Download />
+                <a href={row.original.transaction?.image_ref} download className="text-green-500 flex justify-center items-center">
+                  {row.original.transaction.payment_ref} <Download />
                 </a>
               </TooltipTrigger>
               <TooltipContent>
@@ -126,7 +128,7 @@ export const columns: ColumnDef<Ticket>[] = [
             </Tooltip>
           </TooltipProvider>
         ) : (
-          <div className="text-muted-foreground">{row.original.transaction?.payment_ref}</div>
+          <div className="text-muted-foreground flex justify-center">{row.original.transaction?.payment_ref}</div>
         )}
       </div>
     },

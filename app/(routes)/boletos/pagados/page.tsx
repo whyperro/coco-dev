@@ -3,7 +3,7 @@
 import { useGetPaidTickets } from '@/actions/tickets/actions'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
 import { Ticket } from '@/types'
-import { Loader2 } from 'lucide-react'
+import { Loader2, TicketCheck } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { columns } from './columns'

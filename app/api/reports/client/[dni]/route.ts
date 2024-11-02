@@ -43,6 +43,12 @@ export async function GET(request: Request, { params }: { params: { dni: string 
         routes: true,
         branch: { select: { location_name: true } },
         transaction: { select: { payment_ref: true, payment_method: true } },
+        passanger: {
+          select: {
+            first_name: true,
+            last_name: true,
+          }
+        }
       },
       orderBy: { status: "asc" }
     });

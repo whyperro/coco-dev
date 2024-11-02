@@ -7,6 +7,7 @@ import { NextResponse } from "next/server";
 interface IBranchData {
     name: string,
     totalAmount: number;
+    pendingAmount: number;
     ticketCount: number;
     paidCount: number;
     pendingCount: number;
@@ -61,8 +62,26 @@ export async function GET(request: Request){
             total: true, // Select the total from the ticket
           },
         },
+        payment_method: true,
       },
     });
+
+    const transactionTypeTotalsRecord: Record<string, number> = {};
+        transactions.forEach(transaction => {
+            const method = transaction.payment_method || "UNKNOWN";
+            const total = transaction.ticket?.total || 0;
+
+            if (!transactionTypeTotalsRecord[method]) {
+              transactionTypeTotalsRecord[method] = 0;
+            }
+            transactionTypeTotalsRecord[method] += total;
+        });
+        const transactionTypeTotals = Object.entries(transactionTypeTotalsRecord).map(
+          ([transactionType, totalAmount]) => ({
+            transactionType,
+            totalAmount,
+          })
+        );
 
     const clientsData = await db.client.findMany({
       include: {
@@ -161,6 +180,7 @@ export async function GET(request: Request){
         ticketCount: number;
         paidCount: number;
         pendingCount: number;
+        pendingAmount: number,
       };
     } = {};
 
@@ -170,7 +190,7 @@ export async function GET(request: Request){
       const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';
 
       if (!branchData[branch]) {
-        branchData[branch] = { totalAmount: 0, ticketCount: 0, paidCount: 0, pendingCount: 0 };
+        branchData[branch] = { totalAmount: 0, ticketCount: 0, paidCount: 0, pendingCount: 0, pendingAmount: 0 };
       }
 
       // Increment total amount
@@ -185,6 +205,7 @@ export async function GET(request: Request){
           branchData[branch].paidCount += 1;
         } else if (ticket.status === 'PENDIENTE') {
           branchData[branch].pendingCount += 1;
+          branchData[branch].pendingAmount += transaction.ticket?.total || 0;
         }
       }
     });
@@ -196,6 +217,7 @@ export async function GET(request: Request){
       ticketCount: branchData[branch].ticketCount,
       paidCount: branchData[branch].paidCount,
       pendingCount: branchData[branch].pendingCount,
+      pendingAmount: branchData[branch].pendingAmount,
       totalAmount: branchData[branch].totalAmount,
     }));
 
@@ -229,6 +251,7 @@ export async function GET(request: Request){
       clientsReport,
       providersReport,
       branchReport,
+      transactionTypeTotals,
     });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);

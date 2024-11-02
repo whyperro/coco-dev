@@ -23,10 +23,15 @@ interface PdfFileProps {
   branchReport: {
     name: string,
     totalAmount: number;
+    pendingAmount: number;
     ticketCount: number;
     paidCount: number;
     pendingCount: number;
   }[],
+  transactionTypeTotals: {
+    transactionType: string;
+    totalAmount: number;
+  }[];
   date: string;
 }
 
@@ -86,6 +91,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 5,
   },
+  columnTrans: {
+    width: "50%",
+    textAlign: "center",
+    padding: 5,
+  },
+  columnTransWide: {
+    width: "50%",
+    textAlign: "center",
+    padding: 5,
+  },
   columnWide: {
     width: "20%",
     textAlign: "center",
@@ -125,7 +140,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, branchReport, date }: PdfFileProps) => {
+const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, branchReport, date, transactionTypeTotals }: PdfFileProps) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -226,6 +241,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
         ) : (
           <Text style={styles.noRecords}>No hay datos de clientes en este reporte.</Text>
         )}
+
         {/* Provider Information Box */}
         <Text style={styles.sectionTitle}>Resumen por Proveedor</Text>
         {providersReport.length > 0 ? (
@@ -252,6 +268,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
         ) : (
           <Text style={styles.noRecords}>No hay datos de proveedores en este reporte.</Text>
         )}
+
         {/* Branch Information Box */}
         <Text style={styles.sectionTitle}>Resumen por Sucursal</Text>
         {branchReport.length > 0 ? (
@@ -261,7 +278,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
               <Text style={styles.column}>B. Pagados</Text>
               <Text style={styles.columnWide}>B. Pendientes</Text>
               <Text style={styles.column}>B. Totales</Text>
-              <Text style={styles.columnWide}>Ingresos Realizados</Text>
+              <Text style={styles.columnWide}>Ingresos Totales</Text>
+              <Text style={styles.columnWide}>Pendiente a Recibir</Text>
             </View>
             {branchReport.map((branch) => (
               <View style={styles.tableRow} key={branch.name}>
@@ -270,12 +288,35 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.columnWide}>{branch.pendingCount}</Text>
                 <Text style={styles.column}>{branch.ticketCount}</Text>
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(branch.totalAmount))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(branch.pendingAmount))}</Text>
               </View>
             ))}
           </>
         ) : (
           <Text style={styles.noRecords}>No hay datos de sucursales en este reporte.</Text>
         )}
+
+        <Text style={styles.sectionTitle}>Ingresos Totales del Día</Text>
+        {
+          transactionTypeTotals.length > 0 ? (
+            <>
+              <View style={styles.tableHeader}>
+                <Text style={styles.columnTrans}>Tipo de Pago</Text>
+                <Text style={styles.columnTrans}>Total Ingresado</Text>
+              </View>
+              {transactionTypeTotals.map((transaction) => (
+                <View style={styles.tableRow} key={transaction.transactionType}>
+                  <Text style={styles.columnTrans}>{transaction.transactionType}</Text>
+                  <Text style={styles.columnTrans}>{formatCurrency(convertAmountFromMiliunits(transaction.totalAmount))}</Text>
+                </View>
+              ))}
+            </>
+          ) : (
+            <Text style={styles.noRecords}>No hay datos de pagos en este reporte.</Text>
+
+          )
+        }
+
         <Text style={styles.footer}>Este es un documento generado automáticamente. Por favor, consérvelo para sus registros.</Text>
       </Page>
     </Document>

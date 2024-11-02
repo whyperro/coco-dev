@@ -23,6 +23,7 @@ interface ClientTicket {
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
   routes: { origin: string; destiny: string; route_type: string }[];
   branch: { location_name: string };
+  passanger: { first_name: string, last_name: string }
 }
 interface ClientReportPdf {
   client: string;  // Client's full name
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   },
   header: {
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 15,
   },
   title: {
     fontSize: 26,
@@ -158,7 +159,7 @@ const ClientReportPdf = ({ client, paidTickets, pendingTickets, passengers, date
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : "ZELLE"}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-              <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
+                <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
               </View>
             ))}
           </>
@@ -188,6 +189,7 @@ const ClientReportPdf = ({ client, paidTickets, pendingTickets, passengers, date
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
+                <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
               </View>
             ))}

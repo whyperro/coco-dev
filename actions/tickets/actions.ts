@@ -150,13 +150,14 @@ export const useCreateTicket = () => {
   export const useDeleteTicket = () => {
 
     const queryClient = useQueryClient();
-  
+
     const deleteMutation = useMutation({
       mutationFn: async (ticket_number: string) => {
         await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["tickets"] });
+        queryClient.invalidateQueries({ queryKey: ["cancelled-tickets"] });
         toast.success("¡Eliminado!", {
           description: "¡El boleto ha sido eliminada correctamente!"
         });
@@ -167,7 +168,7 @@ export const useCreateTicket = () => {
         });
       },
     });
-  
+
     return {
       deleteTicket: deleteMutation,
     };

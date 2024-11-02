@@ -21,7 +21,7 @@ interface ClientTicket {
   total: number;
   provider: { name: string };
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
-  passanger: {first_name:string, last_name:string} | null;
+  passanger: {first_name:string, last_name:string};
   routes: { origin: string; destiny: string; route_type: string }[];
   branch: { location_name: string };
 }
@@ -59,6 +59,7 @@ interface DailyReport {
     paidAmount: number, // Amount for paid tickets
     pendingAmount: number, // Amount for pending tickets
     totalAmount: number, // Total amount generated
+    passanger: { first_name: string, last_name: string }
   }[],
   providersReport: {
     provider: string,
@@ -71,10 +72,15 @@ interface DailyReport {
   branchReport: {
     name: string,
     totalAmount: number;
+    pendingAmount: number;
     ticketCount: number;
     paidCount: number;
     pendingCount: number;
   }[],
+  transactionTypeTotals: {
+    transactionType: string;
+    totalAmount: number;
+  }[];
   date: string,
 }
 

@@ -20,13 +20,12 @@ export const useGetTicket = (ticket_number: string) => {
 
 export const useGetPendingTickets = () => {
   const ticketsQuery = useQuery({
-    queryKey: ["pendingTickets"],
+    queryKey: ["pending"],
     queryFn: async () => {
       const { data } = await axios.get('/api/tickets/pending');
       return data as Ticket[];
     },
     staleTime: 15000,
-    refetchInterval: 5000,
   });
 
   return {
@@ -38,13 +37,12 @@ export const useGetPendingTickets = () => {
 
 export const useGetPaidTickets = () => {
   const ticketsQuery = useQuery({
-    queryKey: ["paid-tickets"], // Updated to reflect flight type
+    queryKey: ["paid"], // Updated to reflect flight type
     queryFn: async () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 3500,
-    refetchInterval: 5000,
+    staleTime: 15000,
   });
 
   return {
@@ -56,13 +54,12 @@ export const useGetPaidTickets = () => {
 
 export const useGetCancelledTickets = () => {
   const ticketsQuery = useQuery({
-    queryKey: ["cancelled-tickets"], // Updated to reflect flight type
+    queryKey: ["cancelled"], // Updated to reflect flight type
     queryFn: async () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
-    staleTime: 3500,
-    refetchInterval: 5000,
+    staleTime: 15000,
   });
 
   return {
@@ -80,8 +77,7 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 3500,
-    refetchInterval: 5000,
+    staleTime: 15000,
   });
 
   return {
@@ -127,7 +123,7 @@ export const useCreateTicket = () => {
       },
       onSuccess: () => {
         // Invalidate the 'branches' query to refresh the data
-        queryClient.invalidateQueries({ queryKey: ["pendingTickets"], exact: true, });
+        queryClient.invalidateQueries({ queryKey: ["pending"], exact: true, });
         queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
         queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
         toast.success("¡Creado!", {
@@ -156,7 +152,7 @@ export const useCreateTicket = () => {
         await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["cancelled-tickets"] });
+        queryClient.invalidateQueries({ queryKey: ["cancelled"] });
         toast.success("¡Eliminado!", {
           description: "¡El boleto ha sido eliminada correctamente!"
         });

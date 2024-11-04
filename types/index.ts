@@ -51,7 +51,6 @@ export type Client = {
     ticket: Ticket[]
   }
 
-  type VoidReason = "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo"
 
   export type Ticket = {
     id: string,
@@ -66,7 +65,7 @@ export type Client = {
     issued_by:string,
     served_by :string,
     description: string
-    void_description?: VoidReason | null
+    void_description?: string,
     routes: Route[]
     passanger: Passanger,
     transaction?: Transaction,

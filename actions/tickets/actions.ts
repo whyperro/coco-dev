@@ -125,6 +125,7 @@ export const useCreateTicket = () => {
       onSuccess: () => {
         // Invalidate the 'branches' query to refresh the data
         queryClient.invalidateQueries({ queryKey: ["pending"], exact: true, });
+        queryClient.resetQueries({queryKey: ["pending"], exact: true });
         queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
         queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
         toast.success("¡Creado!", {

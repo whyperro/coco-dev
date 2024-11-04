@@ -17,6 +17,7 @@ export async function GET() {
         provider: true,
       }
     });
+    console.log(data);
     return NextResponse.json(data, {
       status: 200,
     });

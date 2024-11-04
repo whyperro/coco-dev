@@ -13,6 +13,7 @@ export const useUpdateStatusTicket = () => {
       void_description?: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo",
       updated_by: string,
     }) => {
+      await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
       await axios.patch(`/api/tickets/transaction/${values.id}`, {
         status: values.status,
         updated_by: values.updated_by,
@@ -21,7 +22,6 @@ export const useUpdateStatusTicket = () => {
     },
     onSuccess: async() => {
       // Invalidate the 'branches' query to refresh the data
-      await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["tickets"] });
     },

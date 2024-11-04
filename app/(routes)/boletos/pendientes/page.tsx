@@ -13,7 +13,7 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute'
 const PendingTicketsPage = () => {
 
   const [filteredTickets, setFilteredTickets] = useState<Ticket[] | null>(null)
-  const { data: tickets, loading, error } = useGetPendingTickets()
+  const { data: tickets,  loading,  error } = useGetPendingTickets()
   const { data: session } = useSession()
 
   useEffect(() => {
@@ -24,13 +24,10 @@ const PendingTicketsPage = () => {
       if (userRole === 'ADMIN' || userRole === 'AUDITOR') {
         setFilteredTickets(tickets)
       } else if (userBranchId) {
-
-        // Ensure branchId exists and filter tickets by the user's branchId
         setFilteredTickets(tickets.filter((ticket) => ticket.branchId === userBranchId))
       }
     }
   }, [tickets, session])
-
 
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>

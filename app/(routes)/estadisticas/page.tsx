@@ -30,7 +30,7 @@ const AnaliticsPage = () => {
       </>}
       {
         data && <>
-           <div className='flex justify-center '><DateFilter/></div>
+          <div className='flex justify-center '><DateFilter /></div>
           <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
           <DataCharts pieTitle='Clientes' pieDescription="Ingresos según los clientes." transactions={data.transactionsByBranch} branches={data.chartPie} />
         </>

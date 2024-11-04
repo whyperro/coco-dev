@@ -128,6 +128,7 @@ export const useCreateTicket = () => {
         await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
         await queryClient.invalidateQueries({ queryKey: ["tickets"] });
         await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
+        await queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
         toast.success("¡Creado!", {
           description: "¡El ticket ha sido creada correctamente!",
           dismissible: true,

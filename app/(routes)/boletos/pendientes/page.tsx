@@ -12,24 +12,6 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute'
 
 const PendingTicketsPage = () => {
   const { data: tickets, loading, error } = useGetPendingTickets()
-  const { data: session } = useSession()
-
-  // Filtrar tickets directamente con useMemo en lugar de useEffect
-  const filteredTickets = useMemo(() => {
-    if (!tickets || !session) return null
-
-    const userRole = session.user.user_role
-    const userBranchId = session.user.branchId
-
-    if (userRole === 'ADMIN' || userRole === 'AUDITOR') {
-      return tickets
-    }
-    if (userBranchId) {
-      return tickets.filter((ticket) => ticket.branchId === userBranchId)
-    }
-    return []
-  }, [tickets, session])
-
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
       <ContentLayout title="Boletos Pendientes">
@@ -44,7 +26,7 @@ const PendingTicketsPage = () => {
             <Loader2 className="size-12 animate-spin" />
           </div>
         )}
-        {filteredTickets && <DataTable columns={columns} data={filteredTickets} />}
+        {tickets && <DataTable columns={columns} data={tickets} />}
         {error && (
           <div className="w-full flex justify-center text-sm text-muted-foreground">
             Hubo un error...

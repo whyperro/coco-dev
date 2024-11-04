@@ -58,16 +58,13 @@ export async function GET(request: Request, { params }: { params: { username: st
         },
         ticket:{
           registered_by:username,
-      
-          // issued_by:username
-           
         }
-        //     
-      },   
+        //
+      },
       select: {
         transaction_date: true,
         ticketId: true, // Include ticketId to link transactions to branches
-        ticket: {         
+        ticket: {
           select: {
             total: true, // Select the total from the ticket
           },
@@ -81,7 +78,7 @@ export async function GET(request: Request, { params }: { params: { username: st
         id: { in: transactions.map(t => t.ticketId) },
         // issued_by: username
         registered_by:username,
-        
+
       },
       select: {
         id: true,
@@ -114,17 +111,17 @@ export async function GET(request: Request, { params }: { params: { username: st
       where: {
         status: "PENDIENTE",
         // issued_by: username
-  
+
         registered_by:username,
-        
+
       }
     })
-    
+
     const paidCount = await db.ticket.count({
       where: {
         status: "PAGADO",
         registered_by:username,
-        
+
       }
     })
 
@@ -139,7 +136,7 @@ export async function GET(request: Request, { params }: { params: { username: st
       const ticket = tickets.find(t => t.id === transaction.ticketId); // Find the corresponding ticket to get the branchId
       const branchId = ticket ? ticket.branchId : 'unknown'; // Get the branch ID from the ticket
       const branchName = ticket?.branch?.location_name || 'Unknown Branch'; // Get the branch name
-      
+
       const formattedDate = format(transaction.transaction_date, "yyyy-MM-dd");
 
       if (!branchTransactions[branchId]) {

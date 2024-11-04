@@ -87,7 +87,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       await updateStatusTicket.mutateAsync({
         id: ticket.id,
         status: "PAGADO",
-        updated_by: `${session?.user.first_name} ${session?.user.last_name}` || ""
+        updated_by: session?.user.username|| ""
       });
 
       toast.success("¡Pagado!", {

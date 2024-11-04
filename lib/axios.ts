@@ -1,6 +1,12 @@
-import axios from "axios";
+// utils/axiosNoCache.ts
+import axios from 'axios';
 
-// Axios Interceptor Instance
-const AxiosInstance = axios.create({
-    baseURL: process.env.BASE_URL
+const axiosNoCache = axios.create({
+    headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+        },
 });
+
+export default axiosNoCache;

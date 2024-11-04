@@ -1,3 +1,4 @@
+import axiosNoCache from "@/lib/axios";
 import { Ticket } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -23,7 +24,7 @@ export const useGetPendingTickets = () => {
   const ticketsQuery = useQuery({
     queryKey: ["pending"],
     queryFn: async () => {
-      const { data } = await axios.get('/api/tickets/pending');
+      const { data } = await axiosNoCache.get('/api/tickets/pending');
       return data as Ticket[];
     },
   });

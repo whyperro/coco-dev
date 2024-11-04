@@ -20,19 +20,17 @@ export const useGetTicket = (ticket_number: string) => {
 };
 
 export const useGetPendingTickets = () => {
-  const ticketsQuery = useQuery({
+  const pendingQuery = useQuery({
     queryKey: ["pending"],
     queryFn: async () => {
-      const { data } = await axiosNoCache.get('/api/tickets/pending');
+      const { data} = await axios.get('/api/tickets/pending'); // Adjust the endpoint as needed
       return data as Ticket[];
-    },
-    retry: 3,
+    }
   });
-  console.log(ticketsQuery.isFetching)
   return {
-    data: ticketsQuery.data,
-    loading: ticketsQuery.isLoading,
-    error: ticketsQuery.isError ? ticketsQuery.error : null,
+    data: pendingQuery.data,
+    loading: pendingQuery.isLoading,
+    error: pendingQuery.isError // Function to call the query
   };
 };
 
@@ -122,12 +120,11 @@ export const useCreateTicket = () => {
 
           return res
       },
-      onSuccess: () => {
+      onSuccess: async () => {
         // Invalidate the 'branches' query to refresh the data
-        queryClient.invalidateQueries({ queryKey: ["pending"], exact: true, });
-        queryClient.resetQueries({queryKey: ["pending"], exact: true });
-        queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
-        queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
+        await queryClient.invalidateQueries({ queryKey: ["pending"] });
+        await queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
+        await queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
         toast.success("¡Creado!", {
           description: "¡El ticket ha sido creada correctamente!",
           dismissible: true,

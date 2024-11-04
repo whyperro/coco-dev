@@ -1,24 +1,25 @@
+'use client'
+
 import { Toaster } from "@/components/ui/sonner";
+import ClientSessionProvider from "@/providers/AuthProvider";
 import QueryClientContextProvider from "@/providers/QueryProvider";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from "next-themes";
 import { Poppins } from "next/font/google";
+import { useEffect } from "react";
 import "./globals.css";
-import ClientSessionProvider from "@/providers/AuthProvider";
-import { Metadata } from "next";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
-
-export const metadata: Metadata = {
-  title: "Berkana - Viajes",
-  description: "Sistema de Gestión y Control Contable",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  useEffect(() => {
+    // @ts-expect-error
+    window.toggleDevtools = () => setShowDevtools((old) => !old)
+  }, [])
   return (
     <html lang="en">
       <QueryClientContextProvider>

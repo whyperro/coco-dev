@@ -62,28 +62,12 @@ export const useCreateClient = () => {
         });
       },
     });
-  
+
     return {
       createClient: createMutation, // Function to call the mutation
     };
   };
 
-  // export const useGetClientByDni = (dni: string | null) => {
-  //   const clientQuery = useQuery({
-  //     queryKey: ["client"],
-  //     queryFn: async () => {
-  //       const {data} = await axios.get(`/api/clients/dni/${dni}`); // Adjust the endpoint as needed
-  //       return data as Client;
-  //     },
-  //     enabled: !!dni
-  //   });
-  //   return {
-  //     data: clientQuery.data,
-  //     loading: clientQuery.isLoading,
-  //     error: clientQuery.isError // Function to call the query
-  //   };
-  // };
-  
   export const useUpdateClient = () => {
 
     const queryClient = useQueryClient();
@@ -124,7 +108,7 @@ export const useCreateClient = () => {
   export const useDeleteClient = () => {
 
     const queryClient = useQueryClient();
-  
+
     const deleteMutation = useMutation({
       mutationFn: async (id: string) => {
         await axios.delete(`/api/clients/${id}`); // Include ID in the URL
@@ -141,9 +125,8 @@ export const useCreateClient = () => {
         });
       },
     });
-  
+
     return {
       deleteClient: deleteMutation,
     };
   };
-  

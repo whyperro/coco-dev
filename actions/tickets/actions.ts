@@ -25,6 +25,7 @@ export const useGetPendingTickets = () => {
       const {data} = await axios.get('/api/tickets/pending');
       return data as Ticket[];
     },
+    staleTime: 0,
   });
 
   return {
@@ -41,6 +42,7 @@ export const useGetPaidTickets = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
+    staleTime: 0,
   });
 
   return {
@@ -57,6 +59,7 @@ export const useGetCancelledTickets = () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
+    staleTime: 0,
   });
 
   return {
@@ -74,6 +77,7 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
+    staleTime: 0,
   });
 
   return {
@@ -148,7 +152,7 @@ export const useCreateTicket = () => {
         await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tickets"] });
+        queryClient.invalidateQueries({ queryKey: ["cancelled-tickets"] });
         toast.success("¡Eliminado!", {
           description: "¡El boleto ha sido eliminada correctamente!"
         });

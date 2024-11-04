@@ -27,7 +27,7 @@ const PendingTicketsPage = () => {
         setFilteredTickets(tickets.filter((ticket) => ticket.branchId === userBranchId))
       }
     }
-  }, [tickets, session])
+  }, [tickets, session, filteredTickets])
 
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>

@@ -49,9 +49,6 @@ export const useGetSummary = () => {
         })),
       };
     },
-
-    // Optional: retry in case of failure, and cache the result for 5 minutes (staleTime)
-    staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
     retry: 3, // Retry failed queries up to 3 times
   });
 

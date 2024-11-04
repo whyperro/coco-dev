@@ -10,8 +10,6 @@ export const useGetTicket = (ticket_number: string) => {
       const {data} = await axios.get(`/api/tickets/${ticket_number}`);
       return data as Ticket;
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
   });
   return {
     data: ticketQuery.data,
@@ -43,7 +41,6 @@ export const useGetPaidTickets = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
   });
 
   return {
@@ -60,7 +57,6 @@ export const useGetCancelledTickets = () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
   });
 
   return {
@@ -78,7 +74,6 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
   });
 
   return {

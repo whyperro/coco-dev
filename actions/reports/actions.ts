@@ -98,7 +98,6 @@ export const useGetDailyReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };
@@ -120,7 +119,6 @@ export const useGetClientReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };
@@ -142,7 +140,6 @@ export const useGetProviderReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };

@@ -28,7 +28,6 @@ export const useGetRoutes = () => {
       const {data} = await axios.get('/api/routes');
       return data as Route[];
     },
-    // Optional: you can set retry and staleTime here
   });
 
   return {

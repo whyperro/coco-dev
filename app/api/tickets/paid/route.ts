@@ -25,6 +25,9 @@ export async function GET() {
     });
     return NextResponse.json(data, {
       status: 200,
+      headers: {
+        'Cache-Control': 'no-store',
+      }
     });
   } catch (error) {
     console.error("Error fetching routes:", error);

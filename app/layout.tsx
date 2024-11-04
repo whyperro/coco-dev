@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
 
   useEffect(() => {
-    // @ts-expect-error
+    // @ts-expect-error: El módulo se carga dinámicamente y puede que no esté disponible en build
     window.toggleDevtools = () => setShowDevtools((old) => !old)
   }, [])
   return (

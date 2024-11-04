@@ -1,14 +1,11 @@
 "use client"
 
 import { useGetPendingTickets } from '@/actions/tickets/actions'
+import ProtectedRoute from '@/components/layout/ProtectedRoute'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
-import { Ticket } from '@/types'
 import { Loader2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useEffect, useMemo } from 'react'
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import ProtectedRoute from '@/components/layout/ProtectedRoute'
 
 const PendingTicketsPage = () => {
   const { data: tickets, loading, error } = useGetPendingTickets()

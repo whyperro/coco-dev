@@ -20,6 +20,9 @@ export const useCreateTransaction = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
+      queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
+      queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
       toast.success("¡Creado!", {
         description: "¡La transacción ha sido creada correctamente!",
         dismissible: true,

@@ -23,6 +23,7 @@ export const useUpdateStatusTicket = () => {
       await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      await queryClient.refetchQueries({ queryKey: ["pending-tickets"] })
     },
     onError: (error: Error) => {
       toast.error("Oops!", {

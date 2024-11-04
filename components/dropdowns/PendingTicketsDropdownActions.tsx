@@ -98,6 +98,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     } catch (error) {
       console.log(error);
     }
+    
   };
 
   const onVoidTicket = async () => {

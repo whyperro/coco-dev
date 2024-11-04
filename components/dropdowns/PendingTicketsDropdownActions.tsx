@@ -38,7 +38,7 @@ import { z } from "zod"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
-import { UploadButton } from "@/lib/utils"
+import { UploadButton } from "@/lib/uploadthing"
 
 const formSchema = z.object({
   payment_ref: z.string(),

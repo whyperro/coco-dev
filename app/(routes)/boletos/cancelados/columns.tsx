@@ -68,7 +68,7 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="text-center flex flex-col gap-2 justify-center">
         {
           routes.map((route) => (
-            <p className="italic text-muted-foreground">{route.origin} - {route.destiny}</p>
+            <p key={route.id} className="italic text-muted-foreground">{route.origin} - {route.destiny}</p>
           ))
         }
       </div>

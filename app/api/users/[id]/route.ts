@@ -38,3 +38,31 @@ export async function DELETE(request: Request,{ params }: { params: { id: string
     );
   }
 }
+
+export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  try {
+
+    const data = await request.json()
+
+    const { id } = params
+
+    const updatedUser= await db.user.update({
+      where: { id },
+      data: {
+        ...data
+      },
+    });
+
+    return NextResponse.json(updatedUser);
+  } catch (error) {
+    console.error("Error al actualizar al usuario:", error);
+    return NextResponse.json(
+      {
+        message: "Error al actualizar al usuario.",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}

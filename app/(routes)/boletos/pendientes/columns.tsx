@@ -110,13 +110,13 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "registered_by",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Status' />
+      <DataTableColumnHeader column={column} title='Registrado por' />
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
-        <Badge className="text-center font-bold bg-yellow-500">{row.original.status}</Badge>
+        <Badge className="text-center font-bold bg-yellow-600">{row.original.registered_by}</Badge>
       </div>
     },
   },

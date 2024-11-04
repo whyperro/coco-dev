@@ -65,7 +65,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "routes",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Ruta de Vuelo' />
+      <DataTableColumnHeader column={column} title='Vuelo' />
     ),
     cell: ({ row }) => {
       const routes = row.original.routes
@@ -143,6 +143,15 @@ export const columns: ColumnDef<Ticket>[] = [
           <div className="text-muted-foreground flex justify-center">{row.original.transaction?.payment_ref}</div>
         )}
       </div>
+    },
+  },
+  {
+    accessorKey: "transaction",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Registrade por' />
+    ),
+    cell: ({ row }) => {
+      return <div className="text-center italic text-muted-foreground">{row.original.transaction?.registered_by}</div>
     },
   },
   {

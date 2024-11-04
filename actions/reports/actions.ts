@@ -66,7 +66,6 @@ interface DailyReport {
     pendingCount: number,
     paidAmount: number, // Amount for paid tickets
     pendingAmount: number, // Amount for pending tickets
-    totalAmount: number, // Total amount generated
   }[],
   branchReport: {
     name: string,
@@ -74,6 +73,14 @@ interface DailyReport {
     ticketCount: number;
     paidCount: number;
     pendingCount: number;
+  }[],
+  transactionTypesReport: {
+    branch: string,
+    payment_methods: {
+      method: string,
+      totalAmount: number,
+    }[],
+    branch_total: number,
   }[],
   date: string,
 }

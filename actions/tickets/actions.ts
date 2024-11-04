@@ -121,9 +121,11 @@ export const useCreateTicket = () => {
           providerId: string,
           routes:string[]
         }) => {
-          await axios.post(`/api/tickets`, {
+          const res = await axios.post(`/api/tickets`, {
               ...values
           });
+
+          return res
       },
       onSuccess: async() => {
         // Invalidate the 'branches' query to refresh the data
@@ -150,7 +152,7 @@ export const useCreateTicket = () => {
   export const useDeleteTicket = () => {
 
     const queryClient = useQueryClient();
-  
+
     const deleteMutation = useMutation({
       mutationFn: async (ticket_number: string) => {
         await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
@@ -167,7 +169,7 @@ export const useCreateTicket = () => {
         });
       },
     });
-  
+
     return {
       deleteTicket: deleteMutation,
     };

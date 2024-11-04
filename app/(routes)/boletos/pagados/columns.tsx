@@ -72,25 +72,34 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="text-center flex flex-col gap-2 justify-center">
         {
           routes.map((route) => (
-            <p className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
+            <p key={route.id} className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
           ))
         }
       </div>
     },
   },
   {
-    accessorKey: "passanger",
+    accessorKey: "provider",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Proveedor' />
+    ),
+    cell: ({ row }) => {
+      return <div className="text-center font-bold">{row.original.provider.name}</div>
+    },
+  },
+  {
+    accessorKey: "client",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Cliente' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{row.original.passanger.client.first_name} {row.original.passanger.client.last_name}</div>
+      return <div className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</div>
     },
   },
   {
     accessorKey: "passanger",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Pasajero(s)' />
+      <DataTableColumnHeader column={column} title='Pasajero' />
     ),
     cell: ({ row }) => {
       return <div className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</div>
@@ -118,9 +127,12 @@ export const columns: ColumnDef<Ticket>[] = [
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <a href={row.original.transaction?.image_ref} download className="text-green-500 flex justify-center items-center">
-                  {row.original.transaction.payment_ref} <Download />
+                <div className="flex gap-2 items-center justify-center text-green-500">
+                <a href={row.original.transaction?.image_ref} download={`referencia_${row.original.ticket_number}_${row.original.transaction.payment_ref}`}>
+                  <Download />
                 </a>
+                <p>{row.original.transaction.payment_ref}</p>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Descargar Imagen</p>

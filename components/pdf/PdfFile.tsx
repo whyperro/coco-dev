@@ -18,7 +18,6 @@ interface PdfFileProps {
     pendingCount: number,
     paidAmount: number,
     pendingAmount: number,
-    totalAmount: number,
   }[],
   branchReport: {
     name: string,
@@ -27,13 +26,21 @@ interface PdfFileProps {
     paidCount: number;
     pendingCount: number;
   }[],
+  transactionTypesReport: {
+    branch: string,
+    payment_methods: {
+      method: string,
+      totalAmount: number,
+    }[],
+    branch_total: number,
+  }[],
   date: string;
 }
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontSize: 10,
+    fontSize: 8,
     backgroundColor: "#f7f7f7",
   },
   image: {
@@ -42,13 +49,13 @@ const styles = StyleSheet.create({
   },
   header: {
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#4CAF50",
+    color: "#63C144",
   },
   subtitle: {
     fontSize: 20,
@@ -70,7 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 2,
     borderBottomColor: "#000",
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#c5f5b5",
     padding: 5,
     fontWeight: "bold",
   },
@@ -125,7 +132,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, branchReport, date }: PdfFileProps) => {
+const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, branchReport, date, transactionTypesReport }: PdfFileProps) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -146,7 +153,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
               <Text style={styles.column}>Fare</Text>
               <Text style={styles.column}>Fee</Text>
               <Text style={styles.column}>Total</Text>
-              <Text style={styles.columnWide}>Método Pago</Text>
+              <Text style={styles.column}>M. de Pago</Text>
               <Text style={styles.columnWide}>Pasajero</Text>
               <Text style={styles.columnWide}>Proveedor</Text>
               <Text style={styles.columnWide}>Ruta</Text>
@@ -158,7 +165,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
-                <Text style={styles.columnWide}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : "ZELLE"}</Text>
+                <Text style={styles.column}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : ticket.transaction?.payment_method}</Text>
                 <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
                 <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
@@ -175,7 +182,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
           <>
             <View style={styles.tableHeader}>
               <Text style={styles.columnExtraWide}>Nro. Ticket</Text>
-              <Text style={styles.column}>Book. Ref.</Text>
+              <Text style={styles.columnWide}>Book. Ref.</Text>
               <Text style={styles.column}>Fare</Text>
               <Text style={styles.column}>Fee</Text>
               <Text style={styles.column}>Total</Text>
@@ -186,7 +193,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
             {pendingTickets.map((ticket) => (
               <View style={styles.tableRow} key={ticket.ticket_number}>
                 <Text style={styles.columnExtraWide}>{ticket.ticket_number}</Text>
-                <Text style={styles.column}>{ticket.booking_ref}</Text>
+                <Text style={styles.columnWide}>{ticket.booking_ref}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
@@ -233,19 +240,17 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
             <View style={styles.tableHeader}>
               <Text style={styles.columnWide}>Proveedor</Text>
               <Text style={styles.column}>B. Pagados</Text>
-              <Text style={styles.column}>B. Pendientes</Text>
-              <Text style={styles.columnWide}>Deuda Pendiente</Text>
-              <Text style={styles.columnWide}>Ingresos Realizados</Text>
-              <Text style={styles.columnWide}>Total General</Text>
+              <Text style={styles.columnWide}>B. Pendientes</Text>
+              <Text style={styles.columnExtraWide}>Monto Pendiente</Text>
+              <Text style={styles.columnWide}>Ingresos Generados</Text>
             </View>
             {providersReport.map((provider) => (
               <View style={styles.tableRow} key={provider.provider}>
                 <Text style={styles.columnWide}>{provider.provider}</Text>
                 <Text style={styles.column}>{provider.paidCount}</Text>
-                <Text style={styles.column}>{provider.pendingCount}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
+                <Text style={styles.columnWide}>{provider.pendingCount}</Text>
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidAmount))}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.totalAmount))}</Text>
+                <Text style={styles.columnExtraWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
               </View>
             ))}
           </>
@@ -257,24 +262,57 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
         {branchReport.length > 0 ? (
           <>
             <View style={styles.tableHeader}>
-              <Text style={styles.column}>Sucursal</Text>
-              <Text style={styles.column}>B. Pagados</Text>
-              <Text style={styles.columnWide}>B. Pendientes</Text>
-              <Text style={styles.column}>B. Totales</Text>
+              <Text style={styles.columnWide}>Sucursal</Text>
+              <Text style={styles.columnWide}>Boletos Pagados</Text>
+              <Text style={styles.columnWide}>Boletos Pendientes</Text>
+              <Text style={styles.columnWide}>Boletos Totales</Text>
               <Text style={styles.columnWide}>Ingresos Realizados</Text>
             </View>
             {branchReport.map((branch) => (
               <View style={styles.tableRow} key={branch.name}>
-                <Text style={styles.column}>{branch.name}</Text>
-                <Text style={styles.column}>{branch.paidCount}</Text>
+                <Text style={styles.columnWide}>{branch.name}</Text>
+                <Text style={styles.columnWide}>{branch.paidCount}</Text>
                 <Text style={styles.columnWide}>{branch.pendingCount}</Text>
-                <Text style={styles.column}>{branch.ticketCount}</Text>
+                <Text style={styles.columnWide}>{branch.ticketCount}</Text>
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(branch.totalAmount))}</Text>
               </View>
             ))}
           </>
         ) : (
           <Text style={styles.noRecords}>No hay datos de sucursales en este reporte.</Text>
+        )}
+
+        {/* Transaction Types Section */}
+        <Text style={styles.sectionTitle}>Resumen de Ingreso por Sucursal</Text>
+        {transactionTypesReport.length > 0 ? (
+          <>
+            <View style={styles.tableHeader}>
+              <Text style={styles.columnWide}>Sucursal</Text>
+              {/* Create headers for each payment method dynamically */}
+              {transactionTypesReport[0].payment_methods.map(paymentMethod => (
+                <Text key={paymentMethod.method} style={styles.columnWide}>{paymentMethod.method}</Text>
+              ))}
+              <Text style={styles.columnWide}>Total de Sucur.</Text>
+            </View>
+            {transactionTypesReport.map((branchData) => (
+              <View key={branchData.branch} style={styles.tableRow}>
+                {/* Display the branch name */}
+                <Text style={styles.columnWide}>{branchData.branch}</Text>
+                {/* Display each payment method amount for the branch */}
+                {branchData.payment_methods.map(paymentMethod => (
+                  <Text key={paymentMethod.method} style={styles.columnWide}>
+                    {formatCurrency(convertAmountFromMiliunits(paymentMethod.totalAmount))}
+                  </Text>
+                ))}
+                {/* Display the branch total */}
+                <Text style={styles.columnWide}>
+                  {formatCurrency(convertAmountFromMiliunits(branchData.branch_total))}
+                </Text>
+              </View>
+            ))}
+          </>
+        ) : (
+          <Text style={styles.noRecords}>No hay datos de tipos de transacción en este reporte.</Text>
         )}
         <Text style={styles.footer}>Este es un documento generado automáticamente. Por favor, consérvelo para sus registros.</Text>
       </Page>

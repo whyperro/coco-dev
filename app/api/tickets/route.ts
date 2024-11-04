@@ -27,12 +27,21 @@ export async function POST(request: Request) {
         const newTicket = await db.ticket.create({
           data: {
             ...data,
+            statusUpdatedAt: new Date(),
             routes: {
               connect: data.routes.map((routeId: string) => ({ id: routeId })),
           },
           },
+          include: {
+            provider: {
+              select: {
+                id: true,
+                credit: true,
+              }
+            }
+          }
         });
-
+        console.log(newTicket)
       return NextResponse.json(newTicket);
     } catch (error) {
       console.error("Error creating ticket:", error);

@@ -1,13 +1,13 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_API_KEY!);
 
 export async function POST(request: Request) {
   try {
-    // Parse the incoming request as a form-data stream (using FormData or Busboy for file handling)
     const form = await request.formData();
     const file = form.get('file') as Blob | null;
-    console.log(form)
+
     if (!file) {
       return NextResponse.json(
         {
@@ -21,24 +21,46 @@ export async function POST(request: Request) {
 
     const fileName = form.get('fileName')?.toString() || 'uploaded-file';
     const fileExtension = file.type.split('/').pop();
-    const fullFileName = `${fileName}.${fileExtension}`;
+    const fullFileName = `comprobantes/${fileName}.${fileExtension}`;
 
-    // Define the path to store the file in the 'public/uploads' folder
-    const filePath = path.join(process.cwd(), 'public/uploads', fullFileName);
+    // Convert the Blob to a File or use the Blob directly
+    const { error } = await supabase.storage
+      .from('payments_refs')
+      .upload(fullFileName, file, {
+        contentType: file.type,
+        upsert: true,
+      });
 
-    // Create 'uploads' directory if it doesn't exist
-    await fs.mkdir(path.join(process.cwd(), 'public/uploads'), { recursive: true });
+    if (error) {
+      return NextResponse.json(
+        {
+          message: "Error uploading file to Supabase.",
+          error: error.message,
+        },
+        {
+          status: 500,
+        }
+      );
+    }
 
-    // Read the file content as an ArrayBuffer and write it to the 'uploads' folder
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    await fs.writeFile(filePath, fileBuffer);
+    // Obtener la URL pública del archivo
+    const { data: { publicUrl }} = supabase.storage.from('payments_refs').getPublicUrl(fullFileName);
 
-    // Construct the URL for accessing the uploaded file
-    const fileUrl = `/uploads/${fullFileName}`;
+    if (error) {
+      return NextResponse.json(
+        {
+          message: "Error getting public URL.",
+          error: error,
+        },
+        {
+          status: 500,
+        }
+      );
+    }
 
     return NextResponse.json({
       message: 'File uploaded successfully.',
-      fileUrl,
+      fileUrl: publicUrl,
     });
 
   } catch (error) {

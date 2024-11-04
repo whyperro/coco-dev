@@ -1,7 +1,7 @@
 'use client';
 import { useGetClient, useGetClients } from "@/actions/clients/actions";
 import { useCreatePassenger, useGetPassangerByDni } from "@/actions/passangers/actions";
-import { useGetProviders } from "@/actions/providers/actions";
+import { useGetProviders, useUpdateCreditProvider } from "@/actions/providers/actions";
 import { useGetRoutes } from "@/actions/routes/actions";
 import { useCreateTicket } from "@/actions/tickets/actions";
 import { Calendar } from "@/components/ui/calendar";
@@ -65,7 +65,7 @@ const formSchema = z.object({
   isClient: z.boolean().default(false),
   clientId: z.string(),
   routes: z.array(z.string()),
-  providers: z.array(z.string()),
+  providerId: z.string(),
   branchId: z.string().optional(),
 
   ticket_number: z.string(),
@@ -115,6 +115,7 @@ const TicketForm = () => {
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
   const { createPassenger } = useCreatePassenger()
   const { createTicket } = useCreateTicket();
+  const {updateCreditProvider} = useUpdateCreditProvider()
   const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
   const { data: dataClient } = useGetClient(form.watch("clientId") ?? null);
@@ -124,10 +125,6 @@ const TicketForm = () => {
   const fee = watch('fee')
   const rate = watch('rate')
   const isClient = watch('isClient')
-
-
-  /** Para llenar los datos del pasajero si este es el cliente - TODO: Tratar de cambiar a peticion POST para usar el mutate en useEffect. */
-
 
   useEffect(() => {
     if (isClient && dataClient) {
@@ -139,21 +136,10 @@ const TicketForm = () => {
     }
   }, [dataClient, isClient, form, queryClient]);
 
-
-  const resetFormFields = () => {
-    setFetchedPassanger(null);
-    form.setValue("first_name", "");
-    form.setValue("last_name", "");
-    form.setValue("email", "");
-    form.setValue("dni_number", "");
-    form.setValue("phone_number", "");
-  };
-
   /** Llena los datos del pasajero si este ya se encuentra registrado en la base de datos  */
   useEffect(() => {
     if (debouncedPassangerDni && passanger) {
       // Autocomplete form fields when DNI matches a passenger
-
       setFetchedPassanger(passanger);
       form.setValue("first_name", passanger.first_name || "");
       form.setValue("last_name", passanger.last_name || "");
@@ -161,16 +147,6 @@ const TicketForm = () => {
       form.setValue("dni_type", passanger.dni_type || "V");
       form.setValue("phone_number", passanger.phone_number || "");
     }
-    // else {
-
-    //   setFetchedPassanger(null);
-    //   form.setValue("first_name", "");
-    //   form.setValue("last_name", "");
-    //   form.setValue("email", "");
-    //   form.setValue("dni_type", "V");
-    //   form.setValue("phone_number", "");
-    //   queryClient.setQueryData(['passanger'], null);
-    // }
   }, [debouncedPassangerDni, passanger, form, queryClient]);
 
   useEffect(() => {
@@ -202,10 +178,6 @@ const TicketForm = () => {
     });
   };
 
-  const onResetTicketForm = () => {
-    form.reset()
-  }
-
   const onTicketFormReset = () => {
     form.reset({
       ticket_number: "",
@@ -215,12 +187,10 @@ const TicketForm = () => {
       routes: [],
       ticket_type: "B",
       served_by: undefined,
+      providerId: undefined,
     })
+    setSelectedRoutes([])
   }
-
-  useEffect(() => {
-    form.setValue('providers', selectedProviders);
-  }, [selectedProviders, form]);
 
   useEffect(() => {
     form.setValue('routes', selectedRoutes);
@@ -234,16 +204,7 @@ const TicketForm = () => {
     setValue('total_bs', total_bs)
   }, [ticket_price, fee, rate, setValue]);
 
-  const isRoleSelected = (value: string) => selectedProviders.includes(value);
   const isRouteSelected = (value: string) => selectedRoutes.includes(value);
-
-  const handleProviderSelect = (currentValue: string) => {
-    setSelectedProviders((prevSelected) =>
-      prevSelected.includes(currentValue)
-        ? prevSelected.filter((value) => value !== currentValue)
-        : [...prevSelected, currentValue]
-    );
-  };
 
   const handleRoutesSelect = (currentValue: string) => {
     setSelectedRoutes((prevSelected) =>
@@ -262,7 +223,7 @@ const TicketForm = () => {
     const rateMiliunits = convertAmountToMiliunits(parseFloat(values.rate))
     try {
       if (fetchedPassanger) {
-        await createTicket.mutateAsync({
+        const ticketCreated = await createTicket.mutateAsync({
           ticket_number: values.ticket_number.toUpperCase(),
           booking_ref: values.booking_ref.toUpperCase(),
           purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
@@ -276,7 +237,7 @@ const TicketForm = () => {
           passangerId: fetchedPassanger.id,
           routes: values.routes,
           branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-          providerId: values.providers[0],
+          providerId: values.providerId,
           registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
           ticket_price: ticketPriceInMiliunits,
           fee: feeInMiliunits,
@@ -284,6 +245,12 @@ const TicketForm = () => {
           rate: rateMiliunits,
           total_bs: totalBsMiliunits,
         })
+        if(ticketCreated.status === 200) {
+          await updateCreditProvider.mutateAsync({
+            id: ticketCreated.data.providerId,
+            credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
+          });
+        }
       } else {
         const res = await createPassenger.mutateAsync({
           first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
@@ -296,7 +263,7 @@ const TicketForm = () => {
         })
         if (res.status === 200) {
           setFetchedPassanger(res.data)
-          await createTicket.mutateAsync({
+          const ticketCreated = await createTicket.mutateAsync({
             ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
@@ -311,7 +278,7 @@ const TicketForm = () => {
             passangerId: res.data.id,
             routes: values.routes,
             branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
-            providerId: values.providers[0],
+            providerId: values.providerId,
             registered_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
             ticket_price: ticketPriceInMiliunits,
             fee: feeInMiliunits,
@@ -319,10 +286,15 @@ const TicketForm = () => {
             rate: rateMiliunits,
             total_bs: totalBsMiliunits,
           })
+          if(ticketCreated.status === 200) {
+            await updateCreditProvider.mutateAsync({
+              id: ticketCreated.data.providerId,
+              credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
+            });
+          }
         }
       }
-      onResetTicketForm()
-      onResetTicketForm()
+      onTicketFormReset()
     } catch (error) {
       console.error(error); // Log the error for debugging
       toast.error("Error al guardar el boleto", {
@@ -403,7 +375,7 @@ const TicketForm = () => {
                             )?.first_name} - {clients?.find(
                               (client) => client.id === field.value
                             )?.last_name}</p>
-                            : "Seleccione el cliente..."
+                            : "Elige el cliente..."
                           }
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -456,88 +428,66 @@ const TicketForm = () => {
             />
             <FormField
               control={form.control}
-              name="providers"
+              name="providerId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Proveedor(es)</FormLabel>
+                  <FormLabel className="font-bold">Sucursales</FormLabel>
                   <Popover open={openProvider} onOpenChange={setOpenProvider}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-[200px] justify-between"
-                      >
-                        {selectedProviders?.length > 0 && (
-                          <>
-                            <Separator orientation="vertical" className="mx-2 h-4" />
-                            <Badge
-                              variant="secondary"
-                              className="rounded-sm px-1 font-normal lg:hidden"
-                            >
-                              {selectedProviders.length}
-                            </Badge>
-                            <div className="hidden space-x-1 lg:flex">
-                              {selectedProviders.length > 2 ? (
-                                <Badge
-                                  variant="secondary"
-                                  className="rounded-sm px-1 font-normal"
-                                >
-                                  {selectedProviders.length} seleccionados
-                                </Badge>
-                              ) : (
-                                providers?.filter((option) => selectedProviders.includes(option.id.toString()))
-                                  .map((option) => (
-                                    <Badge
-                                      variant="secondary"
-                                      key={option.name}
-                                      className="rounded-sm px-1 font-medium"
-                                    >
-                                      {option.name}
-                                    </Badge>
-                                  ))
-                              )}
-                            </div>
-                          </>
-                        )}
-                        {
-                          selectedProviders.length <= 0 && <p className="text-sm text-muted-foreground">Seleccione el prov...</p>
-                        }
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
+                      <FormControl>
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {providersLoading && <Loader2 className="size-4 animate-spin mr-2" />}
+                          {field.value
+                            ? <p>{providers?.find(provider => provider.id === field.value)?.name}</p>
+                            : "Elige un proveedor..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
-                        <CommandInput placeholder="Buscar rol..." />
+                        <CommandInput placeholder="Busque un proveedor..." />
                         <CommandList>
-                          <CommandEmpty>No company found.</CommandEmpty>
+                          <CommandEmpty>No se ha encontrado el proveedor.</CommandEmpty>
                           <CommandGroup>
-                            {
-                              providersLoading && <Loader2 className="animate-spin size-4" />
-                            }
-                            {providers?.map((provider) => (
+                            {providers?.map(provider => (
                               <CommandItem
+                                value={`${provider.name}`}
                                 key={provider.id}
-                                value={provider.id}
-                                onSelect={() => handleProviderSelect(provider.id)}
+                                onSelect={() => {
+                                  form.setValue("providerId", provider.id);
+                                  setOpenProvider(false);
+                                }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    isRoleSelected(provider.id) ? "opacity-100" : "opacity-0"
+                                    provider.id === field.value ? "opacity-100" : "opacity-0"
                                   )}
                                 />
-                                {provider.name}
+                                <p>{provider.name}</p>
                               </CommandItem>
                             ))}
-                            {
-                              providersError && <p className="text-center text-muted-foreground text-sm">Ha ocurrido un error al cargar los proveedores...</p>
-                            }
+                            {providersError && (
+                              <p className="text-muted-foreground text-sm">
+                                Ha ocurrido un error al cargar los proveedores...
+                              </p>
+                            )}
                           </CommandGroup>
                         </CommandList>
                       </Command>
                     </PopoverContent>
                   </Popover>
                   <FormDescription>
-                    Seleccione el o los proveedores
+                    Seleccione el proveedor.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -1155,6 +1105,7 @@ const TicketForm = () => {
             </div>
 
           </div>
+
           <div className="flex flex-col items-center">
             <FormField
               control={form.control}

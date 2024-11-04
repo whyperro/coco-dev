@@ -38,21 +38,21 @@ import { z } from "zod"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
-
-
+import { UploadButton } from "@/lib/utils"
 
 const formSchema = z.object({
-  payment_ref: z.string().optional(),
-  payment_method: z.string().optional(),
-  image_ref: z.instanceof(File).optional()
-
+  payment_ref: z.string(),
+  payment_method: z.string(),
+  image_ref: z.string().optional(),// Change from File to string to store URL,
+  void_description: z.string().optional(),
 });
 
 const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
-  const [open, setOpen] = useState<boolean>(false); // Delete dialog
-  const [openVoid, setOpenVoid] = useState<boolean>(false); // Delete dialog
+  const [open, setOpen] = useState<boolean>(false);
+  const [imgName, setImgName] = useState<string>();
+  const [openVoid, setOpenVoid] = useState<boolean>(false);
   const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
   const { updateCreditProvider } = useUpdateCreditProvider();
@@ -60,39 +60,28 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      payment_ref: "",
+      image_ref: "", // Set default value for image_ref,
     },
   });
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      let imageUrl = '';
-
-      const file = values.image_ref;
-      if (file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileName', `referencia_${values.payment_ref}`);
-
-        const { data } = await axios.post('/api/upload', formData);
-
-        const { fileUrl } = data;
-        imageUrl = fileUrl;
-      }
+      // Use the uploaded image URL directly from the form values
+      const imageUrl = values.image_ref || ""; // Assuming the URL will be stored in image_ref
 
       const res = await createTransaction.mutateAsync({
         ...values,
-        image_ref: imageUrl || "",
+        image_ref: imageUrl,
         ticketId: ticket.id,
-        payment_method: values.payment_method || "",
-        payment_ref: values.payment_ref || "",
         registered_by: session?.user.username || "",
         transaction_date: new Date()
-      });
-      if (res.status == 200) {
+    });
+
+      if (res.status === 200) {
         await updateCreditProvider.mutateAsync({
           id: ticket.provider.id,
           credit: ticket.provider.credit + ticket.ticket_price,
-        })
+        });
       }
 
       await updateStatusTicket.mutateAsync({
@@ -111,7 +100,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
   };
 
-
   const onVoidTicket = async () => {
     try {
       await updateStatusTicket.mutateAsync({
@@ -119,16 +107,16 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         status: "CANCELADO",
         void_description: reason ?? null,
         updated_by: session?.user.username || ""
-      })
+      });
       toast.error("¡Cancelado!", {
         description: "¡El boleto ha sido cancelado correctamente!",
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
     setOpenVoid(false);
-  }
-
+  };
+console.log(imgName)
   return (
     <>
       {/* Dropdown Menu for Payment */}
@@ -233,73 +221,78 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                   control={form.control}
                   name="image_ref"
                   render={({ field }) => (
-                    <FormItem className="col-span-2">
+                    <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
                       <FormLabel className="font-bold">Imagen Comprobante de pago</FormLabel>
                       <FormControl>
-                        <Input type="file" onChange={(e) => form.setValue("image_ref", e.target.files![0])} className="w-[400px]" />
+                      <UploadButton
+                        endpoint="imageUploader"
+                        onClientUploadComplete={(res) => {
+                          const fileUrl = res[0]?.url; // Asumiendo que la respuesta contiene la URL
+                          setImgName(res[0].name);
+                          form.setValue("image_ref", fileUrl);
+                        }}
+                        onUploadError={(error: Error) => {
+                          toast.error(`Error: ${error.message}`);
+                        }}
+                        content={{
+                          button({ ready, isUploading }) {
+                            if (isUploading) return <div>Subiendo...</div>;
+                            if (imgName) return <div>{imgName}</div>; // Mostrar el nombre del archivo si existe
+                            return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>; // Cambiar el texto dependiendo del estado
+                          },
+                          allowedContent({ ready }) {
+                            if (!ready) return "Revisando que puedes subir...";
+                            return `¿Qué puedes subir?: imágenes.`;
+                          },
+                        }}
+                      />
                       </FormControl>
-                      <FormDescription>
-                        Añade una imagen del comprobante de pago referencia
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <DialogFooter className="flex flex-col gap-2 md:gap-0 col-span-2">
-                  <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
-                    Cancelar
-                  </Button>
-                  <Button
-                    disabled={createTransaction.isPending} // Disable button while mutation is pending
-                    className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
-                  >
-                    {updateStatusTicket.isPending || updateCreditProvider.isPending || createTransaction.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
-                  </Button>
-                </DialogFooter>
               </div>
+              <DialogFooter className="mt-12">
+                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending || createTransaction.isSuccess} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
+                  {
+                   updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
+                  }
+                </Button>
+                <Button type="button" onClick={() => setOpen(false)}>Cancelar</Button>
+              </DialogFooter>
             </form>
           </Form>
-
         </DialogContent>
       </Dialog>
+
+      {/* Void Ticket Confirmation Dialog */}
       <Dialog open={openVoid} onOpenChange={setOpenVoid}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>¿Seguro que desea cancelar el boleto?</DialogTitle>
-            <DialogDescription>
-              Ingrese la razón del cancelamiento del boleto.
+            <DialogTitle className="text-center text-3xl">¿Cancelar Boleto?</DialogTitle>
+            <DialogDescription className="text-center">
+              Selecciona el motivo de la cancelación
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-6 items-center justify-center w-full">
-            <Select onValueChange={(e: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo") => setReason(e)}>
-              <SelectTrigger className="w-[250px]">
-                <SelectValue placeholder="Razón..." />
-              </SelectTrigger>
-              <SelectContent >
-                <SelectItem value="CancelledByClient">Cancelado por cliente</SelectItem>
-                <SelectItem value="WrongSellerInput">Ingreso erróneo de datos</SelectItem>
-                <SelectItem value="WrongClientInfo">Información recibida errónea</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <DialogFooter className="flex gap-2 md:gap-0">
-              <Button className="bg-rose-400 hover:bg-white hover:text-black hover:border hover:border-black" onClick={() => setOpen(false)} type="button">
-                Cancelar
-              </Button>
-              <Button
-                name="is"
-                disabled={updateStatusTicket.isPending} // Disable button while mutation is pending
-                className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
-                onClick={() => onVoidTicket()}
-              >
-                {updateStatusTicket.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
-              </Button>
-            </DialogFooter>
+          <div className="flex flex-col gap-4 mb-4">
+            <div>
+              <Button onClick={() => setReason("CancelledByClient")}>Cancelado por el Cliente</Button>
+            </div>
+            <div>
+              <Button onClick={() => setReason("WrongSellerInput")}>Error en el vendedor</Button>
+            </div>
+            <div>
+              <Button onClick={() => setReason("WrongClientInfo")}>Error en la información del cliente</Button>
+            </div>
           </div>
+          <DialogFooter>
+            <Button onClick={onVoidTicket} className="bg-red-500 hover:bg-red-600 text-white">Confirmar Cancelación</Button>
+            <Button type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  );
-};
+  )
+}
 
 export default PendingTicketsDropdownActions;

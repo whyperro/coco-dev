@@ -21,10 +21,9 @@ export async function GET(request: Request){
     const startDate = searchParams.get("date") ? startOfDay(currentDate) : startOfDay(defaultCurrentDate); // Inicio del día actual
     const endDate = searchParams.get("date") ? endOfDay(currentDate) : endOfDay(defaultCurrentDate); // Fin del día actual
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
-    console.log(startDate)
     const tickets = await db.ticket.findMany({
       where: {
-        createdAt: {
+        statusUpdatedAt: {
           gte: startDate, // Mayor o igual al inicio del día
           lte: endDate,   // Menor o igual al final del día
         },
@@ -59,8 +58,10 @@ export async function GET(request: Request){
         ticket: {
           select: {
             total: true, // Select the total from the ticket
+            branch: true,
           },
         },
+        payment_method: true,
       },
     });
 
@@ -70,9 +71,9 @@ export async function GET(request: Request){
           include: {
             ticket: {
               where: {
-                createdAt: {
-                  gte: startDate,
-                  lte: endDate,
+                statusUpdatedAt: {
+                  gte: startDate, // Mayor o igual al inicio del día
+                  lte: endDate,   // Menor o igual al final del día
                 },
                 status: {
                   not: "CANCELADO",
@@ -118,9 +119,9 @@ export async function GET(request: Request){
       include: {
         tickets: {
           where: {
-            createdAt: {
-              gte: startDate,
-              lte: endDate,
+            statusUpdatedAt: {
+              gte: startDate, // Mayor o igual al inicio del día
+              lte: endDate,   // Menor o igual al final del día
             },
             status: {
               not: "CANCELADO",
@@ -129,6 +130,7 @@ export async function GET(request: Request){
           select: {
             status: true,
             total: true, // Include total to calculate revenue
+            ticket_price: true,
           },
         },
       },
@@ -143,7 +145,6 @@ export async function GET(request: Request){
 
       const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for paid tickets
       const pendingAmount = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for pending tickets
-      const totalAmount = paidAmount + pendingAmount; // Calculate total amount (paid + pending)
 
       return {
         provider: provider.name,
@@ -151,7 +152,6 @@ export async function GET(request: Request){
         pendingCount,
         paidAmount, // Amount for paid tickets
         pendingAmount, // Amount for pending tickets
-        totalAmount, // Total amount generated
       };
     });
 
@@ -175,11 +175,16 @@ export async function GET(request: Request){
 
       // Increment total amount
       branchData[branch].totalAmount += transaction.ticket?.total || 0;
+    });
 
-      // Increment ticket count
-      branchData[branch].ticketCount += 1;
+    tickets.forEach(ticket => {
+      const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';
 
-      // Check ticket status and increment appropriate count
+      // Initialize branchData if it doesn't already exist
+      if (!branchData[branch]) {
+        branchData[branch] = { totalAmount: 0, ticketCount: 0, paidCount: 0, pendingCount: 0 };
+      }
+
       if (ticket) {
         if (ticket.status === 'PAGADO') {
           branchData[branch].paidCount += 1;
@@ -193,12 +198,52 @@ export async function GET(request: Request){
     const branchReport: IBranchData[] = Object.keys(branchData).map(branch => ({
       name: branch,
       amount: branchData[branch].totalAmount,
-      ticketCount: branchData[branch].ticketCount,
+      ticketCount: branchData[branch].paidCount + branchData[branch].pendingCount,
       paidCount: branchData[branch].paidCount,
       pendingCount: branchData[branch].pendingCount,
       totalAmount: branchData[branch].totalAmount,
     }));
 
+    const allPaymentMethods = ["ZELLE", "PAGO_MOVIL", "DEBITO", "CREDITO", "EFECTIVO"]; // List of all payment methods
+
+    const branchTransactionTypeRecord = transactions.reduce<Record<string, Record<string, number>>>(
+      (acc, transaction) => {
+        const method = transaction.payment_method || "UNKNOWN";
+        const branch = transaction.ticket.branch.location_name || "UNASSIGNED";
+        const total = transaction.ticket?.total || 0;
+
+        if (!acc[branch]) {
+          acc[branch] = {};
+        }
+
+        acc[branch][method] = (acc[branch][method] || 0) + total;
+        return acc;
+      },
+      {}
+    );
+
+    // Transform to the desired array structure with payment methods as an array
+    const transactionTypesReport = Object.entries(branchTransactionTypeRecord).map(
+      ([branch, methods]) => {
+        // Ensure all payment methods are included, setting to 0 if not present in the methods object
+        const payment_methods = allPaymentMethods.map((method) => ({
+          method,
+          totalAmount: methods[method] || 0,
+        }));
+
+        // Calculate the branch total by summing all method totals
+        const branch_total = payment_methods.reduce((sum, { totalAmount }) => sum + totalAmount, 0);
+
+        return {
+          branch,
+          payment_methods,
+          branch_total,
+        };
+      }
+    );
+
+
+    console.log(transactionTypesReport)
     // Respuesta del endpoint
     return NextResponse.json({
       date: searchParams.get("date") ? currentDate : defaultCurrentDate,
@@ -229,6 +274,7 @@ export async function GET(request: Request){
       clientsReport,
       providersReport,
       branchReport,
+      transactionTypesReport
     });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);

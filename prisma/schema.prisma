@@ -132,19 +132,20 @@ model Passanger {
 }
 
 model Ticket {
-  id            String       @id @default(cuid())
-  ticket_number String       @unique
-  booking_ref   String
-  purchase_date String
-  flight_date   String
-  registered_by String
-  updated_by    String?
-  issued_by     String
-  served_by     String
-  status        TicketStatus @default(PENDIENTE)
-  ticket_type   TicketType   @default(B)
-  doc_order     Boolean      @default(true)
-  description   String
+  id               String       @id @default(cuid())
+  ticket_number    String       @unique
+  booking_ref      String
+  purchase_date    String
+  flight_date      String
+  registered_by    String
+  updated_by       String?
+  issued_by        String
+  served_by        String
+  status           TicketStatus @default(PENDIENTE)
+  statusUpdatedAt  DateTime? // New field to track the last status update
+  ticket_type      TicketType   @default(B)
+  doc_order        Boolean      @default(true)
+  description      String
   void_description VoidReason?
 
   ticket_price Float
@@ -158,14 +159,13 @@ model Ticket {
   passanger   Passanger @relation(fields: [passangerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   passangerId String
 
-  branch      Branch    @relation(fields: [branchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  branchId    String
+  branch   Branch @relation(fields: [branchId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  branchId String
 
-
-  provider Provider @relation(fields: [providerId], references: [id])
+  provider   Provider @relation(fields: [providerId], references: [id])
   providerId String
 
-  routes    Route[] @relation("TicketRoutes")
+  routes Route[] @relation("TicketRoutes")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -193,7 +193,7 @@ model Route {
   scale      String?
   route_type RouteType @default(NACIONAL)
 
-  tickets         Ticket[]     @relation("TicketRoutes")
+  tickets Ticket[] @relation("TicketRoutes")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

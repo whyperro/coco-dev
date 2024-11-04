@@ -119,7 +119,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenVoid(false);
   };
-  console.log(imgName)
   return (
     <>
       {/* Dropdown Menu for Payment */}

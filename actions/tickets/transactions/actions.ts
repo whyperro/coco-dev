@@ -20,8 +20,8 @@ export const useUpdateStatusTicket = () => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({queryKey: ["paid-tickets"]})
-      queryClient.invalidateQueries({queryKey: ["pendingTickets"]})
+      queryClient.invalidateQueries({queryKey: ["paid"]})
+      queryClient.invalidateQueries({queryKey: ["pending"]})
     },
     onError: (error: Error) => {
       toast.error("Oops!", {

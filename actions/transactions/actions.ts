@@ -1,9 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 
 export const useCreateTransaction = () => {
-  const queryClient = useQueryClient();
   const createMutation = useMutation({
       mutationFn: async (values: {
         payment_ref: string,
@@ -17,16 +16,6 @@ export const useCreateTransaction = () => {
             ...values
           });
           return res
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
-      queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
-      queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
-      toast.success("¡Creado!", {
-        description: "¡La transacción ha sido creada correctamente!",
-        dismissible: true,
-      })
     },
     onError: (error: Error) => {
       toast.error("Oops!", {

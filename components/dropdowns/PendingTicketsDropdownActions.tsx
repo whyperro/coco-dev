@@ -68,43 +68,40 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Use the uploaded image URL directly from the form values
-      const imageUrl = values.image_ref || ""; // Assuming the URL will be stored in image_ref
+      const imageUrl = values.image_ref || ""; // URL de la imagen
 
-      const res = await createTransaction.mutateAsync({
+      // Ejecuta las mutaciones de forma concurrente
+      createTransaction.mutateAsync({
         ...values,
         image_ref: imageUrl,
         ticketId: ticket.id,
         registered_by: session?.user.username || "",
-        transaction_date: new Date()
+        transaction_date: new Date(),
       });
 
-      if (res.status === 200) {
-        await updateCreditProvider.mutateAsync({
-          id: ticket.provider.id,
-          credit: ticket.provider.credit + ticket.ticket_price,
-        });
-      }
+      updateCreditProvider.mutateAsync({
+        id: ticket.provider.id,
+        credit: ticket.provider.credit + ticket.ticket_price,
+      });
 
       await updateStatusTicket.mutateAsync({
         id: ticket.id,
         status: "PAGADO",
-        updated_by: `${session?.user.first_name} ${session?.user.last_name}` || ""
-      },
-        {
-          onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pending-tickets"] })
-        }
-      );
-
+        updated_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
+      });
       toast.success("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
       });
-
     } catch (error) {
       console.log(error);
+      toast.error("Oops!", {
+        description: `¡Hubo un error al procesar el pago!: ${error}`,
+      });
     }
+
     setOpen(false);
   };
+
 
   const onVoidTicket = async () => {
     try {

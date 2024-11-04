@@ -19,11 +19,9 @@ export const useUpdateStatusTicket = () => {
         void_description: values.void_description ?? null,
       });
     },
-    onSuccess: async() => {
-      await queryClient.invalidateQueries({ queryKey: ["pending-tickets"], exact: true });
-      await queryClient.invalidateQueries({ queryKey: ["paid-tickets"], exact: true });
-      await queryClient.invalidateQueries({ queryKey: ["tickets"], exact: true });
-      await queryClient.refetchQueries({ queryKey: ["pending-tickets"], exact: true });
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["paid-tickets"]})
+      queryClient.invalidateQueries({queryKey: ["pendingTickets"]})
     },
     onError: (error: Error) => {
       toast.error("Oops!", {

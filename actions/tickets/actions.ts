@@ -20,7 +20,7 @@ export const useGetTicket = (ticket_number: string) => {
 
 export const useGetPendingTickets = () => {
   const ticketsQuery = useQuery({
-    queryKey: ["pending-tickets"],
+    queryKey: ["pendingTickets"],
     queryFn: async () => {
       const { data } = await axios.get('/api/tickets/pending');
       return data as Ticket[];
@@ -123,15 +123,11 @@ export const useCreateTicket = () => {
 
           return res
       },
-      onSuccess: async() => {
+      onSuccess: () => {
         // Invalidate the 'branches' query to refresh the data
-        await queryClient.invalidateQueries({ queryKey: ["pending-tickets"], exact: true, });
-        await queryClient.refetchQueries({ queryKey: ["pending-tickets"], exact: true, });
-        await queryClient.invalidateQueries({ queryKey: ["tickets"] });
-        await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
-        await queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
-        await queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
-
+        queryClient.invalidateQueries({ queryKey: ["pendingTickets"], exact: true, });
+        queryClient.invalidateQueries({ queryKey: ["transactionsAnalitics"] });
+        queryClient.invalidateQueries({ queryKey: ["transactionsSummary"] });
         toast.success("¡Creado!", {
           description: "¡El ticket ha sido creada correctamente!",
           dismissible: true,

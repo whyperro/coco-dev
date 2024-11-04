@@ -66,7 +66,6 @@ interface DailyReport {
     pendingCount: number,
     paidAmount: number, // Amount for paid tickets
     pendingAmount: number, // Amount for pending tickets
-    totalAmount: number, // Total amount generated
   }[],
   branchReport: {
     name: string,
@@ -74,6 +73,14 @@ interface DailyReport {
     ticketCount: number;
     paidCount: number;
     pendingCount: number;
+  }[],
+  transactionTypesReport: {
+    branch: string,
+    payment_methods: {
+      method: string,
+      totalAmount: number,
+    }[],
+    branch_total: number,
   }[],
   date: string,
 }
@@ -91,7 +98,6 @@ export const useGetDailyReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };
@@ -113,7 +119,6 @@ export const useGetClientReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };
@@ -135,7 +140,6 @@ export const useGetProviderReport = () => {
     }); // Cambia la URL según tu configuración de API
      return data; // Devuelve los datos del reporte
    },
-    staleTime: 1000 * 60 * 5, // Los datos son frescos durante 5 minutos
     refetchOnWindowFocus: false,
   });
 };

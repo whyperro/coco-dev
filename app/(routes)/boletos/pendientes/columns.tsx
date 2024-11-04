@@ -85,6 +85,15 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
+    accessorKey: "provider",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Pasajero(s)' />
+    ),
+    cell: ({ row }) => {
+      return <p className="text-center font-bold">{row.original.provider.name}</p>
+    },
+  },
+  {
     accessorKey: "routes",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Ruta de Vuelo' />

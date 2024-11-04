@@ -1,7 +1,7 @@
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import db from '@/lib/db';
 import bcrypt from 'bcrypt';
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 const authOptions = {
   providers: [
@@ -12,7 +12,7 @@ const authOptions = {
         password: { label: 'Contraseña', type: 'password' },
       },
       async authorize(credentials) {
-        // Find the user in the database
+      // Find the user in the database
         const userFound = await db.user.findUnique({
           where: {
             username: credentials!.username,
@@ -29,6 +29,8 @@ const authOptions = {
         );
 
         if (!matchPwd) throw new Error('La contraseña es errónea.');
+
+
 
         // Return the user object with additional properties
         return {

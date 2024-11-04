@@ -20,7 +20,6 @@ export const useUpdateStatusTicket = () => {
       });
     },
     onSuccess: async() => {
-      // Invalidate the 'branches' query to refresh the data
       await queryClient.invalidateQueries({ queryKey: ["pending-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["paid-tickets"] });
       await queryClient.invalidateQueries({ queryKey: ["tickets"] });

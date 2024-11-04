@@ -30,7 +30,7 @@ const DailyReportPage = () => {
           <div className='flex justify-between items-center'>
             <DailyReportGenerator />
             {
-              tickets && <PDFDownloadLink fileName={`reporte_diario_${format(tickets.date, "yyyy-MM-dd")}`} document={<PdfFile providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} clientsReport={tickets.clientsReport} branchReport={tickets.branchReport} date={format(new Date(), "PPP", { locale: es })} />}>
+              tickets && <PDFDownloadLink fileName={`reporte_diario_${format(tickets.date, "yyyy-MM-dd")}`} document={<PdfFile transactionTypesReport={tickets.transactionTypesReport} providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} clientsReport={tickets.clientsReport} branchReport={tickets.branchReport} date={format(new Date(), "PPP", { locale: es })} />}>
                 <Button disabled={isError}>Descargar PDF</Button>
               </PDFDownloadLink>
             }
@@ -38,7 +38,7 @@ const DailyReportPage = () => {
           <div>
             {
               tickets && <PDFViewer style={{ width: '100%', height: '600px' }}>
-                <PdfFile providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} branchReport={tickets.branchReport} clientsReport={tickets.clientsReport} date={format(tickets.date, "PPP", { locale: es })} />
+                <PdfFile transactionTypesReport={tickets.transactionTypesReport} providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} branchReport={tickets.branchReport} clientsReport={tickets.clientsReport} date={format(tickets.date, "PPP", { locale: es })} />
               </PDFViewer>
             }
             {

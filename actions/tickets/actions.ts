@@ -10,8 +10,6 @@ export const useGetTicket = (ticket_number: string) => {
       const {data} = await axios.get(`/api/tickets/${ticket_number}`);
       return data as Ticket;
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
   });
   return {
     data: ticketQuery.data,
@@ -22,19 +20,20 @@ export const useGetTicket = (ticket_number: string) => {
 
 export const useGetPendingTickets = () => {
   const ticketsQuery = useQuery({
-    queryKey: ["pending-tickets"], // Updated to reflect flight type
+    queryKey: ["pending-tickets"],
     queryFn: async () => {
-      const {data} = await axios.get('/api/tickets/pending');
+      const { data } = await axios.get('/api/tickets/pending');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    refetchOnWindowFocus: true, // Opcional: refrescar en el enfoque de ventana
+    refetchOnMount: true, // Opcional: refrescar al montar el componente
+    refetchOnReconnect: true, // Refrescar al reconectar la red
   });
 
   return {
     data: ticketsQuery.data,
     loading: ticketsQuery.isLoading,
-    error: ticketsQuery.isError ? ticketsQuery.error : null, // Improved error handling
+    error: ticketsQuery.isError ? ticketsQuery.error : null,
   };
 };
 
@@ -45,8 +44,7 @@ export const useGetPaidTickets = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 0,
   });
 
   return {
@@ -63,8 +61,7 @@ export const useGetCancelledTickets = () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 0,
   });
 
   return {
@@ -82,8 +79,7 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
+    staleTime: 0,
   });
 
   return {
@@ -121,9 +117,11 @@ export const useCreateTicket = () => {
           providerId: string,
           routes:string[]
         }) => {
-          await axios.post(`/api/tickets`, {
+          const res = await axios.post(`/api/tickets`, {
               ...values
           });
+
+          return res
       },
       onSuccess: async() => {
         // Invalidate the 'branches' query to refresh the data
@@ -150,13 +148,13 @@ export const useCreateTicket = () => {
   export const useDeleteTicket = () => {
 
     const queryClient = useQueryClient();
-  
+
     const deleteMutation = useMutation({
       mutationFn: async (ticket_number: string) => {
         await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["tickets"] });
+        queryClient.invalidateQueries({ queryKey: ["cancelled-tickets"] });
         toast.success("¡Eliminado!", {
           description: "¡El boleto ha sido eliminada correctamente!"
         });
@@ -167,7 +165,7 @@ export const useCreateTicket = () => {
         });
       },
     });
-  
+
     return {
       deleteTicket: deleteMutation,
     };

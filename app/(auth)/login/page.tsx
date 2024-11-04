@@ -1,7 +1,18 @@
+'use client'
+
 import LoginForm from '@/components/forms/LoginForm'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const Login = () => {
+ const {data: session} = useSession()
+ const router = useRouter();
+
+ if(session){
+  session.user.user_role === 'ADMIN' || session.user.user_role === 'AUDITOR'? router.push('/dashboard') : router.push("/estadisticas")
+ }
+
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">

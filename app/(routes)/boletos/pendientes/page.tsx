@@ -9,6 +9,7 @@ import { DataTable } from './data-table'
 
 const PendingTicketsPage = () => {
   const { data: tickets, loading, error } = useGetPendingTickets()
+  console.log(tickets)
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
       <ContentLayout title="Boletos Pendientes">

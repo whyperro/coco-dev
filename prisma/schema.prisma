@@ -57,9 +57,9 @@ enum PaymentMethod {
 }
 
 enum VoidReason {
-  CancelledByClient
-  WrongSellerInput
-  WrongClientInfo
+CancelledByClient
+WrongSellerInput
+WrongClientInfo
 }
 
 model User {

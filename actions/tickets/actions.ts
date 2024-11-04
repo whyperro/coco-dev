@@ -1,6 +1,7 @@
 import { Ticket } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { revalidatePath } from "next/cache";
 import { toast } from "sonner";
 
 export const useGetTicket = (ticket_number: string) => {

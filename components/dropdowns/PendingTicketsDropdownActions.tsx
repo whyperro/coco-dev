@@ -39,6 +39,7 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { UploadButton } from "@/lib/uploadthing"
+import { QueryClient, useQueryClient } from "@tanstack/react-query"
 
 const formSchema = z.object({
   payment_ref: z.string(),
@@ -48,6 +49,7 @@ const formSchema = z.object({
 });
 
 const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
+  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -88,7 +90,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         id: ticket.id,
         status: "PAGADO",
         updated_by: `${session?.user.first_name} ${session?.user.last_name}` || ""
-      });
+      },
+        {
+          onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pending-tickets"] })
+        }
+      );
 
       toast.success("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",

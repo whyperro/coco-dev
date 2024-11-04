@@ -78,16 +78,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         registered_by: session?.user.username || "",
         transaction_date: new Date(),
       });
-
+      queryClient.invalidateQueries({ queryKey: ["pending"] })
+      queryClient.invalidateQueries({ queryKey: ["paid"] })
       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + ticket.ticket_price,
-      });
-
-      await updateStatusTicket.mutateAsync({
-        id: ticket.id,
-        status: "PAGADO",
-        updated_by: `${session?.user.first_name} ${session?.user.last_name}` || "",
       });
       toast.success("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
@@ -255,7 +250,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                 />
               </div>
               <DialogFooter className="mt-12">
-                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending || createTransaction.isSuccess} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
+                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
                   {
                     updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
                   }

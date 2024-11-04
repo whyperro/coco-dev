@@ -2,7 +2,6 @@ import axiosNoCache from "@/lib/axios";
 import { Ticket } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { revalidatePath } from "next/cache";
 import { toast } from "sonner";
 
 export const useGetTicket = (ticket_number: string) => {
@@ -27,6 +26,7 @@ export const useGetPendingTickets = () => {
       const { data } = await axiosNoCache.get('/api/tickets/pending');
       return data as Ticket[];
     },
+    retry: 3,
   });
   console.log(ticketsQuery.isFetching)
   return {

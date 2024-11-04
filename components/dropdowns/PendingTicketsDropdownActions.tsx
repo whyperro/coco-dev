@@ -75,7 +75,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         ticketId: ticket.id,
         registered_by: session?.user.username || "",
         transaction_date: new Date()
-    });
+      });
 
       if (res.status === 200) {
         await updateCreditProvider.mutateAsync({
@@ -94,11 +94,10 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         description: "¡El boleto ha sido pagado correctamente!",
       });
 
-      setOpen(false);
     } catch (error) {
       console.log(error);
     }
-    
+    setOpen(false);
   };
 
   const onVoidTicket = async () => {
@@ -117,7 +116,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenVoid(false);
   };
-console.log(imgName)
+  console.log(imgName)
   return (
     <>
       {/* Dropdown Menu for Payment */}
@@ -225,28 +224,28 @@ console.log(imgName)
                     <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
                       <FormLabel className="font-bold">Imagen Comprobante de pago</FormLabel>
                       <FormControl>
-                      <UploadButton
-                        endpoint="imageUploader"
-                        onClientUploadComplete={(res) => {
-                          const fileUrl = res[0]?.url; // Asumiendo que la respuesta contiene la URL
-                          setImgName(res[0].name);
-                          form.setValue("image_ref", fileUrl);
-                        }}
-                        onUploadError={(error: Error) => {
-                          toast.error(`Error: ${error.message}`);
-                        }}
-                        content={{
-                          button({ ready, isUploading }) {
-                            if (isUploading) return <div>Subiendo...</div>;
-                            if (imgName) return <div>{imgName}</div>; // Mostrar el nombre del archivo si existe
-                            return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>; // Cambiar el texto dependiendo del estado
-                          },
-                          allowedContent({ ready }) {
-                            if (!ready) return "Revisando que puedes subir...";
-                            return `¿Qué puedes subir?: imágenes.`;
-                          },
-                        }}
-                      />
+                        <UploadButton
+                          endpoint="imageUploader"
+                          onClientUploadComplete={(res) => {
+                            const fileUrl = res[0]?.url; // Asumiendo que la respuesta contiene la URL
+                            setImgName(res[0].name);
+                            form.setValue("image_ref", fileUrl);
+                          }}
+                          onUploadError={(error: Error) => {
+                            toast.error(`Error: ${error.message}`);
+                          }}
+                          content={{
+                            button({ ready, isUploading }) {
+                              if (isUploading) return <div>Subiendo...</div>;
+                              if (imgName) return <div>{imgName}</div>; // Mostrar el nombre del archivo si existe
+                              return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>; // Cambiar el texto dependiendo del estado
+                            },
+                            allowedContent({ ready }) {
+                              if (!ready) return "Revisando que puedes subir...";
+                              return `¿Qué puedes subir?: imágenes.`;
+                            },
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -256,7 +255,7 @@ console.log(imgName)
               <DialogFooter className="mt-12">
                 <Button disabled={updateStatusTicket.isPending || createTransaction.isPending || createTransaction.isSuccess} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
                   {
-                   updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
+                    updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
                   }
                 </Button>
                 <Button type="button" onClick={() => setOpen(false)}>Cancelar</Button>

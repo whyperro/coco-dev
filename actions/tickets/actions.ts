@@ -25,9 +25,8 @@ export const useGetPendingTickets = () => {
       const { data } = await axios.get('/api/tickets/pending');
       return data as Ticket[];
     },
-    refetchOnWindowFocus: true, // Opcional: refrescar en el enfoque de ventana
-    refetchOnMount: true, // Opcional: refrescar al montar el componente
-    refetchOnReconnect: true, // Refrescar al reconectar la red
+    staleTime: 15000,
+    refetchInterval: 5000,
   });
 
   return {
@@ -44,7 +43,8 @@ export const useGetPaidTickets = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 0,
+    staleTime: 3500,
+    refetchInterval: 5000,
   });
 
   return {
@@ -61,7 +61,8 @@ export const useGetCancelledTickets = () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
-    staleTime: 0,
+    staleTime: 3500,
+    refetchInterval: 5000,
   });
 
   return {
@@ -79,7 +80,8 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 0,
+    staleTime: 3500,
+    refetchInterval: 5000,
   });
 
   return {

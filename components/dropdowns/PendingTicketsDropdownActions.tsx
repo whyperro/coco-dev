@@ -71,7 +71,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       const imageUrl = values.image_ref || ""; // URL de la imagen
 
       // Ejecuta las mutaciones de forma concurrente
-      createTransaction.mutateAsync({
+      await createTransaction.mutateAsync({
         ...values,
         image_ref: imageUrl,
         ticketId: ticket.id,
@@ -79,7 +79,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         transaction_date: new Date(),
       });
 
-      updateCreditProvider.mutateAsync({
+      await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + ticket.ticket_price,
       });

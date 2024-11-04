@@ -29,7 +29,6 @@ export const useGetRoutes = () => {
       return data as Route[];
     },
     // Optional: you can set retry and staleTime here
-    staleTime: 1000 * 60 * 5 // 5 minutes
   });
 
   return {

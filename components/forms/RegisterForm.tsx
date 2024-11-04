@@ -218,7 +218,7 @@ const RegisterForm = () => {
           />
             )
           }
-          
+
           <Button disabled={isLoading} type="submit" className="w-full">
             {
               isLoading ? <Loader2 className='size-4 animate-spin' /> : <p>Registrar</p>

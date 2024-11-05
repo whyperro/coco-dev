@@ -149,7 +149,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DropdownMenuItem>
           {/* Confirm Payment Option */}
           {
-            session?.user.user_role === "ADMIN" && (
+            session?.user.user_role === "MANAGER" && (
               <DropdownMenuItem>
                 <FileCheck className="size-4" />
               </DropdownMenuItem>

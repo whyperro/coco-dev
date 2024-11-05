@@ -148,9 +148,13 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             <TicketX className='size-5 text-rose-500' />
           </DropdownMenuItem>
           {/* Confirm Payment Option */}
-          <DropdownMenuItem>
-            <FileCheck className={cn("size-5", session?.user.user_role != "MANAGER" ? "hidden" : "flex")} />
-          </DropdownMenuItem>
+          {
+            session?.user.user_role != "ADMIN" && (
+              <DropdownMenuItem>
+                <FileCheck className="size-4" />
+              </DropdownMenuItem>
+            )
+          }
         </DropdownMenuContent>
       </DropdownMenu>
 

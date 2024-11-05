@@ -41,7 +41,6 @@ export const useGetPaidTickets = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 1000,
   });
 
   return {
@@ -58,7 +57,6 @@ export const useGetCancelledTickets = () => {
       const {data} = await axios.get('/api/tickets/cancelled');
       return data as Ticket[];
     },
-    staleTime: 1000,
   });
 
   return {
@@ -76,7 +74,6 @@ export const useGetPaidTicketsReport = () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
-    staleTime: 1000,
   });
 
   return {

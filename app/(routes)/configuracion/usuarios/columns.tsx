@@ -35,6 +35,24 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "first_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />
+    ),
+    cell: ({ row }) => {
+      return <div className="text-center font-bold">{row.original.first_name}</div>
+    },
+  },
+  {
+    accessorKey: "last_name",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />
+    ),
+    cell: ({ row }) => {
+      return <div className="text-center font-bold">{row.original.last_name}</div>
+    },
+  },
+  {
     accessorKey: "username",
     header: ({ column }) => (
       <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />

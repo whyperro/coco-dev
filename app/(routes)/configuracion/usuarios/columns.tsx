@@ -37,7 +37,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "first_name",
     header: ({ column }) => (
-      <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />
+      <DataTableColumnHeader filter column={column} title='Nombre' />
     ),
     cell: ({ row }) => {
       return <div className="text-center font-bold">{row.original.first_name}</div>
@@ -46,7 +46,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "last_name",
     header: ({ column }) => (
-      <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />
+      <DataTableColumnHeader filter column={column} title='Apellido' />
     ),
     cell: ({ row }) => {
       return <div className="text-center font-bold">{row.original.last_name}</div>
@@ -55,7 +55,7 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "username",
     header: ({ column }) => (
-      <DataTableColumnHeader filter column={column} title='Nombre de Usuario' />
+      <DataTableColumnHeader filter column={column} title='Usuario' />
     ),
     cell: ({ row }) => {
       return <div className="text-center font-bold">{row.original.username}</div>

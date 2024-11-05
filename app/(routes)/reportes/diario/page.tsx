@@ -11,7 +11,7 @@ import { convertAmountFromMiliunits, formatCurrency } from '@/lib/utils'
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx'
 
 const DailyReportPage = () => {
 
@@ -75,7 +75,7 @@ const DailyReportPage = () => {
           "Método de Pago": method.method,
           "Total": formatCurrency(convertAmountFromMiliunits(method.totalAmount)),
       }));
-  
+
       return {
         "Sucursal": branchData.branch,
         ...Object.fromEntries(paymentMethods.map(m => [m["Método de Pago"], m["Total"]])),
@@ -134,7 +134,7 @@ const DailyReportPage = () => {
                     >
                         <Button className='bg-red-700' disabled={isError}>Descargar PDF</Button>
                     </PDFDownloadLink>
-            
+
                     <Button onClick={handleExport} disabled={isLoading || isError}>
                         Descargar Excel
                     </Button>

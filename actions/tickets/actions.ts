@@ -35,18 +35,17 @@ export const useGetPendingTickets = () => {
 };
 
 export const useGetPaidTickets = () => {
-  const ticketsQuery = useQuery({
+  const paidQuery = useQuery({
     queryKey: ["paid"], // Updated to reflect flight type
     queryFn: async () => {
       const {data} = await axios.get('/api/tickets/paid');
       return data as Ticket[];
     },
   });
-
   return {
-    data: ticketsQuery.data,
-    loading: ticketsQuery.isLoading,
-    error: ticketsQuery.isError ? ticketsQuery.error : null, // Improved error handling
+    data: paidQuery.data,
+    loading: paidQuery.isLoading,
+    error: paidQuery.isError ? paidQuery.error : null, // Improved error handling
   };
 };
 

@@ -15,14 +15,6 @@ export async function GET() {
           include: {
             client: true,
           },
-          select: {
-            first_name: true,
-            last_name: true,
-            dni_number: true,
-            dni_type: true,
-            email: true,
-            phone_number: true,
-          }
         },
         transaction: true,
         provider: true,

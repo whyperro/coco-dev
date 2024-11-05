@@ -1,7 +1,7 @@
 import db from "@/lib/db";
 import { User } from "@/types";
 import { NextResponse } from "next/server";
-
+export const revalidate = 0
 export async function GET() {
   try {
     const data: User[] | null = await db.user.findMany();

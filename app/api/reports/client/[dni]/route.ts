@@ -35,7 +35,10 @@ export async function GET(request: Request, { params }: { params: { dni: string 
     // Fetch tickets within date range
     const tickets = await db.ticket.findMany({
       where: {
-        createdAt: { gte: startDate, lte: endDate },
+        OR: [
+          { createdAt: { gte: startDate, lte: endDate } },
+          { statusUpdatedAt: { gte: startDate, lte: endDate } }
+        ],
         passanger: { client: { dni } },
       },
       include: {

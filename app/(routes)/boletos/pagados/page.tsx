@@ -1,31 +1,14 @@
 "use client"
 
 import { useGetPaidTickets } from '@/actions/tickets/actions'
+import ProtectedRoute from '@/components/layout/ProtectedRoute'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
-import { Ticket } from '@/types'
-import { Loader2, TicketCheck } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { columns } from './columns'
 import { DataTable } from './data-table'
-import ProtectedRoute from '@/components/layout/ProtectedRoute'
 
 const PaidTicketsPage = () => {
-  const [filteredTickets, setFilteredTickets] = useState<Ticket[] | null>(null)
   const { data: tickets, loading, error } = useGetPaidTickets()
-  const { data: session } = useSession()
-
-  useEffect(() => {
-    if (tickets && session) {
-      if (session.user.user_role === 'ADMIN' || session.user.user_role === 'AUDITOR') {
-        setFilteredTickets(tickets);
-      } else {
-        setFilteredTickets(tickets.filter(ticket => ticket.branchId === session.user.branchId));
-      }
-    }
-  }, [tickets, session]);
-
-
   return (
     <ProtectedRoute roles={["ADMIN", "AUDITOR"]}>
       <ContentLayout title='Boletos Pagados'>
@@ -40,7 +23,7 @@ const PaidTicketsPage = () => {
           </div>
         }
         {
-          filteredTickets && <DataTable columns={columns} data={filteredTickets} />
+          tickets && <DataTable columns={columns} data={tickets} />
         }
         {
           error && <div className='w-full flex justify-center text-sm text-muted-foreground'>Hubo un error...</div>

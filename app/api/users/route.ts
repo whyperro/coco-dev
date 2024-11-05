@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(data, {
       status: 200,
       headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate", // Strong cache prevention
+        "Cache-Control": "no-store, max-age=0, must-revalidate, proxy-revalidate", // Strong cache prevention
         "Expires": "0",
         "Pragma": "no-cache",
       },

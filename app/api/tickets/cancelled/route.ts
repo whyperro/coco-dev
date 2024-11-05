@@ -11,7 +11,7 @@ export async function GET() {
         routes: true,
         passanger: {
           select:{
-            id: true,                         
+            id: true,
             dni_type: true,
             dni_number: true,
             client:true,
@@ -25,6 +25,9 @@ export async function GET() {
     });
     return NextResponse.json(data, {
       status: 200,
+      headers: {
+        "Cache-Control": "no-store, max-age=0", // Desactiva la caché
+      },
     });
   } catch (error) {
     console.error("Error fetching routes:", error);

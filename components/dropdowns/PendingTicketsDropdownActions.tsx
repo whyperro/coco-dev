@@ -78,6 +78,9 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         registered_by: session?.user.username || "",
         transaction_date: new Date(),
       });
+      
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
 
       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
@@ -85,8 +88,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       });
 
       // Invalida las queries después de que ambas mutaciones se completen
-      await queryClient.invalidateQueries({ queryKey: ["pending"] });
-      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+
 
       toast.success("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",

@@ -26,6 +26,7 @@ export async function POST(request: Request) {
           },
           data: {
             status: "PAGADO",
+            updated_by: data.updated_by,
             statusUpdatedAt: ticket.status !== data.status ? new Date() : ticket.statusUpdatedAt,
           }
         })

@@ -41,7 +41,7 @@ export async function POST(request: Request) {
             }
           }
         });
-        console.log(newTicket)
+        
       return NextResponse.json(newTicket);
     } catch (error) {
       console.error("Error creating ticket:", error);

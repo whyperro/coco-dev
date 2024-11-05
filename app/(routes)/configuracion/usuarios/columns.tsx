@@ -57,7 +57,7 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const id = row.original.id
       return (
-        <UserDropdownActions id={id.toString()} />
+        <UserDropdownActions user={row.original} />
       )
     },
   },

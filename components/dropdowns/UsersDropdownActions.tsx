@@ -5,14 +5,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
-import { Loader2, MoreHorizontal, Trash2 } from "lucide-react"
+import { User } from "@/types"
+import { Loader2, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { useState } from "react"
+import RegisterForm from "../forms/RegisterForm"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 
-const UserDropdownActions = ({ id }: { id: string }) => {
+const UserDropdownActions = ({user}: {user: User}) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [isDialogOpen1, setIsDialogOpen1] = useState<boolean>(false); // Delete dialog
+  const [isDialogOpen2, setIsDialogOpen2] = useState<boolean>(false); // Edit dialog
   const { deleteUser } = useDeleteUser();
   const handleDelete = async (id: string) => {
     await deleteUser.mutateAsync(id);
@@ -37,6 +40,13 @@ const UserDropdownActions = ({ id }: { id: string }) => {
           }}>
             <Trash2 className='size-5 text-red-500' />
           </DropdownMenuItem>
+             {/* Edit Option */}
+             <DropdownMenuItem onClick={() => {
+            setIsDialogOpen2(true);
+            setIsDropdownMenuOpen(false);
+          }}>
+            <Pencil className="size-4 cursor-pointer" />
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -56,11 +66,25 @@ const UserDropdownActions = ({ id }: { id: string }) => {
             <Button
               disabled={deleteUser.isPending} // Disable button while mutation is pending
               className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
-              onClick={() => handleDelete(id)}
+              onClick={() => handleDelete(user.id)}
             >
               {deleteUser.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+         {/* Edit Branch Dialog */}
+         <Dialog open={isDialogOpen2} onOpenChange={setIsDialogOpen2}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar sucursal</DialogTitle>
+            <DialogDescription>
+              Actualiza los detalles de la sucursal
+            </DialogDescription>
+          </DialogHeader>
+          {/* <RegisterFlightForm isEditing id={id} onClose={() => setIsDialogOpen2(false)} /> */}
+          <RegisterForm isEditing initialValues={user} onClose={() => setIsDialogOpen2(false)}/>
         </DialogContent>
       </Dialog>
     </>

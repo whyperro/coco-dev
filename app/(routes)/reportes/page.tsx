@@ -17,7 +17,6 @@ const DailyReportPage = () => {
   if (isLoading) {
     return <LoadingPage />
   }
-  console.log(tickets)
   return (
     <ContentLayout title='Reporte'>
       <ProtectedRoute roles={['ADMIN', 'AUDITOR']}>

@@ -1,8 +1,8 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { addDays, endOfDay, startOfDay } from "date-fns";
+import { addDays, endOfDay, format, parseISO, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
-
+import { toZonedTime } from "date-fns-tz";
 
 interface IBranchData {
     name: string,
@@ -15,11 +15,12 @@ interface IBranchData {
 export async function GET(request: Request){
   const { searchParams } = new URL(request.url);
   try {
-    const date = searchParams.get("date") || new Date();
-    const defaultCurrentDate = new Date();
-    const currentDate = addDays(date, 1)
-    const startDate = searchParams.get("date") ? startOfDay(currentDate) : startOfDay(defaultCurrentDate); // Inicio del día actual
-    const endDate = searchParams.get("date") ? endOfDay(currentDate) : endOfDay(defaultCurrentDate); // Fin del día actual
+    const dateParam = searchParams.get("date");
+    const date = dateParam ? toZonedTime(parseISO(dateParam), "America/Caracas") : new Date();
+    // Ajuste de `startOfDay` y `endOfDay` en UTC
+    const startDate = startOfDay(date);
+    const endDate = endOfDay(date);
+
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
     const tickets = await db.ticket.findMany({
       where: {
@@ -241,12 +242,9 @@ export async function GET(request: Request){
         };
       }
     );
-
-
-    console.log(transactionTypesReport)
     // Respuesta del endpoint
     return NextResponse.json({
-      date: searchParams.get("date") ? currentDate : defaultCurrentDate,
+      date: searchParams.get("date") ?? format(date, "yyyy-MM-dd"),
       paidTickets: paidTickets.map(ticket => ({
         ticket_number: ticket.ticket_number,
         booking_ref: ticket.booking_ref,

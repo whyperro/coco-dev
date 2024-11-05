@@ -26,7 +26,7 @@ import {
 import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
-import { CreditCard, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
+import { CreditCard, FileCheck, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -40,6 +40,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "../ui/input"
 import { UploadButton } from "@/lib/uploadthing"
 import { QueryClient, useQueryClient } from "@tanstack/react-query"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   payment_ref: z.string(),
@@ -80,14 +81,16 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         transaction_date: new Date(),
       });
 
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+
       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + ticket.ticket_price,
       });
 
       // Invalida las queries después de que ambas mutaciones se completen
-      await queryClient.invalidateQueries({ queryKey: ["pending"] });
-      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+
 
       toast.success("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
@@ -145,6 +148,14 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }}>
             <TicketX className='size-5 text-rose-500' />
           </DropdownMenuItem>
+          {/* Confirm Payment Option */}
+          {
+            session?.user.user_role === "MANAGER" && (
+              <DropdownMenuItem>
+                <FileCheck className="size-4" />
+              </DropdownMenuItem>
+            )
+          }
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -277,17 +288,17 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               Selecciona el motivo de la cancelación
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4 mb-4">
-            <div>
-              <Button onClick={() => setReason("CancelledByClient")}>Cancelado por el Cliente</Button>
-            </div>
-            <div>
-              <Button onClick={() => setReason("WrongSellerInput")}>Error en el vendedor</Button>
-            </div>
-            <div>
-              <Button onClick={() => setReason("WrongClientInfo")}>Error en la información del cliente</Button>
-            </div>
-          </div>
+          <Select onValueChange={(e: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo") => setReason(e)} defaultValue={"CancelledByClient"}>
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione una razón..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="CancelledByClient">Cancelado por usuario</SelectItem>
+              <SelectItem value="WrongSellerInput">Ingreso erróneo de datos</SelectItem>
+              <SelectItem value="WrongClientInfo">Información recibida errónea</SelectItem>
+              <SelectItem value="ClientDidNotPay">Cliente no pago a tiempo</SelectItem>
+            </SelectContent>
+          </Select>
           <DialogFooter>
             <Button onClick={onVoidTicket} className="bg-red-500 hover:bg-red-600 text-white">Confirmar Cancelación</Button>
             <Button type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>

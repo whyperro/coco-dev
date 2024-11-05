@@ -10,8 +10,6 @@ export const useGetUsers = () => {
       const {data} = await axios.get('/api/users'); // Adjust the endpoint as needed
       return data as User[];
     },
-    staleTime: 3500,
-    refetchInterval: 5000,
   });
   return {
     data: usersQuery.data,

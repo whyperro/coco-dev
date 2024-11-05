@@ -115,7 +115,7 @@ const TicketForm = () => {
   const { data: providers, loading: providersLoading, error: providersError } = useGetProviders()
   const { createPassenger } = useCreatePassenger()
   const { createTicket } = useCreateTicket();
-  const {updateCreditProvider} = useUpdateCreditProvider()
+  const { updateCreditProvider } = useUpdateCreditProvider()
   const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
   const { data: dataClient } = useGetClient(form.watch("clientId") ?? null);
@@ -245,7 +245,7 @@ const TicketForm = () => {
           rate: rateMiliunits,
           total_bs: totalBsMiliunits,
         })
-        if(ticketCreated.status === 200) {
+        if (ticketCreated.status === 200) {
           await updateCreditProvider.mutateAsync({
             id: ticketCreated.data.providerId,
             credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
@@ -286,7 +286,7 @@ const TicketForm = () => {
             rate: rateMiliunits,
             total_bs: totalBsMiliunits,
           })
-          if(ticketCreated.status === 200) {
+          if (ticketCreated.status === 200) {
             await updateCreditProvider.mutateAsync({
               id: ticketCreated.data.providerId,
               credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
@@ -380,7 +380,6 @@ const TicketForm = () => {
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
-
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
@@ -431,7 +430,7 @@ const TicketForm = () => {
               name="providerId"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel className="font-bold">Sucursales</FormLabel>
+                  <FormLabel className="font-bold">Proveedor</FormLabel>
                   <Popover open={openProvider} onOpenChange={setOpenProvider}>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -454,6 +453,7 @@ const TicketForm = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
                       <Command>
+                        <RegisterProviderDialog />
                         <CommandInput placeholder="Busque un proveedor..." />
                         <CommandList>
                           <CommandEmpty>No se ha encontrado el proveedor.</CommandEmpty>
@@ -915,6 +915,7 @@ const TicketForm = () => {
                       </PopoverTrigger>
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
+                          <RegisterRouteDialog />
                           <CommandInput placeholder="Buscar rol..." />
                           <CommandList>
                             <CommandEmpty>No se encontraron rutas...</CommandEmpty>

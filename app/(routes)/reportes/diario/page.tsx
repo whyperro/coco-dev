@@ -11,7 +11,7 @@ import { convertAmountFromMiliunits, formatCurrency } from '@/lib/utils'
 import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer"
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx'
 
 const DailyReportPage = () => {
 
@@ -46,7 +46,7 @@ const DailyReportPage = () => {
       "Ruta": `${ticket.routes[0].origin} - ${ticket.routes[0].destiny}`,
     }));
 
-    const clientTicket =   tickets.clientsReport.map((client) => ({
+    const clientTicket = tickets.clientsReport.map((client) => ({
       "Nombre": client.name,
       "Pendientes": client.pendingCount,
       "Pagados": client.paidCount,
@@ -54,7 +54,7 @@ const DailyReportPage = () => {
       "Monto Pagado": formatCurrency(convertAmountFromMiliunits(client.paidAmount)),
       "Total": formatCurrency(convertAmountFromMiliunits(client.totalAmount)),
     }));
-    const providerTicket =   tickets.providersReport.map((provider) => ({
+    const providerTicket = tickets.providersReport.map((provider) => ({
       "Nombre": provider.provider,
       "Pagados": provider.paidCount,
       "Pendientes": provider.pendingCount,
@@ -62,7 +62,7 @@ const DailyReportPage = () => {
       "Monto Pendiente": formatCurrency(convertAmountFromMiliunits(provider.pendingAmount)),
     }));
 
-    const branchReport =   tickets.branchReport.map((branch) => ({
+    const branchReport = tickets.branchReport.map((branch) => ({
       "Nombre": branch.name,
       "Pagados": branch.paidCount,
       "Pendientes": branch.pendingCount,
@@ -72,16 +72,16 @@ const DailyReportPage = () => {
 
     const methodPaid = tickets.transactionTypesReport.map(branchData => {
       const paymentMethods = branchData.payment_methods.map(method => ({
-          "Método de Pago": method.method,
-          "Total": formatCurrency(convertAmountFromMiliunits(method.totalAmount)),
+        "Método de Pago": method.method,
+        "Total": formatCurrency(convertAmountFromMiliunits(method.totalAmount)),
       }));
-  
+
       return {
         "Sucursal": branchData.branch,
         ...Object.fromEntries(paymentMethods.map(m => [m["Método de Pago"], m["Total"]])),
         "Total Sucursal": formatCurrency(convertAmountFromMiliunits(branchData.branch_total)),
       };
-  });
+    });
     // Convierte los datos a una hoja de cálculo
     const tpaid = XLSX.utils.json_to_sheet(ticketPaid);
     const tpending = XLSX.utils.json_to_sheet(ticketPending);
@@ -100,7 +100,9 @@ const DailyReportPage = () => {
     XLSX.utils.book_append_sheet(wb, tbranch, "Resumen de sucursales");
     XLSX.utils.book_append_sheet(wb, methodPaidReport, "Resumen de Ingreso por Sucursal");
     // Exporta el archivo
-    XLSX.writeFile(wb, `reporte_diario_${format(tickets.date, "yyyy-MM-dd")}.xlsx`);
+    // XLSX.writeFile(wb, `reporte_diario_${format(tickets.date, "yyyy-MM-dd")}.xlsx`);
+    XLSX.writeFile(wb, `reporte_diario.xlsx`);
+
   };
 
   return (
@@ -118,34 +120,34 @@ const DailyReportPage = () => {
             {
               tickets && (
                 <>
-                    <PDFDownloadLink
-                        fileName={`reporte_diario_${format(tickets.date, "yyyy-MM-dd")}`}
-                        document={
-                            <PdfFile
-                                transactionTypesReport={tickets.transactionTypesReport}
-                                providersReport={tickets.providersReport}
-                                paidTickets={tickets.paidTickets}
-                                pendingTickets={tickets.pendingTickets}
-                                clientsReport={tickets.clientsReport}
-                                branchReport={tickets.branchReport}
-                                date={format(new Date(), "PPP", { locale: es })}
-                            />
-                        }
-                    >
-                        <Button className='bg-red-700' disabled={isError}>Descargar PDF</Button>
-                    </PDFDownloadLink>
-            
-                    <Button onClick={handleExport} disabled={isLoading || isError}>
-                        Descargar Excel
-                    </Button>
+                  <PDFDownloadLink
+                    fileName={`reporte_diario_${tickets.date}`}
+                    document={
+                      <PdfFile
+                        transactionTypesReport={tickets.transactionTypesReport}
+                        providersReport={tickets.providersReport}
+                        paidTickets={tickets.paidTickets}
+                        pendingTickets={tickets.pendingTickets}
+                        clientsReport={tickets.clientsReport}
+                        branchReport={tickets.branchReport}
+                        date={format(new Date(), "PPP", { locale: es })}
+                      />
+                    }
+                  >
+                    <Button className='bg-red-700' disabled={isError}>Descargar PDF</Button>
+                  </PDFDownloadLink>
+
+                  <Button onClick={handleExport} disabled={isLoading || isError}>
+                    Descargar Excel
+                  </Button>
                 </>
-            )
+              )
             }
           </div>
           <div>
             {
               tickets && <PDFViewer style={{ width: '100%', height: '600px' }}>
-                <PdfFile transactionTypesReport={tickets.transactionTypesReport} providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} branchReport={tickets.branchReport} clientsReport={tickets.clientsReport} date={format(tickets.date, "PPP", { locale: es })} />
+                <PdfFile transactionTypesReport={tickets.transactionTypesReport} providersReport={tickets.providersReport} paidTickets={tickets?.paidTickets} pendingTickets={tickets?.pendingTickets} branchReport={tickets.branchReport} clientsReport={tickets.clientsReport} date={tickets.date} />
               </PDFViewer>
             }
             {

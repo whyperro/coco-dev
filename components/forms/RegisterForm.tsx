@@ -66,10 +66,9 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
   const [isLoading, setIsLoading] = useState(false)
 
   const queryClient = useQueryClient()
-
+  
   const router = useRouter();
   const {data: session} = useSession();
-
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,7 +77,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
       last_name: initialValues?.last_name ?? "",
       username: initialValues?.username ?? "",
       user_role: initialValues?.user_role ??"",
-      branchId: initialValues?.branch?.id ?? undefined,
+      branchId: initialValues?.branchId ?? undefined,
       password: "",
     },
   })
@@ -102,8 +101,9 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
           password: values.password,
           username: values.username,
           user_role: values.user_role,
+          isChangingPassword:isChangingPassword,
           updated_by:session?.user.username ?? "",
-          branchId: values.branchId ?? undefined,
+          branchId: values.branchId ?? undefined, 
         });
       }
       else{
@@ -181,19 +181,45 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contraseña</FormLabel>
-                <FormControl>
-                  <Input type='password' placeholder="*******" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {isEditing && (
+        // Si está en modo de edición, mostramos el campo de contraseña editable con la opción de cambiarla
+            <div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña</FormLabel>
+                    <FormControl>
+                      {isChangingPassword ? (
+                        // Si estamos en el modo de edición de la contraseña, mostrar el campo de input
+                        <Input type="password" placeholder="Nueva contraseña" {...field} />
+                      )
+                      : <Input type="password" placeholder="Ingrese contraseña" {...field} />
+                      }
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Enlace para alternar entre cambiar la contraseña */}
+              <div className="mt-4 text-center text-sm">
+                {isChangingPassword ? (
+                  <Link href="#" className="underline" onClick={togglePasswordChange}>
+                    Cancelar
+                  </Link>
+                ) : (
+                  <span>
+                    ¿Se le olvido la contraseña?{" "}
+                    <Link href="#" className="underline" onClick={togglePasswordChange}>
+                      Cambiar contraseña
+                    </Link>
+                  </span>
+                )}
+              </div>
+            </div>
+          ) }
           <FormField
             control={form.control}
             name="user_role"

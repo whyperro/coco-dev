@@ -48,7 +48,8 @@ export const useUpdateUser = () => {
       username: string,
       password:string,
       user_role: string,
-      updated_by:string
+      updated_by:string,
+      isChangingPassword: boolean,
       branchId?: string
     }) => {
       await axios.patch(`/api/users/${values.id}`, {

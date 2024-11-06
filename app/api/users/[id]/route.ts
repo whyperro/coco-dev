@@ -91,21 +91,55 @@ export async function DELETE(request: Request,{ params }: { params: { id: string
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   
   try {
-    
     const data = await request.json()
-    
-    const hashedPwd = await bcrypt.hash(data.password, 10);
     const { id } = params
-
-    const updatedUser= await db.user.update({
-      where: { id },
-      data: {
-        ...data,
-        password:hashedPwd
+     const user = await db.user.findUnique({
+      where: {
+        id: id, // Ensure the ID is a number
       },
     });
 
-    return NextResponse.json(updatedUser);
+    const isPasswordMatch = await bcrypt.compare(data.password, user?.password ?? "");
+
+   
+    if(data.isChangingPassword)
+    {
+      const hashedPwd = await bcrypt.hash(data.password, 10);
+      if (user) {
+        user.password = hashedPwd;
+      }
+
+    }else{
+
+      if (!isPasswordMatch) {
+        return NextResponse.json(
+          {
+            message: "Password incorrecto.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
+    if (isPasswordMatch || data.isChangingPassword) {
+      const updatedUser = await db.user.update({
+        where: { id },
+        data: {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          username: data.username,
+          password: user?.password,
+          user_role: data.user_role,
+          branchId: data.branchId ?? null,
+          updated_by: data.updated_by,
+        },
+      });
+   
+      return NextResponse.json(updatedUser);
+    } 
+    
   } catch (error) {
     console.error("Error al actualizar al usuario:", error);
     return NextResponse.json(

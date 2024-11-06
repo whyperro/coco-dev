@@ -15,8 +15,8 @@ datasource db {
 
 enum Role {
   SELLER
-  ADMIN
-  MANAGER
+  SUPERADMIN
+  ADMINISTRADOR
   AUDITOR
 }
 
@@ -54,6 +54,7 @@ enum PaymentMethod {
   ZELLE
   CREDITO
   DEBITO
+  TRANSFERENCIA
 }
 
 enum VoidReason {

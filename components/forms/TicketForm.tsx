@@ -236,7 +236,7 @@ const TicketForm = () => {
           description: values.description ?? "",
           passangerId: fetchedPassanger.id,
           routes: values.routes,
-          branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
+          branchId: (session?.user.user_role === 'SUPERADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
           providerId: values.providerId,
           registered_by: session?.user.username || "",
           ticket_price: ticketPriceInMiliunits,
@@ -277,7 +277,7 @@ const TicketForm = () => {
 
             passangerId: res.data.id,
             routes: values.routes,
-            branchId: (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
+            branchId: (session?.user.user_role === 'SUPERADMIN' || session?.user.user_role === 'AUDITOR') ? values.branchId || "" : session?.user.branchId || "",
             providerId: values.providerId,
             registered_by: session?.user.username || "",
             ticket_price: ticketPriceInMiliunits,
@@ -494,7 +494,7 @@ const TicketForm = () => {
               )}
             />
             {
-              (session?.user.user_role === 'ADMIN' || session?.user.user_role === 'AUDITOR') && (
+              (session?.user.user_role === 'SUPERADMIN' || session?.user.user_role === 'AUDITOR') && (
                 <FormField
                   control={form.control}
                   name="branchId"

@@ -25,7 +25,7 @@ const DashboardPage = () => {
   }
   return (
     <ContentLayout title='Estadisticas'>
-      <ProtectedRoute roles={['ADMIN', 'AUDITOR', 'MANAGER']}>
+      <ProtectedRoute roles={['SUPERADMIN', 'AUDITOR', 'ADMINISTRADOR']}>
         <div className='flex flex-col justify-center space-y-3'>
           <div className='flex justify-center '><DateFilter/></div>
           <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />

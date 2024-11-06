@@ -209,6 +209,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                               Pago Móvil <IoIosPhonePortrait className="text-lg" />
                             </div>
                           </SelectItem>
+                          <SelectItem value="TRANSFERENCIA">
+                            <div className="flex gap-2 items-center">
+                              Transferencia <IoIosPhonePortrait className="text-lg" />
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

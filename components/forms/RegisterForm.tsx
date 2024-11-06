@@ -82,7 +82,11 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
       password: "",
     },
   })
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  const togglePasswordChange = () => {
+    setIsChangingPassword(!isChangingPassword);  // Alternar entre cambiar y no cambiar la contraseña
+  };
   const { data: branches, loading: branchesLoading } = useGetBranches();
 
   const { updateUser } = useUpdateUser();
@@ -95,7 +99,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
           id: initialValues.id,
           first_name: values.first_name,
           last_name: values.last_name,
-          password:values.password,
+          password: values.password,
           username: values.username,
           user_role: values.user_role,
           updated_by:session?.user.username ?? "",
@@ -205,8 +209,8 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
                   <SelectContent>
                     <SelectItem value="SELLER">Vendedor</SelectItem>
                     <SelectItem value="AUDITOR">Auditor</SelectItem>
-                    <SelectItem value="MANAGER">Gerente</SelectItem>
-                    <SelectItem value="ADMIN">Admin</SelectItem>
+                    <SelectItem value="ADMINISTRADOR">Administrador</SelectItem>
+                    <SelectItem value="SUPERADMIN">Superadmin</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -214,7 +218,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
             )}
           />
           {
-            form.watch('user_role') != "AUDITOR" && form.watch('user_role') != "ADMIN" && (
+            form.watch('user_role') != "AUDITOR" && form.watch('user_role') != "SUPERADMIN" && (
               <FormField
             control={form.control}
             name="branchId"
@@ -249,7 +253,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
 
           <Button disabled={isLoading} type="submit" className="w-full">
             {
-              isLoading ? <Loader2 className='size-4 animate-spin' /> : <p>Registrar</p>
+              isLoading ? <Loader2 className='size-4 animate-spin' /> : isEditing === false ? <p>Registrar</p> : <p>Actualizar</p>
             }
           </Button>
         </div>

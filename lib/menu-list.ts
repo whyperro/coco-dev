@@ -181,7 +181,7 @@ export function getMenuList(pathname: string, role: string): Group[] {
       })
       .filter(menu => {
         // General filtering for SELLER role
-        if (role !== "AUDITOR" && role !== "ADMIN") {
+        if (role !== "AUDITOR" && role !== "SUPERADMIN") {
           // Exclude specific menus for SELLER
           if (menu.label === "Reportes") {
             return false;

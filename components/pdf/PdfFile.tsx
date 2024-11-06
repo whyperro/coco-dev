@@ -241,7 +241,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
               <Text style={styles.columnWide}>Proveedor</Text>
               <Text style={styles.column}>B. Pagados</Text>
               <Text style={styles.columnWide}>B. Pendientes</Text>
-              <Text style={styles.columnExtraWide}>Monto Pendiente</Text>
+              <Text style={styles.columnExtraWide}>Deuda Pendiente</Text>
               <Text style={styles.columnWide}>Ingresos Generados</Text>
             </View>
             {providersReport.map((provider) => (

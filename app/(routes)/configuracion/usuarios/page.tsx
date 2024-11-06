@@ -11,7 +11,7 @@ const UsersPage = () => {
   const { data, loading } = useGetUsers()
   return (
     <ContentLayout title='Usuarios' >
-      <ProtectedRoute roles={['ADMIN', 'AUDITOR']}>
+      <ProtectedRoute roles={['SUPERADMIN', 'AUDITOR']}>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold'>Usuarios</h1>
           <p className="text-muted-foreground italic text-sm mt-2">Aquí puede llevar el control de los usuarios registrados en el sistema.</p>

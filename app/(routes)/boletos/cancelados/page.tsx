@@ -10,7 +10,7 @@ import { DataTable } from './data-table'
 const PaidTicketsPage = () => {
   const { data: tickets, loading, error } = useGetCancelledTickets()
   return (
-    <ProtectedRoute roles={["ADMIN", "AUDITOR"]}>
+    <ProtectedRoute roles={["SUPERADMIN", "AUDITOR", "ADMINISTRADOR", "SELLER"]}>
       <ContentLayout title='Boletos Cancelados'>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold mb-4'>Boletos Cancelados

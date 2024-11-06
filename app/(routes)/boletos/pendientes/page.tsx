@@ -11,7 +11,7 @@ const PendingTicketsPage = () => {
   const { data: tickets, loading, error } = useGetPendingTickets()
   console.log(tickets)
   return (
-    <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
+    <ProtectedRoute roles={["SUPERADMIN", "AUDITOR", "ADMINISTRADOR", "SELLER"]}>
       <ContentLayout title="Boletos Pendientes">
         <div className="text-center mt-6">
           <h1 className="text-5xl font-bold mb-4">Boletos Pendientes</h1>

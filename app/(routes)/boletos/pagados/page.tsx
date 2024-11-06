@@ -10,7 +10,7 @@ import { DataTable } from './data-table'
 const PaidTicketsPage = () => {
   const { data: tickets, loading, error } = useGetPaidTickets()
   return (
-    <ProtectedRoute roles={["ADMIN", "AUDITOR", "MANAGER"]}>
+    <ProtectedRoute roles={["SEPERADMIN", "AUDITOR", "ADMINISTRADOR"]}>
       <ContentLayout title='Boletos Pagados'>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold mb-4'>Boletos Pagados

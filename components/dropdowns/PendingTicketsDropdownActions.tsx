@@ -160,7 +160,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }
           {/* Confirm Payment Option */}
           {
-            session?.user.user_role === "MANAGER" || session?.user.user_role === "SUPERADMIN" && !!ticket.transaction && (
+            session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN" && !!ticket.transaction && (
               <DropdownMenuItem onClick={() => {
                 setOpenConfirm(true);
                 setIsDropdownMenuOpen(false);

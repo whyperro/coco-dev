@@ -11,7 +11,7 @@ import { useGetPassangers } from '@/actions/passangers/actions'
 const ProviderPage = () => {
   const { data: passangers, loading, error } = useGetPassangers()
   return (
-    <ContentLayout title='Proveedores'>
+    <ContentLayout title='Pasajeros'>
       <div className="text-center mt-6">
         <h1 className='text-5xl font-bold'>Pasajeros</h1>
         <p className="mt-2 text-muted-foreground italic text-sm">Aquí puede llevar el control de los pasajeros que han sido registrados en el sistema.</p>

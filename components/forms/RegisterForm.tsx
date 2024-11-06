@@ -181,7 +181,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
               </FormItem>
             )}
           />
-          {isEditing && (
+          {isEditing ? (
         // Si está en modo de edición, mostramos el campo de contraseña editable con la opción de cambiarla
             <div>
               <FormField
@@ -219,7 +219,21 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
                 )}
               </div>
             </div>
-          ) }
+          ) :  
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contraseña</FormLabel>
+                <FormControl>
+                  <Input type='password' placeholder="*******" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        }
           <FormField
             control={form.control}
             name="user_role"

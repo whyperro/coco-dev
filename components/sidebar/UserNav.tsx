@@ -49,9 +49,9 @@ export function UserNav() {
 
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-2">
             <p className="text-sm font-medium leading-none">{session?.user.username}</p>
-            <p className="text-sm font-medium leading-none">{session?.user.user_role}</p>
+            <p className="text-sm font-medium leading-none">{session?.user.user_role === 'SELLER' ? "VENDEDORA" : session?.user.user_role}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

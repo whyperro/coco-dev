@@ -249,8 +249,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.columnWide}>{provider.provider}</Text>
                 <Text style={styles.column}>{provider.paidCount}</Text>
                 <Text style={styles.columnWide}>{provider.pendingCount}</Text>
-                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidAmount))}</Text>
-                <Text style={styles.columnExtraWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
+                <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(provider.pendingAmount))}</Text>
+                <Text style={styles.columnExtraWide}>{formatCurrency(convertAmountFromMiliunits(provider.paidAmount))}</Text>
               </View>
             ))}
           </>

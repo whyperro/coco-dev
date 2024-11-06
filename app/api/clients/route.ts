@@ -40,8 +40,8 @@ export async function POST(request: Request) {
     // Create a new branch if the name is unique
     const newClient = await db.client.create({
       data: {
-        first_name: data.first_name,
-        last_name: data.last_name,
+        first_name: data.first_name.toUpperCase(),
+        last_name: data.last_name.toUpperCase(),
         dni: data.dni,
         email: data.email ?? null,
         phone_number: data.phone_number ?? null,

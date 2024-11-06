@@ -253,8 +253,8 @@ const TicketForm = () => {
         }
       } else {
         const res = await createPassenger.mutateAsync({
-          first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
-          last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
+          first_name: values.first_name.toUpperCase(),
+          last_name: values.last_name.toUpperCase(),
           dni_type: values.dni_type,
           dni_number: values.dni_number,
           phone_number: values.phone_number ?? null,

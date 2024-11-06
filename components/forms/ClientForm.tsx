@@ -16,7 +16,7 @@ import { useSession } from "next-auth/react";
 const formSchema = z.object({
   first_name: z.string({
     required_error: "Nombre requerido",
-    
+
   }),
   last_name: z.string({
     required_error: "Apellido requerido",
@@ -26,7 +26,7 @@ const formSchema = z.object({
   }),
   email: z.string().optional(),
   phone_number: z.string().optional(),
-  
+
 });
 
 interface FormProps {
@@ -35,33 +35,33 @@ interface FormProps {
   id?: string,
 }
 
-const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
+const CreateClientForm = ({ id, onClose, isEditing = false }: FormProps) => {
   const [initialValues, setInitialValues] = useState<Client | null>(null);
-  const {data: session} = useSession()
+  const { data: session } = useSession()
   const { updateClient } = useUpdateClient();
-  const {createClient} = useCreateClient();
-  const {data} = useGetClient(id ?? null);
+  const { createClient } = useCreateClient();
+  const { data } = useGetClient(id ?? null);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { 
+    defaultValues: {
       first_name: initialValues?.first_name ?? "",
       last_name: initialValues?.last_name ?? "",
-      dni: initialValues?.dni ?? "", 
+      dni: initialValues?.dni ?? "",
       email: initialValues?.email ?? undefined,
       phone_number: initialValues?.phone_number ?? undefined,
     },
   });
 
   useEffect(() => {
-    if(data) {
+    if (data) {
       setInitialValues(data)
       form.setValue("first_name", data.first_name)
-      form.setValue("last_name", data.last_name )
-      form.setValue("dni", data.dni )
-      form.setValue("email", data.email ?? "" )
-      form.setValue("phone_number", data.phone_number ?? "" )
+      form.setValue("last_name", data.last_name)
+      form.setValue("dni", data.dni)
+      form.setValue("email", data.email ?? "")
+      form.setValue("phone_number", data.phone_number ?? "")
     }
   }, [data, form])
 
@@ -72,8 +72,8 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
       if (isEditing && initialValues) {
         await updateClient.mutateAsync({
           id: initialValues.id,
-          first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
-          last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
+          first_name: values.first_name.toUpperCase(),
+          last_name: values.last_name.toUpperCase(),
           dni: values.dni,
           email: values?.email ? values.email : null,
           phone_number: values?.phone_number ? values.phone_number : null,
@@ -81,15 +81,15 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
         });
       } else {
         await createClient.mutateAsync({
-          first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
-          last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
+          first_name: values.first_name.toUpperCase(),
+          last_name: values.last_name.toUpperCase(),
           dni: values.dni,
           email: values?.email ? values.email : null,
           phone_number: values?.phone_number ? values.phone_number : null,
         });
       }
-        
-      form.reset(); 
+
+      form.reset();
       onClose();
     } catch (error) {
       console.error(error);
@@ -98,7 +98,7 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
       });
     }
   };
-  
+
 
   return (
     <Form {...form}>
@@ -130,7 +130,7 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
               </FormItem>
             )}
           />
-            <FormField
+          <FormField
             control={form.control}
             name="dni"
             render={({ field }) => (
@@ -144,34 +144,34 @@ const CreateClientForm = ({id, onClose, isEditing = false }: FormProps) => {
             )}
           />
           <div className="flex items-center gap-2">
-          
+
             <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="Correo electronico" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        
-          <FormField
-          control={form.control}
-          name="phone_number"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Numero de Telefono</FormLabel>
-              <FormControl>
-                <Input placeholder="424123456" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-          />
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Correo electronico" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Numero de Telefono</FormLabel>
+                  <FormControl>
+                    <Input placeholder="424123456" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
           <Button disabled={createClient.isPending || updateClient.isPending} type="submit" className="w-full">
             {createClient.isPending || updateClient.isPending ? <Loader2 className='size-4 animate-spin' /> : <p>{isEditing ? "Actualizar" : "Registrar"}</p>}

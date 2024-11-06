@@ -581,7 +581,7 @@ const TicketForm = () => {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel>
-                    ¿El pasajero paga su boleto?
+                    ¿El cliente será el pasajero?
                   </FormLabel>
 
                 </div>

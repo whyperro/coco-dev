@@ -18,6 +18,23 @@ export const useGetUsers = () => {
   };
 };
 
+export const useGetUser = (id: string | null) => {
+  const userQuery = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const {data} = await axios.get(`/api/user/${id}`); // Adjust the endpoint as needed
+      return data as User;
+    },
+    enabled: !!id
+  });
+  return {
+    data: userQuery.data,
+    loading: userQuery.isLoading,
+    error: userQuery.isError // Function to call the query
+  };
+};
+
+
 
 export const useUpdateUser = () => {
 
@@ -29,12 +46,14 @@ export const useUpdateUser = () => {
       first_name: string,
       last_name: string
       username: string,
+      password:string,
       user_role: string,
-      branch?: string
+      updated_by:string
+      branchId?: string
     }) => {
       await axios.patch(`/api/users/${values.id}`, {
         ...values,
-        branch: values.branch ?? null,
+        branchId: values.branchId ?? null,
       });
     },
     onSuccess: () => {

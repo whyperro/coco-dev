@@ -1,7 +1,9 @@
 import RegisterForm from '@/components/forms/RegisterForm'
 import Image from 'next/image'
+import { useState } from 'react'
 
 const Register = () => {
+
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="hidden bg-muted lg:block h-screen">
@@ -14,7 +16,7 @@ const Register = () => {
         />
       </div>
       <div className="flex items-center justify-center py-12">
-        <RegisterForm />
+        <RegisterForm  />
       </div>
     </div>
   )

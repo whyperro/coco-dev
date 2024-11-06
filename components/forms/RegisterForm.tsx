@@ -15,13 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Branch } from '@/types';
+import { Branch, User } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -30,6 +30,8 @@ import { Input } from '../ui/input';
 import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
 import { useGetBranches } from "@/actions/branches/actions";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetUser, useGetUsers, useUpdateUser } from "@/actions/users/actions";
+import { useSession } from "next-auth/react";
 
 
 const formSchema = z.object({
@@ -53,41 +55,67 @@ const formSchema = z.object({
   ).optional()
 })
 
-const RegisterForm = () => {
+interface FormProps {
+  onClose?: () => void;
+  isEditing?: boolean;
+  initialValues?:User
+}
+
+const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) => {
 
   const [isLoading, setIsLoading] = useState(false)
 
   const queryClient = useQueryClient()
 
   const router = useRouter();
+  const {data: session} = useSession();
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      username: "",
+      first_name: initialValues?.first_name ?? "",
+      last_name: initialValues?.last_name ?? "",
+      username: initialValues?.username ?? "",
+      user_role: initialValues?.user_role ??"",
+      branchId: initialValues?.branch?.id ?? undefined,
       password: "",
-      user_role: "",
     },
   })
 
   const { data: branches, loading: branchesLoading } = useGetBranches();
 
+  const { updateUser } = useUpdateUser();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true)
-      const res = await axios.post('/api/auth/register', {
-        ...values,
-        branchId:values.branchId ?? null,
-      });
-      if (res.status == 200) {
-        toast.success("¡Creado!", {
-          description: `El usuario ${values.username} ha sido creado correctamente.`
-        })
-        router.push('/login')
-        queryClient.invalidateQueries({ queryKey: ["users"] })
+      if (isEditing && initialValues) {
+        await updateUser.mutateAsync({
+          id: initialValues.id,
+          first_name: values.first_name,
+          last_name: values.last_name,
+          password:values.password,
+          username: values.username,
+          user_role: values.user_role,
+          updated_by:session?.user.username ?? "",
+          branchId: values.branchId ?? undefined,
+        });
       }
+      else{
+        const res = await axios.post('/api/auth/register', {
+          ...values,
+          branchId:values.branchId ?? null,
+        });
+        if (res.status == 200) {
+          toast.success("¡Creado!", {
+            description: `El usuario ${values.username} ha sido creado correctamente.`
+          })
+          router.push('/login')
+          queryClient.invalidateQueries({ queryKey: ["users"] })
+        }
+      }
+    
     } catch (error: any) {
       toast.error("Oops!", {
         description: `No se ha podido crear el usuario: ${error.response.data.message}`

@@ -10,6 +10,7 @@ export const useCreateTransaction = () => {
         payment_method: string,
         ticketId: string,
         registered_by: string,
+        updated_by: string,
         transaction_date: Date
       }) => {
           const res = await axios.post(`/api/transactions`, {

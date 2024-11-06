@@ -77,6 +77,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         image_ref: imageUrl,
         ticketId: ticket.id,
         registered_by: session?.user.username || "",
+        updated_by: session?.user.username || "",
         transaction_date: new Date(),
       });
       await updateCreditProvider.mutateAsync({

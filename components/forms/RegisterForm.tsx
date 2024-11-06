@@ -77,7 +77,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
       last_name: initialValues?.last_name ?? "",
       username: initialValues?.username ?? "",
       user_role: initialValues?.user_role ??"",
-      branchId: initialValues?.branchId ?? undefined,
+      branchId: initialValues?.branch?.id ?? undefined,
       password: "",
     },
   })

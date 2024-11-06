@@ -4,7 +4,7 @@ export type User = {
   last_name: string
   username: string,
   user_role: string,
-  branchId?: string
+  branch?: Branch
 }
 
 

@@ -160,7 +160,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }
           {/* Confirm Payment Option */}
           {
-            session?.user.user_role === "MANAGER" || session?.user.user_role === "SUPERADMIN" && !!ticket.transaction && (
+            session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN" && !!ticket.transaction && (
               <DropdownMenuItem onClick={() => {
                 setOpenConfirm(true);
                 setIsDropdownMenuOpen(false);
@@ -288,6 +288,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                       </FormControl>
                       {field.value && (
                         <Image
+                          width={128}
+                          height={128}
                           src={field.value}
                           alt="Vista previa de la imagen"
                           className="w-32 h-32 object-cover rounded mt-2"

@@ -253,8 +253,8 @@ const TicketForm = () => {
         }
       } else {
         const res = await createPassenger.mutateAsync({
-          first_name: values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1),
-          last_name: values.last_name.charAt(0).toUpperCase() + values.last_name.slice(1),
+          first_name: values.first_name.toUpperCase(),
+          last_name: values.last_name.toUpperCase(),
           dni_type: values.dni_type,
           dni_number: values.dni_number,
           phone_number: values.phone_number ?? null,
@@ -581,7 +581,7 @@ const TicketForm = () => {
                 </FormControl>
                 <div className="space-y-1 leading-none">
                   <FormLabel>
-                    ¿El pasajero paga su boleto?
+                    ¿El cliente será el pasajero?
                   </FormLabel>
 
                 </div>
@@ -633,7 +633,7 @@ const TicketForm = () => {
                     <FormItem>
                       <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
                       <FormControl>
-                        <Input type="number" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
+                        <Input className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
                       </FormControl>
                       <FormDescription>
                         El número identificador del pasajero

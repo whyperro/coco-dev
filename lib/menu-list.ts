@@ -167,23 +167,20 @@ export function getMenuList(pathname: string, role: string): Group[] {
         }
         return true;
       })
-      .map(menu => {
-        // Filter "Pagados" and "Pendientes" from "Boletos" for SELLER role
-        if (role === "SELLER" && menu.label === "Boletos") {
-          return {
-            ...menu,
-            submenus: menu.submenus.filter(
-              submenu => submenu.label !== "Pagados" && submenu.label !== "Pendientes"
-            )
-          };
-        }
-        return menu;
-      })
       .filter(menu => {
         // General filtering for SELLER role
         if (role !== "AUDITOR" && role !== "SUPERADMIN") {
           // Exclude specific menus for SELLER
           if (menu.label === "Reportes") {
+            return false;
+          }
+        }
+        return true;
+      }).filter(menu => {
+        // General filtering for SELLER role
+        if (role === "ADMIN" || role === 'SUPERADMIN' || role === "AUDITOR") {
+          // Exclude specific menus for SELLER
+          if (menu.label === "Estadisticas") {
             return false;
           }
         }

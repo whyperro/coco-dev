@@ -145,14 +145,13 @@ export async function GET(request: Request){
       const pendingCount = pendingTickets.length;
 
       const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for paid tickets
-      const pendingAmount = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for pending tickets
 
       return {
         provider: provider.name,
         paidCount,
         pendingCount,
         paidAmount, // Amount for paid tickets
-        pendingAmount, // Amount for pending tickets
+        pendingAmount: provider.credit,
       };
     });
 

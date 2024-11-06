@@ -1,6 +1,6 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { addDays, endOfDay, format, parseISO, startOfDay } from "date-fns";
+import { addDays, endOfDay, format, parse, parseISO, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
 import { toZonedTime } from "date-fns-tz";
 
@@ -16,7 +16,7 @@ export async function GET(request: Request){
   const { searchParams } = new URL(request.url);
   try {
     const dateParam = searchParams.get("date");
-    const date = dateParam ? toZonedTime(parseISO(dateParam), "America/Caracas") : new Date();
+    const date = dateParam ? parse(dateParam, "yyyy-MM-dd", new Date()) : new Date();
     // Ajuste de `startOfDay` y `endOfDay` en UTC
     const startDate = startOfDay(date);
     const endDate = endOfDay(date);

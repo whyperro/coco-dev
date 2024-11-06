@@ -59,7 +59,7 @@ export const useGetProviders = () => {
         });
       },
     });
-  
+
     return {
       createProvider: createMutation, // Function to call the mutation
     };
@@ -68,7 +68,7 @@ export const useGetProviders = () => {
   export const useUpdateProvider = () => {
 
     const queryClient = useQueryClient();
-  
+
     const updateMutation = useMutation({
       mutationFn: async (values: {
         id: string
@@ -94,17 +94,17 @@ export const useGetProviders = () => {
         });
       },
     });
-  
+
     return {
       updateProvider: updateMutation, // Function to call the mutation
     };
   };
-  
+
 
   export const useDeleteProvider = () => {
 
     const queryClient = useQueryClient();
-  
+
     const deleteMutation = useMutation({
       mutationFn: async (id: string) => {
         await axios.delete(`/api/providers/${id}`); // Include ID in the URL
@@ -121,7 +121,7 @@ export const useGetProviders = () => {
         });
       },
     });
-  
+
     return {
       deleteProvider: deleteMutation,
     };
@@ -130,20 +130,20 @@ export const useGetProviders = () => {
   export const useUpdateCreditProvider = () => {
 
     const queryClient = useQueryClient();
-  
+
     const updateMutation = useMutation({
       mutationFn: async (values: {
         id: string,
         credit: number,
       }) => {
         await axios.patch(`/api/providers/${values.id}`, {
-          ...values
+          credit: values.credit * -1,
         });
       },
       onSuccess: async() => {
         // Invalidate the 'branches' query to refresh the data
         await queryClient.invalidateQueries({ queryKey: ["providers"] });
-      
+
       },
       onError: (error: Error) => {
         toast.error("Oops!", {
@@ -151,9 +151,8 @@ export const useGetProviders = () => {
         });
       },
     });
-  
+
     return {
       updateCreditProvider: updateMutation, // Function to call the mutation
     };
   };
-  

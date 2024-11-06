@@ -4,6 +4,7 @@ import PendingTicketsDropdownActions from "@/components/dropdowns/PendingTickets
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { TicketMinus } from "lucide-react"
@@ -58,15 +59,6 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "flight_date",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Fecha de Vuelo' />
-    ),
-    cell: ({ row }) => {
-      return <div className="text-center text-muted-foreground italic font-medium">{row.original.flight_date}</div>
-    },
-  },
-  {
     accessorKey: "client",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Cliente' />
@@ -118,6 +110,25 @@ export const columns: ColumnDef<Ticket>[] = [
       return <div className="flex justify-center">
         <Badge className="text-center font-bold bg-yellow-600">{row.original.registered_by}</Badge>
       </div>
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title='Estado' />
+    ),
+    cell: ({ row }) => {
+      const isPaid = !!row.original.transaction; // Verifica si existe la transacción
+      const badgeColor = isPaid ? "bg-green-500" : "bg-yellow-600";
+      const badgeText = isPaid ? "Por Confirmar" : "Por Pagar";
+
+      return (
+        <div className="flex justify-center">
+          <Badge className={cn("text-center font-bold hover:cursor-pointer", badgeColor)}>
+            {badgeText}
+          </Badge>
+        </div>
+      );
     },
   },
   {

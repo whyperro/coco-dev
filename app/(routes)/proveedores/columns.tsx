@@ -4,7 +4,7 @@ import ProviderDropdownActions from "@/components/dropdowns/ProviderDropdownActi
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { cn, convertAmountFromMiliunits } from "@/lib/utils"
+import { cn, convertAmountFromMiliunits, formatCurrency } from "@/lib/utils"
 import { Provider } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Provider>[] = [
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
-        <Badge className={cn("text-sm text-center font-bold", convertAmountFromMiliunits(row.original.credit) > 0 ? "bg-rose-500" : "bg-primary")}>-${convertAmountFromMiliunits(row.original.credit)}</Badge>
+        <Badge className={cn("text-sm text-center font-bold", convertAmountFromMiliunits(row.original.credit) > 0 ? "bg-green-500" : "bg-rose-500")}>{formatCurrency(convertAmountFromMiliunits(row.original.credit))}</Badge>
       </div>
     },
   },

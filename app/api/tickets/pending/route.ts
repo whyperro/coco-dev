@@ -17,6 +17,7 @@ export async function GET() {
           }
         },
         provider: true,
+        transaction: true,
       }
     });
     return NextResponse.json(data, {

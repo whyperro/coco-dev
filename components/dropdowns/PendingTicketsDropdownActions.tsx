@@ -23,9 +23,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { UploadButton } from "@/lib/uploadthing"
 import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
-import axios from "axios"
+import { useQueryClient } from "@tanstack/react-query"
 import { CreditCard, FileCheck, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
@@ -38,9 +39,7 @@ import { z } from "zod"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
-import { UploadButton } from "@/lib/uploadthing"
-import { QueryClient, useQueryClient } from "@tanstack/react-query"
-import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 const formSchema = z.object({
   payment_ref: z.string(),
@@ -56,6 +55,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [imgName, setImgName] = useState<string>();
   const [openVoid, setOpenVoid] = useState<boolean>(false);
+  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
   const { updateCreditProvider } = useUpdateCreditProvider();
@@ -79,20 +79,15 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         registered_by: session?.user.username || "",
         transaction_date: new Date(),
       });
-
-      await queryClient.invalidateQueries({ queryKey: ["pending"] });
-      await queryClient.invalidateQueries({ queryKey: ["paid"] });
-
       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + ticket.ticket_price,
-      });
-
+      })
       // Invalida las queries después de que ambas mutaciones se completen
-
-
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
-        description: "¡El boleto ha sido pagado correctamente!",
+        description: "¡El pago ha sido registrado correctamente!",
       });
     } catch (error) {
       console.log(error);
@@ -104,7 +99,23 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
   };
 
-
+  const onPaymentConfirm = async () => {
+    try {
+      await updateStatusTicket.mutateAsync({
+        id: ticket.id,
+        status: "PAGADO",
+        updated_by: session?.user.username || ""
+      });
+      toast.error("¡Cancelado!", {
+        description: "¡El boleto ha sido pagado correctamente!",
+      });
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
+    } catch (error) {
+      console.log(error);
+    }
+    setOpenVoid(false);
+  };
 
   const onVoidTicket = async () => {
     try {
@@ -114,6 +125,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         void_description: reason ?? null,
         updated_by: session?.user.username || ""
       });
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.error("¡Cancelado!", {
         description: "¡El boleto ha sido cancelado correctamente!",
       });
@@ -134,12 +147,27 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="flex gap-2 justify-center">
           {/* Pay Option */}
-          <DropdownMenuItem onClick={() => {
-            setOpen(true);
-            setIsDropdownMenuOpen(false);
-          }}>
-            <HandCoins className='size-5 text-green-500' />
-          </DropdownMenuItem>
+          {
+            !(!!ticket.transaction) && (
+              <DropdownMenuItem onClick={() => {
+                setOpen(true);
+                setIsDropdownMenuOpen(false);
+              }}>
+                <HandCoins className='size-5 text-green-500' />
+              </DropdownMenuItem>
+            )
+          }
+          {/* Confirm Payment Option */}
+          {
+            session?.user.user_role === "MANAGER" && !!ticket.transaction && (
+              <DropdownMenuItem onClick={() => {
+                setOpenConfirm(true);
+                setIsDropdownMenuOpen(false);
+              }}>
+                <FileCheck className="size-5 text-green-500" />
+              </DropdownMenuItem>
+            )
+          }
           {/* Void Option */}
           <DropdownMenuItem className="cursor-pointer" onClick={() => {
             setOpenVoid(true);
@@ -147,14 +175,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }}>
             <TicketX className='size-5 text-rose-500' />
           </DropdownMenuItem>
-          {/* Confirm Payment Option */}
-          {
-            session?.user.user_role === "MANAGER" && (
-              <DropdownMenuItem>
-                <FileCheck className="size-4" />
-              </DropdownMenuItem>
-            )
-          }
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -251,7 +271,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                             button({ ready, isUploading }) {
                               if (isUploading) return <div>Subiendo...</div>;
                               if (imgName) return <div>{imgName}</div>; // Mostrar el nombre del archivo si existe
-                              return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>; // Cambiar el texto dependiendo del estado
+                              return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>;
                             },
                             allowedContent({ ready }) {
                               if (!ready) return "Revisando que puedes subir...";
@@ -260,10 +280,18 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                           }}
                         />
                       </FormControl>
+                      {field.value && (
+                        <Image
+                          src={field.value}
+                          alt="Vista previa de la imagen"
+                          className="w-32 h-32 object-cover rounded mt-2"
+                        />
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
               </div>
               <DialogFooter className="mt-12">
                 <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
@@ -299,8 +327,27 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button onClick={onVoidTicket} className="bg-red-500 hover:bg-red-600 text-white">Confirmar Cancelación</Button>
             <Button type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
+            <Button onClick={onVoidTicket} className="bg-red-500 hover:bg-red-600 text-white">Confirmar Cancelación</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/*Confirm Payment Dialog*/}
+
+      <Dialog open={openConfirm} onOpenChange={setOpenConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-3xl">Confirmar Pago</DialogTitle>
+            <DialogDescription className="text-center">
+              Indique que se ha verificado el pago, y el boleto ha sido pagado.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant={"outline"} type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
+            <Button onClick={onPaymentConfirm} disabled={updateStatusTicket.isPending}>
+              {updateStatusTicket.isPending ? <Loader2 className="size-4 animate-spin" /> : "Confirmar Pago"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

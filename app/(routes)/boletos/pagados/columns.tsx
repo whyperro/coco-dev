@@ -108,7 +108,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "total",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Total Pagado' />
+      <DataTableColumnHeader column={column} title='Monto' />
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
@@ -119,39 +119,48 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "transaction",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Ref.' />
+      <DataTableColumnHeader column={column} title='Registrado' />
     ),
     cell: ({ row }) => {
-      return <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-all">
-        {row.original.transaction?.image_ref ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex gap-2 items-center justify-center text-green-500">
-                <a href={row.original.transaction?.image_ref} download={`referencia_${row.original.ticket_number}_${row.original.transaction.payment_ref}`}>
-                  <Download />
-                </a>
-                <p>{row.original.transaction.payment_ref}</p>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Descargar Imagen</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
-          <div className="text-muted-foreground flex justify-center">{row.original.transaction?.payment_ref}</div>
-        )}
-      </div>
+      return <div className="text-center italic text-muted-foreground">{row.original.transaction?.registered_by}</div>
     },
   },
   {
     accessorKey: "transaction",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Registrade por' />
+      <DataTableColumnHeader column={column} title='Ref.' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center italic text-muted-foreground">{row.original.transaction?.registered_by}</div>
+      return (
+        <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-all">
+          {row.original.transaction?.image_ref ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <a
+                    className="flex gap-2 items-center"
+                    href={row.original.transaction.image_ref}
+                    download={`referencia_${row.original.ticket_number}_${row.original.transaction.payment_ref}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download />
+                    <p>{row.original.transaction.payment_ref}</p>
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Descargar Imagen</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <div className="text-muted-foreground flex justify-center">
+              {row.original.transaction?.payment_ref}
+            </div>
+          )}
+        </div>
+      );
+
     },
   },
   {

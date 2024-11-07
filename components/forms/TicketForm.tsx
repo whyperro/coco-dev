@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn, convertAmountToMiliunits } from "@/lib/utils";
-import { Client, Passanger } from "@/types";
+import { Passanger } from "@/types";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
@@ -51,9 +51,9 @@ import { Input } from '../ui/input';
 import { useGetBranches } from "@/actions/branches/actions";
 import { CreateBranchDialog } from "../dialogs/CreateBranchDialog";
 import { AmountInput } from "../misc/AmountInput";
+import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
-import { Badge } from "../ui/badge";
 
 const formSchema = z.object({
   first_name: z.string(),
@@ -91,8 +91,24 @@ const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      first_name: "",
+      last_name: "",
+      dni_number: "",
+      phone_number: "",
+      email: "",
+      clientId: "",
       dni_type: "V",
       doc_order: false,
+      isClient: false,
+      ticket_number: "",
+      purchase_date: undefined,
+      flight_date: undefined,
+      booking_ref: "",
+      served_by: undefined,
+      ticket_price: "",
+      fee: "",
+      rate: "",
+      description: "",
     },
   });
 
@@ -105,7 +121,6 @@ const TicketForm = () => {
   const [openRoute, setOpenRoute] = useState(false)
   const [selectedRoutes, setSelectedRoutes] = useState<string[]>([])
   const [openProvider, setOpenProvider] = useState(false)
-  const [selectedProviders, setSelectedProviders] = useState<string[]>([])
   const [openBranch, setOpenBranch] = useState(false)
   const [openPurchaseDate, setOpenPurchaseDate] = useState(false)
   const [openFlightDate, setOpenFlightDate] = useState(false)
@@ -246,9 +261,10 @@ const TicketForm = () => {
           total_bs: totalBsMiliunits,
         })
         if (ticketCreated.status === 200) {
+          console.log(ticketCreated.data.provider.credit)
           await updateCreditProvider.mutateAsync({
             id: ticketCreated.data.providerId,
-            credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
+            credit: ticketCreated.data.provider.credit + (ticketCreated.data.ticket_price * -1),
           });
         }
       } else {
@@ -287,6 +303,7 @@ const TicketForm = () => {
             total_bs: totalBsMiliunits,
           })
           if (ticketCreated.status === 200) {
+            console.log(ticketCreated.data.provider.credit)
             await updateCreditProvider.mutateAsync({
               id: ticketCreated.data.providerId,
               credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,

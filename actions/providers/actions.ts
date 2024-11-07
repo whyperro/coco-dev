@@ -137,7 +137,7 @@ export const useGetProviders = () => {
         credit: number,
       }) => {
         await axios.patch(`/api/providers/${values.id}`, {
-          credit: values.credit * -1,
+          credit: values.credit,
         });
       },
       onSuccess: async() => {

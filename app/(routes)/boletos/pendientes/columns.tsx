@@ -9,10 +9,6 @@ import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { TicketMinus } from "lucide-react"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-
-
 export const columns: ColumnDef<Ticket>[] = [
   {
     id: "select",
@@ -79,7 +75,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "provider",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Pasajero(s)' />
+      <DataTableColumnHeader column={column} title='Proveedor' />
     ),
     cell: ({ row }) => {
       return <p className="text-center font-bold">{row.original.provider.name}</p>

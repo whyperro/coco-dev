@@ -108,7 +108,7 @@ const TicketForm = () => {
       ticket_price: "",
       fee: "",
       rate: "",
-      description: "",
+      description: ""
     },
   });
 

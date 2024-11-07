@@ -90,7 +90,7 @@ export async function GET(request: Request) {
     // Count the number of tickets
     const ticketCount = await db.ticket.count({
       where: {
-        createdAt: {
+        statusUpdatedAt: {
           gte: startDate,
           lte: endDate,
         },
@@ -99,14 +99,23 @@ export async function GET(request: Request) {
 
     const pendingCount = await db.ticket.count({
       where: {
-        status: "PENDIENTE"
+        status: "PENDIENTE",
+        statusUpdatedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       }
     })
     const paidCount = await db.ticket.count({
       where: {
         status: "PAGADO",
+        statusUpdatedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
       }
     })
+   
     // Step 1: Generate the full date range
     const dateRange = generateDateRange(startDate, endDate);
 

@@ -21,7 +21,7 @@ const DataGrid = ({ total_amount, pendingCount, paidCount }: DataGridProps) => {
   const from = params.get('from') || undefined
   const to = params.get('to') || undefined
   const dateRangeLabel = formatDataRange({ from, to })
-  
+ 
   const driverObj = driver({
     smoothScroll: true,
     nextBtnText: "Siguiente",

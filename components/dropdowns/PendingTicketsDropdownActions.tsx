@@ -108,7 +108,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         status: "PAGADO",
         updated_by: session?.user.username || ""
       });
-      toast.error("¡Cancelado!", {
+      toast.error("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
       });
       await queryClient.invalidateQueries({ queryKey: ["paid"] });

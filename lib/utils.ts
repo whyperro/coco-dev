@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import { addDays, eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { twMerge } from "tailwind-merge"
 
@@ -86,9 +86,9 @@ export function formatDataRange(period?:Period) {
   if(!period?.from) {
     return `${format(defaultFrom, "LLL dd", {locale: es})} - ${format(defaultTo, "LLL dd, y", {locale: es})}`
   }
-
+  
   if(period?.to) {
-    return `${format(period.from, "LLL dd", {locale: es})} - ${format(period.to, "LLL dd, y", {locale: es})}`
+    return `${format(addDays(period.from, 1), "LLL dd", {locale: es})} - ${format(addDays(period.to, 1), "LLL dd, y", {locale: es})}`
   }
 
 

@@ -303,8 +303,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
 
               </div>
               <DialogFooter className="mt-12">
-                <Button type="button" onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
+                <Button type="button" variant={"destructive"} onClick={() => setOpen(false)}>Cancelar</Button>
+                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-700 hover:bg-green-600 text-white flex justify-center">
                   {
                     updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
                   }

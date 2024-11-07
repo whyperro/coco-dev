@@ -134,7 +134,6 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const id = row.original.id
       return (
         <PendingTicketsDropdownActions ticket={row.original} />
       )

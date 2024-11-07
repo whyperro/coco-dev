@@ -100,8 +100,8 @@ const DailyReportPage = () => {
     XLSX.utils.book_append_sheet(wb, tbranch, "Resumen de sucursales");
     XLSX.utils.book_append_sheet(wb, methodPaidReport, "Resumen de Ingreso por Sucursal");
     // Exporta el archivo
-    // XLSX.writeFile(wb, `reporte_diario_${format(tickets.date, "yyyy-MM-dd")}.xlsx`);
-    XLSX.writeFile(wb, `reporte_diario.xlsx`);
+    XLSX.writeFile(wb, `reporte_diario_${tickets.date}.xlsx`);
+    // XLSX.writeFile(wb, `reporte_diario.xlsx`);
 
   };
 

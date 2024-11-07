@@ -77,6 +77,8 @@ export type Client = {
     total: number,
     rate: number,
     total_bs : number,
+
+    cretedAt: Date,
   }
 
   export type Transaction = {

@@ -40,6 +40,7 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import Image from "next/image"
+import { isToday } from "date-fns"
 
 const formSchema = z.object({
   payment_ref: z.string(),
@@ -170,7 +171,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             )
           }
           {/* Void Option */}
-          <DropdownMenuItem className="cursor-pointer" onClick={() => {
+          <DropdownMenuItem disabled={!isToday(ticket.cretedAt)} className="cursor-pointer" onClick={() => {
             setOpenVoid(true);
             setIsDropdownMenuOpen(false);
           }}>

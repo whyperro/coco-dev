@@ -64,7 +64,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      image_ref: "", // Set default value for image_ref,
+      image_ref: "", 
     },
   });
 

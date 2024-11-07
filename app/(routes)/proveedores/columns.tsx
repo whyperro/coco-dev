@@ -73,7 +73,7 @@ export const columns: ColumnDef<Provider>[] = [
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
-        <Badge className={cn("text-sm text-center font-bold", convertAmountFromMiliunits(row.original.credit) > 0 ? "bg-green-500" : "bg-rose-500")}>{formatCurrency(convertAmountFromMiliunits(row.original.credit))}</Badge>
+        <Badge className={cn("text-sm text-center font-bold", convertAmountFromMiliunits(row.original.credit) >= 0 ? "bg-green-500" : "bg-rose-500")}>{formatCurrency(convertAmountFromMiliunits(row.original.credit))}</Badge>
       </div>
     },
   },

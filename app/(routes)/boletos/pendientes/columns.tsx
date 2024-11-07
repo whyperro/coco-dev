@@ -104,7 +104,7 @@ export const columns: ColumnDef<Ticket>[] = [
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
-        <Badge className="text-center font-bold bg-yellow-600">{row.original.registered_by}</Badge>
+        <Badge className="text-center font-bold bg-blue-600">{row.original.registered_by}</Badge>
       </div>
     },
   },

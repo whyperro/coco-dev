@@ -243,7 +243,7 @@ export async function GET(request: Request){
     );
     // Respuesta del endpoint
     return NextResponse.json({
-      date: searchParams.get("date") ?? format(date, "yyyy-MM-dd"),
+      date: searchParams.get("date") ? searchParams.get("date") : format(new Date(), "yyyy-MM-dd"),
       paidTickets: paidTickets.map(ticket => ({
         ticket_number: ticket.ticket_number,
         booking_ref: ticket.booking_ref,

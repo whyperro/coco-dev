@@ -142,7 +142,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Berkana</Text>
+          <Text style={styles.title}>- Berkana -</Text>
           <Text style={styles.subtitle}>Reporte Diario</Text>
           <Text style={styles.date}>Fecha: {date}</Text>
         </View>

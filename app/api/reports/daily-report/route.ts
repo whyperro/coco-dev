@@ -1,6 +1,6 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { addDays, endOfDay, format, parse, parseISO, startOfDay } from "date-fns";
+import { addDays, differenceInDays, endOfDay, format, parse, parseISO, startOfDay, subDays } from "date-fns";
 import { NextResponse } from "next/server";
 import { toZonedTime } from "date-fns-tz";
 
@@ -20,6 +20,11 @@ export async function GET(request: Request){
     // Ajuste de `startOfDay` y `endOfDay` en UTC
     const startDate = startOfDay(date);
     const endDate = endOfDay(date);
+
+    const periodLength = differenceInDays(endDate, startDate) + 1;
+
+    const lastPeriodStart = subDays(startDate,periodLength);
+    const lastPeriodEnd = subDays(endDate,periodLength);
 
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
     const tickets = await db.ticket.findMany({

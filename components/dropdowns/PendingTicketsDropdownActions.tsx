@@ -64,7 +64,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      image_ref: "", 
+      image_ref: "",
     },
   });
 
@@ -171,7 +171,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             )
           }
           {/* Void Option */}
-          <DropdownMenuItem disabled={!isToday(ticket.cretedAt)} className="cursor-pointer" onClick={() => {
+          <DropdownMenuItem disabled={!isToday(ticket.createdAt)} className="cursor-pointer" onClick={() => {
             setOpenVoid(true);
             setIsDropdownMenuOpen(false);
           }}>

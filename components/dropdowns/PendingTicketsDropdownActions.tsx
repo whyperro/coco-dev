@@ -118,7 +118,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenVoid(false);
   };
-
+  console.log(ticket.createdAt)
   const onVoidTicket = async () => {
     try {
       await updateStatusTicket.mutateAsync({
@@ -171,7 +171,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             )
           }
           {/* Void Option */}
-          <DropdownMenuItem disabled={!isToday(ticket.cretedAt)} className="cursor-pointer" onClick={() => {
+          <DropdownMenuItem disabled={!isToday(ticket.createdAt)} className="cursor-pointer" onClick={() => {
             setOpenVoid(true);
             setIsDropdownMenuOpen(false);
           }}>

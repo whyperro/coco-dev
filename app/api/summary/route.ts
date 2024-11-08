@@ -31,7 +31,6 @@ interface BranchData {
 interface SummaryResponse {
   total_amount: number;
   transactionsByBranch: BranchTransactions[];
-  ticketCount: number
   branches: BranchData[],
   pendingCount: number,
   paidCount: number
@@ -83,8 +82,8 @@ export async function GET(request: Request) {
     const lastTransactions = await db.transaction.findMany({
       where: {
         transaction_date: {
-          gte: startDate,
-          lte: endDate,
+          gte: lastPeriodStart,
+          lte: lastPeriodEnd,
         },
       },
       select: {
@@ -115,16 +114,6 @@ export async function GET(request: Request) {
       }
     });
 
-    // Count the number of tickets
-    const ticketCount = await db.ticket.count({
-      where: {
-        statusUpdatedAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-    });
-
     const pendingCount = await db.ticket.count({
       where: {
         status: "PENDIENTE",
@@ -145,14 +134,6 @@ export async function GET(request: Request) {
       }
     })
 
-    const lastTicketCount = await db.ticket.count({
-      where: {
-        statusUpdatedAt: {
-          gte: lastPeriodStart,
-          lte: lastPeriodEnd,
-        },
-      },
-    });
 
     const lastPendingCount = await db.ticket.count({
       where: {
@@ -254,7 +235,6 @@ export async function GET(request: Request) {
       paidTicketChange: paidTicketChange,
       pendingTicketChange: pendingTicketChange,
       transactionsByBranch: filledData, // Data for each branch
-      ticketCount, // Number of tickets in the date range
       branches,
       pendingCount,
       paidCount

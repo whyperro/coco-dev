@@ -137,6 +137,10 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
   const totalTicketPrice = paidTickets.reduce((sum, ticket) => sum + ticket.ticket_price, 0);
   const totalFee = paidTickets.reduce((sum, ticket) => sum + ticket.fee, 0);
   const totalAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0);
+
+  const totalTicketPendingPrice = pendingTickets.reduce((sum, ticket) => sum + ticket.ticket_price, 0);
+  const totalFeePending = pendingTickets.reduce((sum, ticket) => sum + ticket.fee, 0);
+  const totalAmountPending = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0);
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -217,6 +221,17 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
               </View>
             ))}
+
+            <View style={styles.tableRow}>
+              <Text style={styles.columnExtraWide}></Text>
+              <Text style={styles.columnWide}></Text>
+              <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(totalTicketPendingPrice))}</Text>
+              <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(totalFeePending))}</Text>
+              <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(totalAmountPending))}</Text>
+              <Text style={styles.columnWide}></Text>
+              <Text style={styles.columnWide}></Text>
+              <Text style={styles.columnWide}></Text>
+            </View>
           </>
         ) : (
           <Text style={styles.noRecords}>No hay boletos pendientes en este reporte.</Text>
@@ -244,6 +259,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(client.totalAmount))}</Text>
               </View>
             ))}
+             
           </>
         ) : (
           <Text style={styles.noRecords}>No hay datos de clientes en este reporte.</Text>

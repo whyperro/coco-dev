@@ -191,7 +191,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+              <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="payment_method"

@@ -52,7 +52,7 @@ export const useCreateClient = () => {
         // Invalidate the 'branches' query to refresh the data
         queryClient.invalidateQueries({ queryKey: ["clients"] });
         toast.success("¡Creado!", {
-          description: "¡El Cliente ha sido creada correctamente!",
+          description: "¡El cliente ha sido creada correctamente!",
           dismissible: true,
         })
       },

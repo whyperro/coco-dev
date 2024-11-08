@@ -88,14 +88,10 @@ const CreateClientForm = ({ id, onClose, isEditing = false }: FormProps) => {
           phone_number: values?.phone_number ? values.phone_number : null,
         });
       }
-
       form.reset();
       onClose();
     } catch (error) {
       console.error(error);
-      toast.error("Error al guardar la sucursal", {
-        description: "Ocurrió un error, por favor intenta nuevamente.",
-      });
     }
   };
 

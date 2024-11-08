@@ -3,7 +3,6 @@
 import ProviderDropdownActions from "@/components/dropdowns/ProviderDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import { cn, convertAmountFromMiliunits, formatCurrency } from "@/lib/utils"
 import { Provider } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"

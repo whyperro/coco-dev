@@ -191,7 +191,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="payment_method"
@@ -300,9 +300,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                     </FormItem>
                   )}
                 />
-
               </div>
-              <DialogFooter className="mt-12">
+              <DialogFooter className="mt-12 flex flex-col gap-2 md:flex-row">
                 <Button type="button" variant={"destructive"} onClick={() => setOpen(false)}>Cancelar</Button>
                 <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-700 hover:bg-green-600 text-white flex justify-center">
                   {

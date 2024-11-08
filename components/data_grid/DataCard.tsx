@@ -77,7 +77,7 @@ const DataCard = ({ icon: Icon, title, value = 0, variant, dateRange, percentage
           <CountUp preserveValue start={0} end={value} decimal={"."} decimals={isCurrency ? 2 : undefined} formattingFn={isCurrency ? formatCurrency : undefined} />
         </h1>
         <p className={cn("text-muted-foreground text-sm line-clamp-1", percentageChange > 0 ? "text-emerald-500" : "text-rose-500")}>
-          {formatPercentage(percentageChange)} desde el último periodo
+          {formatPercentage(percentageChange, { addPrefix: true })} desde el último periodo
         </p>
       </CardContent>
     </Card>

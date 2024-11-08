@@ -27,8 +27,8 @@ const DashboardPage = () => {
     <ContentLayout title='Estadisticas'>
       <ProtectedRoute roles={['SUPERADMIN', 'AUDITOR', 'ADMINISTRADOR']}>
         <div className='flex flex-col justify-center space-y-3'>
-          <div className='flex justify-center '><DateFilter/></div>
-          <DataGrid total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
+          <div className='flex justify-center '><DateFilter /></div>
+          <DataGrid paidTicketChange={data.paidTicketChange} pendingTicketChange={data.pendingTicketChange} incomeChange={data.incomeChange} total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
           <DataCharts pieTitle='Sucursales' pieDescription='Ingresos según las sucursales.' transactions={data.transactionsByBranch} branches={data.branches} />
         </div>
       </ProtectedRoute>

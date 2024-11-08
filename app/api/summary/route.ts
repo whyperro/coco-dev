@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { parse, subDays, eachDayOfInterval, format } from "date-fns";
+import { parse, subDays, eachDayOfInterval, format, differenceInDays } from "date-fns";
 import db from "@/lib/db";
+import { calculatePercentageChange } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,9 @@ interface SummaryResponse {
   branches: BranchData[],
   pendingCount: number,
   paidCount: number
+  incomeChange: number,
+  paidTicketChange: number,
+  pendingTicketChange: number,
 }
 
 // Define your GET method handler
@@ -51,8 +55,32 @@ export async function GET(request: Request) {
     const startDate = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
     const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
+
+    const periodLength = differenceInDays(endDate, startDate) + 1;
+
+    const lastPeriodStart = subDays(startDate,periodLength);
+    const lastPeriodEnd = subDays(endDate,periodLength);
+
     // Fetch all transactions within the date range
-    const transactions = await db.transaction.findMany({
+    const currentTransactions = await db.transaction.findMany({
+      where: {
+        transaction_date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: {
+        transaction_date: true,
+        ticketId: true, // Include ticketId to link transactions to branches
+        ticket: {
+          select: {
+            total: true, // Select the total from the ticket
+          },
+        },
+      },
+    });
+
+    const lastTransactions = await db.transaction.findMany({
       where: {
         transaction_date: {
           gte: startDate,
@@ -74,7 +102,7 @@ export async function GET(request: Request) {
     // Fetch related tickets to get the branchId and branchName
     const tickets = await db.ticket.findMany({
       where: {
-        id: { in: transactions.map(t => t.ticketId) }
+        id: { in: currentTransactions.map(t => t.ticketId) }
       },
       select: {
         id: true,
@@ -106,6 +134,7 @@ export async function GET(request: Request) {
         },
       }
     })
+
     const paidCount = await db.ticket.count({
       where: {
         status: "PAGADO",
@@ -115,7 +144,36 @@ export async function GET(request: Request) {
         },
       }
     })
-   
+
+    const lastTicketCount = await db.ticket.count({
+      where: {
+        statusUpdatedAt: {
+          gte: lastPeriodStart,
+          lte: lastPeriodEnd,
+        },
+      },
+    });
+
+    const lastPendingCount = await db.ticket.count({
+      where: {
+        status: "PENDIENTE",
+        statusUpdatedAt: {
+          gte: lastPeriodStart,
+          lte: lastPeriodEnd,
+        },
+      }
+    })
+
+    const lastPaidCount = await db.ticket.count({
+      where: {
+        status: "PAGADO",
+        statusUpdatedAt: {
+          gte: lastPeriodStart,
+          lte: lastPeriodEnd,
+        },
+      }
+    })
+
     // Step 1: Generate the full date range
     const dateRange = generateDateRange(startDate, endDate);
 
@@ -123,7 +181,7 @@ export async function GET(request: Request) {
     const branchTransactions: { [key: string]: { branchName: string, transactions: TransactionByBranch[] } } = {};
 
     // Step 3: Process transactions to calculate total amounts per branch and date
-    transactions.forEach(transaction => {
+    currentTransactions.forEach(transaction => {
       const ticket = tickets.find(t => t.id === transaction.ticketId); // Find the corresponding ticket to get the branchId
       const branchId = ticket ? ticket.branchId : 'unknown'; // Get the branch ID from the ticket
       const branchName = ticket?.branch?.location_name || 'Unknown Branch'; // Get the branch name
@@ -165,10 +223,15 @@ export async function GET(request: Request) {
     });
 
     // Aggregate total amount across all transactions
-    const totalAmount = transactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
+    const totalCurrentAmount = currentTransactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
+    const totalLastAmount = lastTransactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
+
+    const incomeChange = calculatePercentageChange(totalCurrentAmount, totalLastAmount)
+    const paidTicketChange = calculatePercentageChange(paidCount, lastPaidCount)
+    const pendingTicketChange = calculatePercentageChange(pendingCount, lastPendingCount)
 
     const branchData: { [key: string]: number } = {};
-    transactions.forEach(transaction => {
+    currentTransactions.forEach(transaction => {
       const ticket = tickets.find(t => t.id === transaction.ticketId);
       const branch = ticket ? ticket.branch.location_name : 'unknown';
 
@@ -186,14 +249,17 @@ export async function GET(request: Request) {
 
     // Return the JSON response
     const response: SummaryResponse = {
-      total_amount: totalAmount, // Total transaction amount
+      total_amount: totalCurrentAmount, // Total transaction amount
+      incomeChange: incomeChange,
+      paidTicketChange: paidTicketChange,
+      pendingTicketChange: pendingTicketChange,
       transactionsByBranch: filledData, // Data for each branch
       ticketCount, // Number of tickets in the date range
       branches,
       pendingCount,
       paidCount
     };
-
+    console.log(response)
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);

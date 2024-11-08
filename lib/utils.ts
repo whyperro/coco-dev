@@ -65,6 +65,19 @@ export function formatCurrency(value: number) {
   }).format(value)
 }
 
+export function calculatePercentageChange(
+  current: number,
+  previous: number,
+){
+
+  if(previous === 0) {
+    return previous === current ? 0 : 100;
+  }
+
+  return ((current - previous) / previous) * 100;
+
+}
+
 export function formatPercentage(value: number, options: {addPrefix?: boolean} = {
   addPrefix: false,
 }) {
@@ -86,7 +99,7 @@ export function formatDataRange(period?:Period) {
   if(!period?.from) {
     return `${format(defaultFrom, "LLL dd", {locale: es})} - ${format(defaultTo, "LLL dd, y", {locale: es})}`
   }
-  
+
   if(period?.to) {
     return `${format(addDays(period.from, 1), "LLL dd", {locale: es})} - ${format(addDays(period.to, 1), "LLL dd, y", {locale: es})}`
   }

@@ -21,11 +21,6 @@ export async function GET(request: Request){
     const startDate = startOfDay(date);
     const endDate = endOfDay(date);
 
-    const periodLength = differenceInDays(endDate, startDate) + 1;
-
-    const lastPeriodStart = subDays(startDate,periodLength);
-    const lastPeriodEnd = subDays(endDate,periodLength);
-
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
     const tickets = await db.ticket.findMany({
       where: {

@@ -18,7 +18,8 @@ export async function GET() {
         },
         transaction: true,
         provider: true,
-      }
+      },
+      orderBy:{statusUpdatedAt:"desc"}
     });
     return NextResponse.json(data, {
       status: 200,

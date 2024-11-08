@@ -203,6 +203,7 @@ const TicketForm = () => {
       ticket_type: "B",
       served_by: undefined,
       providerId: undefined,
+      isClient: false,
     })
     setSelectedRoutes([])
   }
@@ -312,6 +313,7 @@ const TicketForm = () => {
         }
       }
       onTicketFormReset()
+
     } catch (error) {
       console.error(error); // Log the error for debugging
       toast.error("Error al guardar el boleto", {

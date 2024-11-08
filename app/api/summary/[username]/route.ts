@@ -80,28 +80,6 @@ export async function GET(request: Request, { params }: { params: { username: st
       },
     });
 
-    const lastTransactions = await db.transaction.findMany({
-      where: {
-        transaction_date: {
-          gte: lastPeriodStart,
-          lte: lastPeriodEnd,
-        },
-        ticket:{
-          registered_by:username,
-        }
-        //
-      },
-      select: {
-        transaction_date: true,
-        ticketId: true, // Include ticketId to link transactions to branches
-        ticket: {
-          select: {
-            total: true, // Select the total from the ticket
-          },
-        },
-      },
-    });
-
     // Fetch related tickets to get the branchId and branchName
     const currentTickets = await db.ticket.findMany({
       where: {
@@ -166,10 +144,11 @@ export async function GET(request: Request, { params }: { params: { username: st
     const currentPendingCount = await db.ticket.count({
       where: {
         status: "PENDIENTE",
-        // issued_by: username
-
         registered_by:username,
-
+        statusUpdatedAt: {
+          gte: lastPeriodStart,
+          lte: lastPeriodEnd
+        }
       }
     })
 
@@ -177,7 +156,10 @@ export async function GET(request: Request, { params }: { params: { username: st
       where: {
         status: "PAGADO",
         registered_by:username,
-
+        statusUpdatedAt: {
+          gte:lastPeriodStart,
+          lte: lastPeriodEnd
+        }
       }
     })
 

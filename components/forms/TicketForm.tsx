@@ -134,20 +134,21 @@ const TicketForm = () => {
   const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
   const { data: dataClient } = useGetClient(form.watch("clientId") ?? null);
-
+  
   const { watch, setValue } = form
   const ticket_price = watch('ticket_price')
   const fee = watch('fee')
   const rate = watch('rate')
   const isClient = watch('isClient')
 
+
   useEffect(() => {
-    if (isClient && dataClient) {
-      form.setValue("first_name", dataClient.first_name);
-      form.setValue("last_name", dataClient.last_name);
-      form.setValue("email", dataClient.email ?? "");
-      form.setValue("dni_number", dataClient.dni);
-      form.setValue("phone_number", dataClient.phone_number ?? "");
+    if (isClient) {
+      form.setValue("first_name", dataClient?.first_name ?? "");
+      form.setValue("last_name", dataClient?.last_name ?? "" );
+      form.setValue("email", dataClient?.email ?? "");
+      form.setValue("dni_number", dataClient?.dni ?? "");
+      form.setValue("phone_number", dataClient?.phone_number ?? "");
     }
   }, [dataClient, isClient, form, queryClient]);
 
@@ -204,7 +205,9 @@ const TicketForm = () => {
       served_by: undefined,
       providerId: undefined,
     })
-    setSelectedRoutes([])
+    queryClient.setQueryData(["passanger"], null)
+    setFetchedPassanger(null); // Limpiar el estado del pasajero actual
+    setSelectedRoutes([]); // Limpiar rutas seleccionadas
   }
 
   useEffect(() => {
@@ -318,7 +321,6 @@ const TicketForm = () => {
         description: "Ocurrió un error, por favor intenta nuevamente.",
       });
     }
-
   };
 
 
@@ -357,7 +359,6 @@ const TicketForm = () => {
       },
     ]
   });
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>

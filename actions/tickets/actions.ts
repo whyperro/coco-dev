@@ -19,13 +19,14 @@ export const useGetTicket = (ticket_number: string) => {
   };
 };
 
-export const useGetPendingTickets = () => {
+export const useGetPendingTickets = (username:string | null) => {
   const pendingQuery = useQuery({
     queryKey: ["pending"],
     queryFn: async () => {
-      const { data} = await axios.get('/api/tickets/pending'); // Adjust the endpoint as needed
+      const {data} = await axios.get(`/api/tickets/pending/${username}`); // `/api/tickets/${ticket_number}`
       return data as Ticket[];
-    }
+    },
+    enabled:!!username
   });
   return {
     data: pendingQuery.data,
@@ -34,13 +35,14 @@ export const useGetPendingTickets = () => {
   };
 };
 
-export const useGetPaidTickets = () => {
+export const useGetPaidTickets = (username:string | null) => {
   const paidQuery = useQuery({
     queryKey: ["paid"], // Updated to reflect flight type
     queryFn: async () => {
-      const {data} = await axios.get('/api/tickets/paid');
+      const {data} = await axios.get(`/api/tickets/paid/${username}`);
       return data as Ticket[];
     },
+    enabled:!!username
   });
   return {
     data: paidQuery.data,
@@ -49,13 +51,14 @@ export const useGetPaidTickets = () => {
   };
 };
 
-export const useGetCancelledTickets = () => {
+export const useGetCancelledTickets = (username:string | null) => {
   const ticketsQuery = useQuery({
     queryKey: ["cancelled"], // Updated to reflect flight type
     queryFn: async () => {
-      const {data} = await axios.get('/api/tickets/cancelled');
+      const {data} = await axios.get(`/api/tickets/cancelled/${username}`);
       return data as Ticket[];
     },
+    enabled:!!username
   });
 
   return {

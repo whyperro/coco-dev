@@ -3,21 +3,34 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 0
 
-export async function GET() {
+export async function GET(request: Request, { params }: { params: { username: string } }) {
+  const { username } = params; 
   try {
+    const user = await db.user.findUnique({
+      where:{username},
+      select:{user_role:true, branchId:true}
+    })
+    const whereClause: any = {
+      status: "PAGADO", // Siempre filtramos por status "PAGADO"
+    };
+    if(user?.user_role){
+      if (user?.user_role === "SELLER") {
+        whereClause.registered_by = username;
+      }
+    }
+
     const data = await db.ticket.findMany({
-      where: {
-        status: "PENDIENTE"
-      },
+      where:whereClause,
+  
       include: {
         routes: true,
         passanger: {
           include: {
             client: true,
-          }
+          },
         },
-        provider: true,
         transaction: true,
+        provider: true,
       }
     });
     return NextResponse.json(data, {

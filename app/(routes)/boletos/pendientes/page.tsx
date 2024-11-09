@@ -6,10 +6,12 @@ import { ContentLayout } from '@/components/sidebar/ContentLayout'
 import { Loader2 } from 'lucide-react'
 import { columns } from './columns'
 import { DataTable } from './data-table'
+import { useSession } from 'next-auth/react'
 
 const PendingTicketsPage = () => {
-  const { data: tickets, loading, error } = useGetPendingTickets()
-  console.log(tickets)
+  const { data: session } = useSession() 
+  const { data: tickets, loading, error } = useGetPendingTickets(session?.user.username || null)
+  
   return (
     <ProtectedRoute roles={["SUPERADMIN", "AUDITOR", "ADMINISTRADOR", "SELLER"]}>
       <ContentLayout title="Boletos Pendientes">

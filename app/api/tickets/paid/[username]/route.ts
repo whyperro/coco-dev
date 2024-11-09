@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export const revalidate = 0
 
 export async function GET(request: Request, { params }: { params: { username: string } }) {
-  const { username } = params; 
+  const { username } = params;
   try {
     const user = await db.user.findUnique({
       where:{username},
@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: { params: { username: st
 
     const data = await db.ticket.findMany({
       where:whereClause,
-  
+
       include: {
         routes: true,
         passanger: {

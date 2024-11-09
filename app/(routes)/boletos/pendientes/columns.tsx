@@ -55,7 +55,7 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "client",
+  accessorKey: "client",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Cliente' />
     ),

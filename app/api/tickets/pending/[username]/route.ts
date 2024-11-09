@@ -4,13 +4,13 @@ import { NextResponse } from "next/server";
 export const revalidate = 0
 
 export async function GET(request: Request, { params }: { params: { username: string } }) {
-  const { username } = params; 
+  const { username } = params;
   try {
     const user = await db.user.findUnique({
       where:{username},
       select:{user_role:true, branchId:true}
     })
-    let whereClause: any = {}
+    const whereClause: any = {}
     if(user?.user_role){
       if (user?.user_role === "SELLER") {
         whereClause.registered_by = username;
@@ -30,7 +30,7 @@ export async function GET(request: Request, { params }: { params: { username: st
       },
       orderBy:{statusUpdatedAt:"desc"}
     });
-    
+
     return NextResponse.json(data, {
       status: 200,
       headers: {

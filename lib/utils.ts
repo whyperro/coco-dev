@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
-import { eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
+import { addDays, eachDayOfInterval, format, isSameDay, subDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { twMerge } from "tailwind-merge"
 
@@ -65,6 +65,19 @@ export function formatCurrency(value: number) {
   }).format(value)
 }
 
+export function calculatePercentageChange(
+  current: number,
+  previous: number,
+){
+
+  if(previous === 0) {
+    return previous === current ? 0 : 100;
+  }
+
+  return ((current - previous) / previous) * 100;
+
+}
+
 export function formatPercentage(value: number, options: {addPrefix?: boolean} = {
   addPrefix: false,
 }) {
@@ -88,7 +101,7 @@ export function formatDataRange(period?:Period) {
   }
 
   if(period?.to) {
-    return `${format(period.from, "LLL dd", {locale: es})} - ${format(period.to, "LLL dd, y", {locale: es})}`
+    return `${format(addDays(period.from, 1), "LLL dd", {locale: es})} - ${format(addDays(period.to, 1), "LLL dd, y", {locale: es})}`
   }
 
 

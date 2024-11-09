@@ -35,7 +35,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         },
         // transaction: true,
         provider: true,
-      }
+      },
+      orderBy:{statusUpdatedAt:"desc"}
     });
     return NextResponse.json(data, {
       status: 200,

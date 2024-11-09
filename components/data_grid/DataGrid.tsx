@@ -1,26 +1,29 @@
 'use client'
 
 import { formatDataRange } from "@/lib/utils";
-import { PiggyBank, Tickets } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import DataCard from "./DataCard";
-import { driver } from "driver.js";
-import 'driver.js/dist/driver.css'
-import { Button } from "../ui/button";
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
+import { driver } from "driver.js";
+import 'driver.js/dist/driver.css';
+import { PiggyBank, TicketCheck, TicketMinus } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Button } from "../ui/button";
+import DataCard from "./DataCard";
 
 interface DataGridProps {
   total_amount: number,
   ticketCount: number,
   pendingCount: number,
   paidCount: number,
+  incomeChange: number,
+  pendingTicketChange: number,
+  paidTicketChange: number,
 }
 
-const DataGrid = ({ total_amount, pendingCount, paidCount }: DataGridProps) => {
+const DataGrid = ({ total_amount, pendingCount, paidCount, incomeChange, pendingTicketChange, paidTicketChange }: DataGridProps) => {
   const params = useSearchParams();
   const from = params.get('from') || undefined
   const to = params.get('to') || undefined
-  const dateRangeLabel = formatDataRange({ to, from })
+  const dateRangeLabel = formatDataRange({ from, to })
 
   const driverObj = driver({
     smoothScroll: true,
@@ -73,13 +76,13 @@ const DataGrid = ({ total_amount, pendingCount, paidCount }: DataGridProps) => {
       <Button onClick={() => driverObj.drive()} className="mb-2 w-[20px] h-[20px]" size={"icon"}><QuestionMarkIcon /></Button>
       <div id="card-container" className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-2 mb-8">
         <div id="ingresos-card">
-          <DataCard percentageChange={24.33} isCurrency title="Ingresos" value={total_amount} icon={PiggyBank} variant="success" dateRange={dateRangeLabel} />
+          <DataCard percentageChange={incomeChange} isCurrency title="Ingresos" value={total_amount} icon={PiggyBank} variant="default" dateRange={dateRangeLabel} />
         </div>
         <div id="pending-card">
-          <DataCard percentageChange={24.33} title="Boletos Pendientes" value={pendingCount} icon={Tickets} variant="success" dateRange={dateRangeLabel} />
+          <DataCard percentageChange={pendingTicketChange} title="Boletos Pendientes" value={pendingCount} icon={TicketMinus} variant="warning" dateRange={dateRangeLabel} />
         </div>
         <div id="paid-card">
-          <DataCard percentageChange={24.33} title="Boletos Pagados" value={paidCount} icon={Tickets} variant="success" dateRange={dateRangeLabel} />
+          <DataCard percentageChange={paidTicketChange} title="Boletos Pagados" value={paidCount} icon={TicketCheck} variant="success" dateRange={dateRangeLabel} />
         </div>
       </div>
     </>

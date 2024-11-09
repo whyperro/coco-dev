@@ -56,7 +56,8 @@ export async function POST(request: Request) {
         include: {
           client: true,
           ticket: true,
-        }
+        },
+        orderBy:{createdAt:"desc"}
       })
       return NextResponse.json(data,{
         status:200

@@ -1,6 +1,6 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { addDays, endOfDay, format, parse, parseISO, startOfDay } from "date-fns";
+import { addDays, differenceInDays, endOfDay, format, parse, parseISO, startOfDay, subDays } from "date-fns";
 import { NextResponse } from "next/server";
 import { toZonedTime } from "date-fns-tz";
 

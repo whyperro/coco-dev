@@ -20,7 +20,7 @@ export const useGetSummary = () => {
   // Extract 'from' and 'to' query parameters, default to an empty string if not provided
   const from = params.get("from") || "";
   const to = params.get("to") || "";
-
+  
   // Set up the query with react-query's useQuery
   const summaryQuery = useQuery({
     // Unique query key, using 'from' and 'to' ensures the query refetches if the parameters change

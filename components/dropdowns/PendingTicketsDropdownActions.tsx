@@ -108,7 +108,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         status: "PAGADO",
         updated_by: session?.user.username || ""
       });
-      toast.error("¡Cancelado!", {
+      toast.error("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
       });
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
@@ -191,7 +191,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-4 grid-cols-2">
+              <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="payment_method"
@@ -300,15 +300,14 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                     </FormItem>
                   )}
                 />
-
               </div>
-              <DialogFooter className="mt-12">
-                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-500 hover:bg-green-600 text-white flex justify-center">
+              <DialogFooter className="mt-12 flex flex-col gap-2 md:flex-row">
+                <Button type="button" variant={"destructive"} onClick={() => setOpen(false)}>Cancelar</Button>
+                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-700 hover:bg-green-600 text-white flex justify-center">
                   {
                     updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
                   }
                 </Button>
-                <Button type="button" onClick={() => setOpen(false)}>Cancelar</Button>
               </DialogFooter>
             </form>
           </Form>
@@ -336,8 +335,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
-            <Button onClick={onVoidTicket} className="bg-red-500 hover:bg-red-600 text-white">Confirmar Cancelación</Button>
+            <Button type="button" variant={"destructive"} onClick={() => setOpenVoid(false)}>Cancelar</Button>
+            <Button onClick={onVoidTicket} className="bg-primary text-white">Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

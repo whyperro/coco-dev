@@ -27,7 +27,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         },
         provider: true,
         transaction: true,
-      }
+      },
+      orderBy:{statusUpdatedAt:"desc"}
     });
     
     return NextResponse.json(data, {

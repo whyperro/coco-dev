@@ -81,11 +81,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
       password: "",
     },
   })
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const togglePasswordChange = () => {
-    setIsChangingPassword(!isChangingPassword);  // Alternar entre cambiar y no cambiar la contraseña
-  };
   const { data: branches, loading: branchesLoading } = useGetBranches();
 
   const { updateUser } = useUpdateUser();
@@ -101,7 +97,6 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
           password: values.password,
           username: values.username,
           user_role: values.user_role,
-          isChangingPassword:isChangingPassword,
           updated_by:session?.user.username ?? "",
           branchId: values.branchId ?? undefined, 
         });
@@ -181,45 +176,8 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
               </FormItem>
             )}
           />
-          {isEditing ? (
-        // Si está en modo de edición, mostramos el campo de contraseña editable con la opción de cambiarla
-            <div>
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
-                    <FormControl>
-                      {isChangingPassword ? (
-                        // Si estamos en el modo de edición de la contraseña, mostrar el campo de input
-                        <Input type="password" placeholder="Nueva contraseña" {...field} />
-                      )
-                      : <Input type="password" placeholder="Ingrese contraseña" {...field} />
-                      }
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Enlace para alternar entre cambiar la contraseña */}
-              <div className="mt-4 text-center text-sm">
-                {isChangingPassword ? (
-                  <Link href="#" className="underline" onClick={togglePasswordChange}>
-                    Cancelar
-                  </Link>
-                ) : (
-                  <span>
-                    ¿Se le olvido la contraseña?{" "}
-                    <Link href="#" className="underline" onClick={togglePasswordChange}>
-                      Cambiar contraseña
-                    </Link>
-                  </span>
-                )}
-              </div>
-            </div>
-          ) :  
+          
+       
           <FormField
             control={form.control}
             name="password"
@@ -233,7 +191,7 @@ const RegisterForm  = ({ onClose, initialValues,isEditing = false }: FormProps) 
               </FormItem>
             )}
           />
-        }
+        
           <FormField
             control={form.control}
             name="user_role"

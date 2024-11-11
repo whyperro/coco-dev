@@ -83,7 +83,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       });
       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
-        credit: ticket.provider.credit + ticket.ticket_price,
+        credit: ticket.provider.credit + (ticket.ticket_price * -1),
       })
       // Invalida las queries después de que ambas mutaciones se completen
       await queryClient.invalidateQueries({ queryKey: ["paid"] });

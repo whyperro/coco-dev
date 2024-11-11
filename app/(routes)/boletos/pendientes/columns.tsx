@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
 import { TicketMinus } from "lucide-react"
 
 export const columns: ColumnDef<Ticket>[] = [
@@ -55,7 +56,7 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-  accessorKey: "client",
+    accessorKey: "client",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Cliente' />
     ),
@@ -94,6 +95,17 @@ export const columns: ColumnDef<Ticket>[] = [
             <p key={route.id} className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
           ))
         }
+      </div>
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Fecha de Emis.' />
+    ),
+    cell: ({ row }) => {
+      return <div className="flex justify-center">
+        <p className="text-center text-muted-foreground italic">{format(row.original.createdAt, 'yyyy-MM-dd')}</p>
       </div>
     },
   },

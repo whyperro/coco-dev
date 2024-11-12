@@ -185,7 +185,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : ticket.transaction?.payment_method}</Text>
                 <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-                <Text style={styles.columnWide}>{ticket.routes.map((route) => (<p key={route.id}>{route.origin} - {route.destiny}</p>))}</Text>
+                <Text style={styles.columnWide}>{ticket.routes.map((route, index) => (<Text key={`${route.origin}-${route.destiny}-${index}`}>{route.origin} - {route.destiny}</Text>))}</Text>
               </View>
             ))}
             <View style={styles.tableFooter}>
@@ -227,7 +227,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
                 <Text style={styles.columnWide}>{`${ticket.passanger.first_name} ${ticket.passanger.last_name}`}</Text>
-                <Text style={styles.columnWide}>{ticket.routes.map((route) => (<p key={route.id}>{route.origin} - {route.destiny}</p>))}</Text>
+                <Text style={styles.columnWide}>{ticket.routes.map((route, index) => (<Text key={`${route.origin}-${route.destiny}-${index}`}>{route.origin} - {route.destiny}</Text>))}</Text>
               </View>
             ))}
 

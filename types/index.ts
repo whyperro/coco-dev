@@ -71,7 +71,7 @@ export type Client = {
     transaction?: Transaction,
     branchId: string,
     provider: Provider
-
+    statusUpdatedAt: Date,
     ticket_price: number,
     fee: number,
     total: number,

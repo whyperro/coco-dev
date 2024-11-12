@@ -31,6 +31,7 @@ const AnaliticsPage = () => {
       {
         data && <>
           <div className='flex justify-center '><DateFilter /></div>
+          {session?.user.username === 'dpaparella' && <p className='text-xs text-muted-foreground italic'>USTED JODE OYO</p>}
           <DataGrid incomeChange={data.incomeChange} pendingTicketChange={data.pendingTicketChange} paidTicketChange={data.paidTicketChange} total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
           <DataCharts pieTitle='Clientes' pieDescription="Ingresos según los clientes." transactions={data.transactionsByBranch} branches={data.chartPie} />
         </>

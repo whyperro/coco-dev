@@ -57,7 +57,7 @@ export const columns: ColumnDef<Passanger>[] = [
       <DataTableColumnHeader column={column} title='Nro. Documento' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{
+      return <div className="text-center font-medium italic">{
         row.original.dni_type === "PARTIDA_NACIMIENTO" ? `P/N: ${row.original.dni_number}` : `${row.original.dni_type}-${row.original.dni_number}`
       }</div>
     },
@@ -68,7 +68,7 @@ export const columns: ColumnDef<Passanger>[] = [
       <DataTableColumnHeader column={column} title='Contacto' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{(row.original.phone_number === "" || !row.original.phone_number) ? "N/A" : row.original.phone_number}</div>
+      return <div className="text-center text-muted-foreground">{(row.original.phone_number === "" || !row.original.phone_number) ? "N/A" : row.original.phone_number}</div>
     },
   },
   {
@@ -77,7 +77,7 @@ export const columns: ColumnDef<Passanger>[] = [
       <DataTableColumnHeader column={column} title='Correo Electrónico' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold">{(row.original.email === "" || !row.original.email) ? "N/A" : row.original.phone_number}</div>
+      return <div className="text-center text-muted-foreground">{(row.original.email === "" || !row.original.email) ? "N/A" : row.original.phone_number}</div>
     },
   },
   {

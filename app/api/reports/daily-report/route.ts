@@ -241,6 +241,9 @@ export async function GET(request: Request){
         };
       }
     );
+
+    console.log(pendingTickets[0].routes)
+
     // Respuesta del endpoint
     return NextResponse.json({
       date: searchParams.get("date") ? searchParams.get("date") : format(new Date(), "yyyy-MM-dd"),

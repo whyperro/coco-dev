@@ -1,6 +1,7 @@
 import { useUpdateCreditProvider } from "@/actions/providers/actions"
 import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
 import { useCreateTransaction } from "@/actions/transactions/actions"
+import { useDeleteTicket } from "@/actions/tickets/actions"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,7 @@ import { UploadButton } from "@/lib/uploadthing"
 import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQueryClient } from "@tanstack/react-query"
-import { CreditCard, FileCheck, HandCoins, Loader2, MoreHorizontal, TicketX } from "lucide-react"
+import { CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -56,6 +57,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [imgName, setImgName] = useState<string>();
   const [openVoid, setOpenVoid] = useState<boolean>(false);
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
@@ -118,7 +120,31 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenVoid(false);
   };
-  console.log(ticket.createdAt)
+
+  const { deleteTicket } = useDeleteTicket();
+
+  const onDeletePending = async () => {
+    try {
+      await updateCreditProvider.mutateAsync({
+        id: ticket.provider.id,
+        credit: ticket.provider.credit + ticket.ticket_price,
+      });
+
+      await deleteTicket.mutateAsync(ticket.ticket_number);
+
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
+    } catch (error) {
+      console.log(error);
+    }
+    setOpenDelete(false);
+  };
+  
+  // const handleDelete = async () => {
+  //   await deleteTicket.mutateAsync(ticket.ticket_number);
+  //   setOpenDelete(false);
+  // };
+
   const onVoidTicket = async () => {
     try {
       await updateStatusTicket.mutateAsync({
@@ -176,6 +202,13 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             setIsDropdownMenuOpen(false);
           }}>
             <TicketX className='size-5 text-rose-500' />
+          </DropdownMenuItem>
+          {/* delete Option */}
+          <DropdownMenuItem className="cursor-pointer" onClick={() => {
+            setOpenDelete(true);
+            setIsDropdownMenuOpen(false);
+          }}>
+            <Trash className='size-5 text-rose-500' />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -355,6 +388,25 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             <Button variant={"outline"} type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
             <Button onClick={onPaymentConfirm} disabled={updateStatusTicket.isPending}>
               {updateStatusTicket.isPending ? <Loader2 className="size-4 animate-spin" /> : "Confirmar Pago"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+       {/*Confirm Delete Dialog*/}
+
+       <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-3xl">Eliminar Boleto</DialogTitle>
+            <DialogDescription className="text-center flex gap-2">
+             <TriangleAlert/> ¿Seguro que desea eliminar el Boleto? Esto modificara el credito del proveedor. Hacerlo con conciencia. <TriangleAlert/>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant={"outline"} type="button" onClick={() => setOpenDelete(false)}>Cancelar</Button>
+            <Button variant={"destructive"} onClick={onDeletePending} disabled={updateStatusTicket.isPending}>
+              {updateStatusTicket.isPending ? <Loader2 className="size-4 animate-spin" /> : "Eliminar Boleto"}
             </Button>
           </DialogFooter>
         </DialogContent>

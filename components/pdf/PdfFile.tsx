@@ -185,7 +185,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : ticket.transaction?.payment_method}</Text>
                 <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-                <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
+                <Text style={styles.columnWide}>{ticket.routes.map((route) => (<p>{route.origin} - {route.destiny}</p>))}</Text>
               </View>
             ))}
             <View style={styles.tableFooter}>
@@ -268,7 +268,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(client.totalAmount))}</Text>
               </View>
             ))}
-             
+
           </>
         ) : (
           <Text style={styles.noRecords}>No hay datos de clientes en este reporte.</Text>

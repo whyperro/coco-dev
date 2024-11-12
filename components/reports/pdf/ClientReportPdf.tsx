@@ -158,7 +158,7 @@ const ClientReportPdf = ({ client, paidTickets, pendingTickets, passengers, date
                 <Text style={styles.columnWide}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : "ZELLE"}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-              <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
+                <Text style={styles.columnWide}>{ticket.routes.map((route) => (<p>{route.origin} - {route.destiny}</p>))}</Text>
               </View>
             ))}
           </>
@@ -188,7 +188,7 @@ const ClientReportPdf = ({ client, paidTickets, pendingTickets, passengers, date
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
-                <Text style={styles.columnWide}>{ticket.routes[0].origin} - {ticket.routes[0].destiny}</Text>
+                <Text style={styles.columnWide}>{ticket.routes.map((route) => (<p>{route.origin} - {route.destiny}</p>))}</Text>
               </View>
             ))}
           </>

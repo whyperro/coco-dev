@@ -212,7 +212,6 @@ const ProviderReportPdf = ({ provider, paidTickets, pendingTickets, routeCounts,
                 <Text style={styles.columnWide}>{route.destiny}</Text>
                 <Text style={styles.columnWide}>{route.route_type}</Text>
                 <Text style={styles.columnWide}>{route._count.tickets}</Text>
-
               </View>
             ))}
           </>

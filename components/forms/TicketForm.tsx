@@ -56,58 +56,86 @@ import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
 
 const formSchema = z.object({
-  first_name: z.string(),
-  last_name: z.string(),
+  first_name: z.string({
+    message: "Debe ingresar un nombre."
+  }),
+  last_name: z.string({
+    message: "Debe ingresar un apellido."
+  }),
   dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO"]),
-  dni_number: z.string(),
+  dni_number: z.string({
+    message: "Debe ingresar un número de identificación."
+  }),
   phone_number: z.string().optional(),
   email: z.string().optional(),
   isClient: z.boolean().default(false),
-  clientId: z.string(),
-  routes: z.array(z.string()),
-  providerId: z.string(),
+  clientId: z.string({
+    message: "Debe seleccionar un cliente."
+  }),
+  routes: z.array(z.string()).min(1, {
+    message: "Debe ingresar una ruta."
+  }),
+  providerId: z.string({
+    message: "Debe seleccionar un proveedor."
+  }),
   branchId: z.string().optional(),
 
-  ticket_number: z.string(),
-  purchase_date: z.date(),
-  flight_date: z.date(),
-  booking_ref: z.string(),
+  ticket_number: z.string({
+    message: "Debe ingresar un número de ticket."
+  }),
+  purchase_date: z.date({
+    message: "Debe ingresar una fecha de compra."
+  }),
+  flight_date: z.date({
+    message: "Debe ingresar la fecha de vuelo."
+  }),
+  booking_ref: z.string({
+    message: "Debe ingresar el localizador."
+  }),
 
   doc_order: z.boolean(),
-  issued_by: z.string().optional(),//optional
-  served_by: z.string(),
-  ticket_type: z.string(),
+  issued_by: z.string().optional(),
+  served_by: z.string({
+    message: "Debe seleccionar mínimo una ruta."
+  }),
+  ticket_type: z.string({
+    message: "Debe ingresar el tipo de ticket."
+  }),
   description: z.string().optional(),
 
-  ticket_price: z.string(),
-  fee: z.string(),
+  ticket_price: z.string({
+    message: "Debe ingresar el precio del boleto."
+  }),
+  fee: z.string({
+    message: "Debe ingresar el fee del boleto."
+  }),
   total: z.string(),
-  rate: z.string(),
+  rate: z.string({
+    message: "Debe ingresar la tasa."
+  }),
   total_bs: z.string(),
 });
 
+const VENDEDORAS = [
+  { name: "RAUL R." },
+  { name: "DUBRASKA" },
+  { name: "STEFANY" },
+  { name: "DORA" },
+  { name: "DIOSENNYS" },
+  { name: "GLYSMAR" },
+  { name: "KAREN" },
+  { name: "SARAY" },
+  { name: "ALINA" }
+]
 
 const TicketForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
-      dni_number: "",
       phone_number: "",
-      email: "",
-      clientId: "",
       dni_type: "V",
       doc_order: false,
       isClient: false,
-      ticket_number: "",
-      purchase_date: undefined,
-      flight_date: undefined,
-      booking_ref: "",
-      served_by: undefined,
-      ticket_price: "",
-      fee: "",
-      rate: "",
       description: ""
     },
   });
@@ -118,6 +146,7 @@ const TicketForm = () => {
 
   const queryClient = useQueryClient()
   const [openClient, setOpenClient] = useState(false)
+  const [openSellers, setOpenSellers] = useState(false)
   const [openRoute, setOpenRoute] = useState(false)
   const [selectedRoutes, setSelectedRoutes] = useState<string[]>([])
   const [openProvider, setOpenProvider] = useState(false)
@@ -134,7 +163,7 @@ const TicketForm = () => {
   const { data: passanger, loading } = useGetPassangerByDni(debouncedPassangerDni)
   const [fetchedPassanger, setFetchedPassanger] = useState<Passanger | null>(null)
   const { data: dataClient } = useGetClient(form.watch("clientId") ?? null);
-  
+
   const { watch, setValue } = form
   const ticket_price = watch('ticket_price')
   const fee = watch('fee')
@@ -145,7 +174,7 @@ const TicketForm = () => {
   useEffect(() => {
     if (isClient) {
       form.setValue("first_name", dataClient?.first_name ?? "");
-      form.setValue("last_name", dataClient?.last_name ?? "" );
+      form.setValue("last_name", dataClient?.last_name ?? "");
       form.setValue("email", dataClient?.email ?? "");
       form.setValue("dni_number", dataClient?.dni ?? "");
       form.setValue("phone_number", dataClient?.phone_number ?? "");
@@ -212,7 +241,9 @@ const TicketForm = () => {
   }
 
   useEffect(() => {
-    form.setValue('routes', selectedRoutes);
+    if (selectedRoutes) {
+      form.setValue('routes', selectedRoutes)
+    };
   }, [selectedRoutes, form]);
 
   /** Transaccion */
@@ -997,45 +1028,80 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="served_by"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Atendido por</FormLabel>
-                    <Select onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
-                          <SelectValue placeholder="Seleccione el agente" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="RAUL R.">RAUL R.</SelectItem>
-                        <SelectItem value="DUBRASKA">DUBRASKA</SelectItem>
-                        <SelectItem value="STEFANY">STEFANY</SelectItem>
-                        <SelectItem value="DORA">DORA</SelectItem>
-                        <SelectItem value="DIOSENNYS">DIOSENNYS</SelectItem>
-                        <SelectItem value="GLYSMAR">GLYSMAR</SelectItem>
-                        <SelectItem value="KAREN">KAREN</SelectItem>
-                        <SelectItem value="SARAY">SARAY</SelectItem>
-                        <SelectItem value="ALINA">ALINA</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <FormItem className="flex flex-col mt-2">
+                    <FormLabel className="font-bold">Atendido por:</FormLabel>
+                    <Popover open={openSellers} onOpenChange={setOpenSellers}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            disabled={loading}
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0 justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? <p>{VENDEDORAS?.find(
+                                (vendedora) => vendedora.name === field.value
+                              )?.name}</p>
+                              : "Seleccione..."
+                            }
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Busqueda..." />
+                          <CommandList>
+                            <CommandEmpty>No se ha encontrado un(a) vendedor(a).</CommandEmpty>
+                            <CommandGroup>
+                              {VENDEDORAS?.map((vendedora) => (
+                                <CommandItem
+                                  value={`${vendedora.name}`}
+                                  key={vendedora.name}
+                                  onSelect={() => {
+                                    form.setValue("served_by", vendedora.name)
+                                    setOpenSellers(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      vendedora.name === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {
+                                    <p>{vendedora.name}</p>
+                                  }
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormDescription>
-                      Agente de atencion
+                      Seleccione al vendedor(a)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="issued_by"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold">Emitido por</FormLabel>
+                    <FormLabel className="font-bold">Emitido por:</FormLabel>
                     <FormControl>
                       <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={`${session?.user.first_name} ${session?.user.last_name}`} />
                     </FormControl>
@@ -1085,19 +1151,6 @@ const TicketForm = () => {
               />
               <FormField
                 control={form.control}
-                name="total"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Total a Cobrar</FormLabel>
-                    <FormControl>
-                      <AmountInput {...field} placeholder="0.00" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="rate"
                 render={({ field }) => (
                   <FormItem>
@@ -1111,12 +1164,25 @@ const TicketForm = () => {
               />
               <FormField
                 control={form.control}
-                name="total_bs"
+                name="total"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel className="font-bold">Total a Cobrar</FormLabel>
+                    <FormControl>
+                      <AmountInput disabled {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_bs"
+                render={({ field }) => (
+                  <FormItem >
                     <FormLabel className="font-bold">Total en Bolivares</FormLabel>
                     <FormControl>
-                      <AmountInput {...field} prefix="Bs " placeholder="0.00" />
+                      <AmountInput disabled {...field} prefix="Bs " placeholder="0.00" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

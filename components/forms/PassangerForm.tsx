@@ -42,7 +42,7 @@ const formSchema = z.object({
   dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO"]),
   dni_number: z.string(),
   phone_number: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   clientId: z.string(),
 });
 

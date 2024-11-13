@@ -41,7 +41,7 @@ export async function GET(request: Request){
       },
       orderBy: { status: "asc" }
     });
-
+   
     // Formateamos los datos para separar boletos pagados y pendientes
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
     const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
@@ -241,8 +241,6 @@ export async function GET(request: Request){
         };
       }
     );
-
-    console.log(pendingTickets[0].routes)
 
     // Respuesta del endpoint
     return NextResponse.json({

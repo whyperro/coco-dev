@@ -32,7 +32,7 @@ const DailyReportPage = () => {
       "Método de Pago": ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : ticket.transaction?.payment_method,
       "Pasajero": `${ticket.passanger.first_name} ${ticket.passanger.last_name}`,
       "Proveedor": ticket.provider.name,
-      "Ruta": `${ticket.routes[0].origin} - ${ticket.routes[0].destiny}`,
+      "Ruta": ticket.routes.map((route, index) => `${route.origin} - ${route.destiny}`).join("- "),
     }));
 
     const ticketPending = tickets.pendingTickets.map((ticket) => ({
@@ -43,7 +43,7 @@ const DailyReportPage = () => {
       "Total": formatCurrency(convertAmountFromMiliunits(ticket.total)),
       "Pasajero": `${ticket.passanger.first_name} ${ticket.passanger.last_name}`,
       "Proveedor": ticket.provider.name,
-      "Ruta": `${ticket.routes[0].origin} - ${ticket.routes[0].destiny}`,
+      "Ruta": ticket.routes.map((route, index) => `${route.origin} - ${route.destiny}`).join("- "),
     }));
 
     const clientTicket = tickets.clientsReport.map((client) => ({

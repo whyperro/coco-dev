@@ -14,6 +14,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     if(user?.user_role){
       if (user?.user_role === "SELLER") {
         whereClause.registered_by = username;
+        whereClause.status = "PENDIENTE";
       }
     }
     const data = await db.ticket.findMany({

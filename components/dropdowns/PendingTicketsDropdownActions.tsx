@@ -87,7 +87,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         id: ticket.provider.id,
         credit: ticket.provider.credit + (ticket.ticket_price * -1),
       })
-      await  queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
         description: "¡El pago ha sido registrado correctamente!",

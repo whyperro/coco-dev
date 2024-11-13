@@ -14,13 +14,6 @@ const nextConfig = {
     ];
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-        pathname: "/a/bmhquk9wgx/*",
-      },
-    ],
     domains: ['utfs.io'],
   },
 };

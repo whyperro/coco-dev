@@ -83,12 +83,12 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         updated_by: session?.user.username || "",
         transaction_date: new Date(),
       });
-       updateCreditProvider.mutateAsync({
+       await updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + (ticket.ticket_price * -1),
       })
-      queryClient.invalidateQueries({ queryKey: ["paid"] });
-      queryClient.invalidateQueries({ queryKey: ["pending"] });
+      await  queryClient.invalidateQueries({ queryKey: ["paid"] });
+      await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
         description: "¡El pago ha sido registrado correctamente!",
       });

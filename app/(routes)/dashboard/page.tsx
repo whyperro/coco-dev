@@ -21,7 +21,7 @@ const DashboardPage = () => {
         <DataCardLoading />
       </div>
       <BranchPieLoading />
-    </div>
+    </div> 
   }
   return (
     <ContentLayout title='Estadisticas'>

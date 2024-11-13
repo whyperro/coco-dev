@@ -9,6 +9,14 @@ import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { TicketMinus } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
 
 export const columns: ColumnDef<Ticket>[] = [
   // {
@@ -131,11 +139,22 @@ export const columns: ColumnDef<Ticket>[] = [
       const badgeText = isPaid ? "Por Confirmar" : "Por Pagar";
 
       return (
-        <div className="flex justify-center">
-          <Badge className={cn("text-center font-bold hover:cursor-pointer", badgeColor)}>
-            {badgeText}
-          </Badge>
-        </div>
+          <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild className="flex justify-center">
+              <Button className={`${badgeColor}`} size={"sm"}>{badgeText}</Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {
+                isPaid ? (
+                  row.original.transaction?.image_ref ? <Image src={row.original.transaction!.image_ref} alt="Imagen de Referencia" width={200} height={200} /> : <p className="text-sm text-muted-foreground italic text-white">No hay imagen de referencia...</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic text-white">No hay un pago registrado...</p>
+                )
+              }
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>  
       );
     },
   },

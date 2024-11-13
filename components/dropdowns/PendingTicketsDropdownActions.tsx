@@ -83,13 +83,12 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         updated_by: session?.user.username || "",
         transaction_date: new Date(),
       });
-      await updateCreditProvider.mutateAsync({
+       updateCreditProvider.mutateAsync({
         id: ticket.provider.id,
         credit: ticket.provider.credit + (ticket.ticket_price * -1),
       })
-      // Invalida las queries después de que ambas mutaciones se completen
-      await queryClient.invalidateQueries({ queryKey: ["paid"] });
-      await queryClient.invalidateQueries({ queryKey: ["pending"] });
+      queryClient.invalidateQueries({ queryKey: ["paid"] });
+      queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
         description: "¡El pago ha sido registrado correctamente!",
       });
@@ -336,9 +335,9 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               </div>
               <DialogFooter className="mt-12 flex flex-col gap-2 md:flex-row">
                 <Button type="button" variant={"destructive"} onClick={() => setOpen(false)}>Cancelar</Button>
-                <Button disabled={updateStatusTicket.isPending || createTransaction.isPending} type="submit" className="bg-green-700 hover:bg-green-600 text-white flex justify-center">
+                <Button disabled={createTransaction.isPending} type="submit" className="bg-green-700 hover:bg-green-600 text-white flex justify-center">
                   {
-                    updateStatusTicket.isPending || createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
+                    createTransaction.isPending ? <Loader2 className="size-4 animate-spin" /> : "Registrar Transacción"
                   }
                 </Button>
               </DialogFooter>
@@ -369,7 +368,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </Select>
           <DialogFooter>
             <Button type="button" variant={"destructive"} onClick={() => setOpenVoid(false)}>Cancelar</Button>
-            <Button onClick={onVoidTicket} className="bg-primary text-white">Confirmar</Button>
+            <Button onClick={onVoidTicket} disabled={updateStatusTicket.isPending} className="bg-primary text-white">Confirmar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -384,6 +383,13 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               Indique que se ha verificado el pago, y el boleto ha sido pagado.
             </DialogDescription>
           </DialogHeader>
+          {
+            !!ticket.transaction?.image_ref ? (
+              <div className="w-full flex justify-center">
+                <Image src={ticket.transaction.image_ref}  alt="imagen de referencia" width={350} height={350} />
+              </div>
+            ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
+          }
           <DialogFooter>
             <Button variant={"outline"} type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
             <Button onClick={onPaymentConfirm} disabled={updateStatusTicket.isPending}>

@@ -17,7 +17,7 @@ const DailyReportPage = () => {
   }
   return (
     <ContentLayout title='Reporte'>
-      <ProtectedRoute roles={['SUPERADMIN', 'AUDITOR']}>
+      <ProtectedRoute roles={['SUPERADMIN', 'AUDITOR', "ADMINISTRADOR"]}>
         <div className="text-center mt-6">
           <h1 className='text-5xl font-bold'>Reporte de Cliente</h1>
           <h1 className='text-4xl font-bold italic'>{clientReport?.client}</h1>

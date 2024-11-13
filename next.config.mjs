@@ -21,6 +21,7 @@ const nextConfig = {
         pathname: "/a/bmhquk9wgx/*",
       },
     ],
+    domains: ['utfs.io'],
   },
 };
 

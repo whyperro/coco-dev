@@ -10,10 +10,19 @@ export async function GET(request: Request, { params }: { params: { username: st
       where:{username},
       select:{user_role:true, branchId:true}
     })
+
+    const whereClause: any = {
+      status: "PENDIENTE", // Siempre filtramos por status "PAGADO"
+    };
+    if(user?.user_role){
+      if (user?.user_role === "SELLER") {
+        whereClause.registered_by = username;
+      }
+    }
     
     const data = await db.ticket.findMany({
       where: {
-        status: "PENDIENTE",
+        status: whereClause,
       },
       include: {
         routes: true,

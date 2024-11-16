@@ -54,6 +54,7 @@ import { AmountInput } from "../misc/AmountInput";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
 import { Textarea } from "../ui/textarea";
+import PreviewTicket from "../dialogs/PreviewTicket";
 
 const formSchema = z.object({
   first_name: z.string({
@@ -128,19 +129,26 @@ const VENDEDORAS = [
   { name: "ALINA" }
 ]
 
+export type TicketDataType = z.infer<typeof formSchema>;
+
+
 const TicketForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<TicketDataType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phone_number: "",
       dni_type: "V",
+      purchase_date: new Date(),
+      flight_date: new Date(),
       doc_order: false,
       isClient: false,
-      description: ""
     },
   });
 
   const { data: session } = useSession()
+
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [ticketData, setTicketData] = useState<TicketDataType | null>(null);
+  const getCurrentFormData = () => form.getValues();
 
   const debouncedPassangerDni = useDebounce(form.watch("dni_number"), 500);
 
@@ -169,6 +177,44 @@ const TicketForm = () => {
   const fee = watch('fee')
   const rate = watch('rate')
   const isClient = watch('isClient')
+
+  const selectedRoutesNames = routes
+  ? routes
+    .filter((route) => selectedRoutes.includes(route.id))
+    .map((route) => route.scale
+      ? `${route.origin} - ${route.scale} - ${route.destiny}`
+      : `${route.origin} - ${route.destiny}`
+    )
+  : [];
+
+  const selectedProviderData = providers
+    ? providers.find((provider) => provider.id === form.watch("providerId"))
+    : null;
+
+  const selectedProvidersNames = selectedProviderData
+    ? selectedProviderData.name
+    : null;
+
+  const selectedClientData = clients && ticketData
+    ? clients.find((client) => client.id === ticketData.clientId)
+    : null;
+
+  const selectedClientName = selectedClientData
+    ? `${selectedClientData.first_name} ${selectedClientData.last_name}`
+    : null;
+
+  const selectedClientDni = selectedClientData
+    ? selectedClientData.dni
+    : null;
+
+  const selectedClientPhone = selectedClientData
+    ? selectedClientData.phone_number
+    : null;
+
+  const selectedClientEmail = selectedClientData
+    ? selectedClientData.email
+    : null;
+
 
 
   useEffect(() => {
@@ -209,7 +255,19 @@ const TicketForm = () => {
 
     }
   }, [fetchedPassanger, form]);
+  
+  const handlePreviewClick = () => {
+    const currentFormData = getCurrentFormData();
+    setTicketData(form.getValues());
+    setIsPreviewOpen(true);
+  };
 
+
+  const handleConfirm = async (data: TicketDataType) => {
+    // Ejecuta la lógica de envío de datos solo si confirmas desde `PreviewDialog`
+    await onSubmit(data);
+    setIsPreviewOpen(false);     // Cierra el diálogo tras confirmar
+  };
 
   const onResetPassengerForm = () => {
     setFetchedPassanger(null);
@@ -263,6 +321,9 @@ const TicketForm = () => {
         : [...prevSelected, currentValue]
     );
   };
+  const { handleSubmit } = useForm<TicketDataType>({
+    resolver: zodResolver(formSchema),
+  });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
@@ -394,7 +455,7 @@ const TicketForm = () => {
   });
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(handlePreviewClick)}>
         <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
 
           {/* CLIENTE / PROVEEDOR */}
@@ -1028,75 +1089,39 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="served_by"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col mt-2">
-                    <FormLabel className="font-bold">Atendido por:</FormLabel>
-                    <Popover open={openSellers} onOpenChange={setOpenSellers}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            disabled={loading}
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0 justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? <p>{VENDEDORAS?.find(
-                                (vendedora) => vendedora.name === field.value
-                              )?.name}</p>
-                              : "Seleccione..."
-                            }
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Busqueda..." />
-                          <CommandList>
-                            <CommandEmpty>No se ha encontrado un(a) vendedor(a).</CommandEmpty>
-                            <CommandGroup>
-                              {VENDEDORAS?.map((vendedora) => (
-                                <CommandItem
-                                  value={`${vendedora.name}`}
-                                  key={vendedora.name}
-                                  onSelect={() => {
-                                    form.setValue("served_by", vendedora.name)
-                                    setOpenSellers(false)
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      vendedora.name === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {
-                                    <p>{vendedora.name}</p>
-                                  }
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel className="font-bold">Atendido por</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
+                          <SelectValue placeholder="Seleccione el agente" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="RAUL R.">RAUL R.</SelectItem>
+                        <SelectItem value="DUBRASKA">DUBRASKA</SelectItem>
+                        <SelectItem value="STEFANY">STEFANY</SelectItem>
+                        <SelectItem value="DORA">DORA</SelectItem>
+                        <SelectItem value="DIOSENNYS">DIOSENNYS</SelectItem>
+                        <SelectItem value="GLYSMAR">GLYSMAR</SelectItem>
+                        <SelectItem value="KAREN">KAREN</SelectItem>
+                        <SelectItem value="SARAY">SARAY</SelectItem>
+                        <SelectItem value="ALINA">ALINA</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormDescription>
-                      Seleccione al vendedor(a)
+                      Agente de atencion
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
+               <FormField
                 control={form.control}
                 name="issued_by"
                 render={({ field }) => (
@@ -1113,6 +1138,7 @@ const TicketForm = () => {
                 )}
               />
 
+
             </div>
 
           </div>
@@ -1120,7 +1146,7 @@ const TicketForm = () => {
           {/* FORMULARIO DE  TRANSACTION*/}
 
           <div className="flex flex-col ">
-            <h1 className='text-3xl font-bold italic flex items-center gap-3'>Info. del Transaccion <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <h1 className='text-3xl font-bold italic flex items-center gap-3'>Info. de la Transaccion <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
             <Separator className='w-57' />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
               <FormField
@@ -1209,7 +1235,29 @@ const TicketForm = () => {
               )}
             />
           </div>
-          <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
+          <div>
+            <button
+              className="mx-auto block bg-green-500 text-white font-semibold py-2 px-4 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+              type="button"
+              onClick={handlePreviewClick}  // Abre PreviewTicket
+            >
+              Registrar
+            </button>
+            {isPreviewOpen && ticketData && (
+              <PreviewTicket
+                open={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                ticketData={ticketData}
+                selectedRoutesNames={selectedRoutesNames}
+                selectedClientName={selectedClientName}
+                selectedClientDni={selectedClientDni}
+                selectedClientPhone={selectedClientPhone}
+                selectedClientEmail={selectedClientEmail}
+                selectedProvidersNames={selectedProvidersNames}
+                onConfirm={handleConfirm}
+              />
+            )}
+          </div>
         </div>
       </form>
     </Form >

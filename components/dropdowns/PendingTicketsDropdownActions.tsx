@@ -83,10 +83,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         updated_by: session?.user.username || "",
         transaction_date: new Date(),
       });
-       await updateCreditProvider.mutateAsync({
-        id: ticket.provider.id,
-        credit: ticket.provider.credit + (ticket.ticket_price * -1),
-      })
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
@@ -138,7 +134,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenDelete(false);
   };
-  
+
   // const handleDelete = async () => {
   //   await deleteTicket.mutateAsync(ticket.ticket_number);
   //   setOpenDelete(false);
@@ -386,7 +382,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           {
             !!ticket.transaction?.image_ref ? (
               <div className="w-full flex justify-center">
-                <Image src={ticket.transaction.image_ref}  alt="imagen de referencia" width={350} height={350} />
+                <Image src={ticket.transaction.image_ref} alt="imagen de referencia" width={350} height={350} />
               </div>
             ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
           }
@@ -399,14 +395,14 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         </DialogContent>
       </Dialog>
 
-       {/*Confirm Delete Dialog*/}
+      {/*Confirm Delete Dialog*/}
 
-       <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-center text-3xl">Eliminar Boleto</DialogTitle>
             <DialogDescription className="text-center flex gap-2">
-             <TriangleAlert/> ¿Seguro que desea eliminar el Boleto? Esto modificara el credito del proveedor. Hacerlo con conciencia. <TriangleAlert/>
+              <TriangleAlert /> ¿Seguro que desea eliminar el Boleto? Esto modificara el credito del proveedor. Hacerlo con conciencia. <TriangleAlert />
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

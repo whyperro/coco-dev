@@ -21,14 +21,7 @@ interface ClientTicket {
   total: number;
   provider: { name: string };
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
-  routes: {
-    id: string;
-    origin: string;
-    scale: string | null;
-    destiny: string;
-    route_type: string;
-    count: number;
-  }[];
+  routes: { origin: string; destiny: string; route_type: string }[];
   branch: { location_name: string };
 }
 interface ClientReportPdf {

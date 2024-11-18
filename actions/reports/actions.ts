@@ -36,14 +36,12 @@ interface ClientReport {
 interface ProviderReport {
   provider: string;  // Client's full name
   routeCounts: {
-    id: string,
-    origin: string,
-    scale:string[],
-    destiny: string,
-    route_type:string,
-    _count: {
-      tickets: number,
-    }
+    id: string;
+    origin: string;
+    scale: string | null;
+    destiny: string;
+    route_type: string;
+    count: number;
   }[];  // Array of associated passengers
   paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
   pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status

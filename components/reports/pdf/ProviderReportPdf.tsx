@@ -18,14 +18,12 @@ interface ClientTicket {
 interface ProviderReportPdf {
   provider: string;  // Client's full name
   routeCounts: {
-    id: string,
-    origin: string,
-    destiny: string,
-    scale: string[],
-    route_type: string,
-    _count: {
-      tickets: number,
-    }
+    id: string;
+    origin: string;
+    scale: string | null;
+    destiny: string;
+    route_type: string;
+    count: number;
   }[];  // Array of associated passengers
   paidTickets: ClientTicket[];  // Array of tickets with "PAGADO" status
   pendingTickets: ClientTicket[];  // Array of tickets with "PENDIENTE" status
@@ -211,7 +209,7 @@ const ProviderReportPdf = ({ provider, paidTickets, pendingTickets, routeCounts,
                 <Text style={styles.columnWide}>{route.scale ? route.scale : "N/A"}</Text>
                 <Text style={styles.columnWide}>{route.destiny}</Text>
                 <Text style={styles.columnWide}>{route.route_type}</Text>
-                <Text style={styles.columnWide}>{route._count.tickets}</Text>
+                <Text style={styles.columnWide}>{route.count}</Text>
               </View>
             ))}
           </>

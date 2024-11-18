@@ -341,7 +341,7 @@ const TicketForm = () => {
             console.log(ticketCreated.data.provider.credit)
             await updateCreditProvider.mutateAsync({
               id: ticketCreated.data.providerId,
-              credit: ticketCreated.data.provider.credit + ticketCreated.data.ticket_price,
+              credit: ticketCreated.data.provider.credit - ticketCreated.data.ticket_price,
             });
           }
         }
@@ -392,7 +392,7 @@ const TicketForm = () => {
       },
     ]
   });
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>

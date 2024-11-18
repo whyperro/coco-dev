@@ -22,7 +22,7 @@ const DailyReportPage = () => {
           <h1 className='text-5xl font-bold'>Reporte de Cliente</h1>
           <h1 className='text-4xl font-bold italic'>{clientReport?.client}</h1>
           <p className="mt-2 text-muted-foreground italic text-sm">
-            Aquí se generaran los reportes formatos PDF cada 24 horas.
+            Aquí se generaran los reportes dado un cliente específico.
           </p>
         </div>
         <div className='flex flex-col gap-6'>

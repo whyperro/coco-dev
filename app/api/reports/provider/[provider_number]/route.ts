@@ -55,7 +55,9 @@ export async function GET(request: Request, { params }: { params: { provider_num
       where: {
         tickets: {
           some: {
-            provider: {provider_number}
+            provider: {
+              provider_number: provider_number,
+            }
           }
         }
       },

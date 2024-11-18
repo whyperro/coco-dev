@@ -2,10 +2,6 @@ import db from "@/lib/db";
 import { format, parse, subDays } from "date-fns";
 import { NextResponse } from "next/server";
 
-interface branchData {
-  name: string;
-  amount: number;
-}
 
 export async function GET(request: Request, { params }: { params: { provider_number: string } }) {
   const { provider_number } = params;
@@ -57,7 +53,11 @@ export async function GET(request: Request, { params }: { params: { provider_num
           some: {
             provider: {
               provider_number: provider_number,
-            }
+            },
+            OR: [
+              { createdAt: { gte: startDate, lte: endDate } },
+              { statusUpdatedAt: { gte: startDate, lte: endDate } }
+            ],
           }
         }
       },

@@ -135,14 +135,14 @@ export const columns: ColumnDef<Ticket>[] = [
     ),
     cell: ({ row }) => {
       const isPaid = !!row.original.transaction; // Verifica si existe la transacción
-      const badgeColor = isPaid ? "bg-green-500" : "bg-yellow-600";
+      const badgeColor = isPaid ? "bg-green-500" : "bg-yellow-500";
       const badgeText = isPaid ? "Por Confirmar" : "Por Pagar";
 
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild className="flex justify-center">
-              <Button className={`${badgeColor}`} size={"sm"}>{badgeText}</Button>
+              <Button className={cn(`${badgeColor} cursor-pointer`, isPaid ? "hover:bg-green-700" : "hover:bg-yellow-600")} size={"sm"}>{badgeText}</Button>
             </TooltipTrigger>
             <TooltipContent>
               {

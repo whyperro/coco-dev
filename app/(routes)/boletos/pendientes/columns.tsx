@@ -120,7 +120,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "registered_by",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Registrado por' />
+      <DataTableColumnHeader filter column={column} title='Registrado por' />
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">

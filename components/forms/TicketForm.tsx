@@ -62,7 +62,7 @@ const formSchema = z.object({
   last_name: z.string({
     message: "Debe ingresar un apellido."
   }),
-  dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO"]),
+  dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO", "PASAPORTE"]),
   dni_number: z.string({
     message: "Debe ingresar un número de identificación."
   }),
@@ -704,6 +704,7 @@ const TicketForm = () => {
                         <SelectItem value="J">J</SelectItem>
                         <SelectItem value="E">E</SelectItem>
                         <SelectItem value="PARTIDA_NACIMIENTO">P. de Nacimiento</SelectItem>
+                        <SelectItem value="PASAPORTE">Pasaporte</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>

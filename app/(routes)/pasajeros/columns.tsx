@@ -58,7 +58,7 @@ export const columns: ColumnDef<Passanger>[] = [
     ),
     cell: ({ row }) => {
       return <div className="text-center font-medium italic">{
-        row.original.dni_type === "PARTIDA_NACIMIENTO" ? `P/N: ${row.original.dni_number}` : `${row.original.dni_type}-${row.original.dni_number}`
+        row.original.dni_type === "PARTIDA_NACIMIENTO" ? `P/N: ${row.original.dni_number}` : row.original.dni_type === "PASAPORTE" ? `P-${row.original.dni_number}` : `${row.original.dni_type}-${row.original.dni_number}`
       }</div>
     },
   },

@@ -43,7 +43,7 @@ export type Client = {
     id:           string
     first_name:   string
     last_name :   string
-    dni_type :      "V"  | "J" | "E" | "PARTIDA_NACIMIENTO"
+    dni_type :      "V"  | "J" | "E" | "PARTIDA_NACIMIENTO" | "PASAPORTE"
     dni_number :  string
     phone_number: string | null
     email:       string | null

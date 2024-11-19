@@ -39,7 +39,7 @@ import { toast } from "sonner";
 const formSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
-  dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO"]),
+  dni_type: z.enum(["V", "J", "E", "PARTIDA_NACIMIENTO", "PASAPORTE"]),
   dni_number: z.string(),
   phone_number: z.string().optional(),
   email: z.string().optional(),
@@ -228,6 +228,7 @@ const PassangerForm = ({ id, onClose, isEditing = false }: FormProps) => {
                         <SelectItem value="J">J</SelectItem>
                         <SelectItem value="E">E</SelectItem>
                         <SelectItem value="PARTIDA_NACIMIENTO">P. de Nacimiento</SelectItem>
+                        <SelectItem value="PASAPORTE">Pasaporte</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormDescription>

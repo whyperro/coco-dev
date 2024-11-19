@@ -25,6 +25,7 @@ enum DoctumentType {
   J
   E
   PARTIDA_NACIMIENTO
+  PASAPORTE
 }
 
 enum ProviderType {

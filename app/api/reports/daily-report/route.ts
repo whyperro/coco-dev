@@ -1,8 +1,7 @@
 // Endpoint para obtener el reporte diario de boletos
 import db from "@/lib/db";
-import { addDays, differenceInDays, endOfDay, format, parse, parseISO, startOfDay, subDays } from "date-fns";
+import { endOfDay, format, parse, startOfDay } from "date-fns";
 import { NextResponse } from "next/server";
-import { toZonedTime } from "date-fns-tz";
 
 interface IBranchData {
     name: string,
@@ -16,6 +15,7 @@ export async function GET(request: Request){
   const { searchParams } = new URL(request.url);
   try {
     const dateParam = searchParams.get("date");
+    const unparsedDate = dateParam ? dateParam : format(new Date(), "yyyy-MM-dd");
     const date = dateParam ? parse(dateParam, "yyyy-MM-dd", new Date()) : new Date();
     // Ajuste de `startOfDay` y `endOfDay` en UTC
     const startDate = startOfDay(date);
@@ -24,10 +24,7 @@ export async function GET(request: Request){
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
     const tickets = await db.ticket.findMany({
       where: {
-        statusUpdatedAt: {
-          gte: startDate, // Mayor o igual al inicio del día
-          lte: endDate,   // Menor o igual al final del día
-        },
+        purchase_date: unparsedDate,
         status: {
           not: "CANCELADO"
         }
@@ -41,7 +38,7 @@ export async function GET(request: Request){
       },
       orderBy: { status: "asc" }
     });
-   
+
     // Formateamos los datos para separar boletos pagados y pendientes
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
     const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
@@ -72,10 +69,7 @@ export async function GET(request: Request){
           include: {
             ticket: {
               where: {
-                statusUpdatedAt: {
-                  gte: startDate, // Mayor o igual al inicio del día
-                  lte: endDate,   // Menor o igual al final del día
-                },
+                purchase_date: unparsedDate,
                 status: {
                   not: "CANCELADO",
                 },
@@ -120,10 +114,7 @@ export async function GET(request: Request){
       include: {
         tickets: {
           where: {
-            statusUpdatedAt: {
-              gte: startDate, // Mayor o igual al inicio del día
-              lte: endDate,   // Menor o igual al final del día
-            },
+            purchase_date: unparsedDate,
             status: {
               not: "CANCELADO",
             },

@@ -107,14 +107,14 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "purchase_date",
     header: ({ column }) => (
       <DataTableColumnHeader filter column={column} title='Fecha de Emis.' />
     ),
     cell: ({ row }) => {
       return <div className="flex justify-center">
-        <p className="text-center text-muted-foreground italic">{format(row.original.createdAt, 'yyyy-MM-dd')}</p>
-      </div>
+        <p className="text-center text-muted-foreground italic">{row.original.purchase_date}</p>
+      </div>  
     },
   },
   {
@@ -139,7 +139,7 @@ export const columns: ColumnDef<Ticket>[] = [
       const badgeText = isPaid ? "Por Confirmar" : "Por Pagar";
 
       return (
-          <TooltipProvider>
+        <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild className="flex justify-center">
               <Button className={`${badgeColor}`} size={"sm"}>{badgeText}</Button>
@@ -154,7 +154,7 @@ export const columns: ColumnDef<Ticket>[] = [
               }
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>  
+        </TooltipProvider>
       );
     },
   },

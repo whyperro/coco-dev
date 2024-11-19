@@ -69,7 +69,7 @@ export type Client = {
     routes: Route[]
     passanger: Passanger,
     transaction?: Transaction,
-    branchId: string,
+    branch: Branch,
     provider: Provider
     statusUpdatedAt: Date,
     ticket_price: number,

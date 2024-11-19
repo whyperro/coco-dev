@@ -170,7 +170,7 @@ const TicketForm = () => {
   const rate = watch('rate')
   const isClient = watch('isClient')
 
-
+  console.log(fetchedPassanger)
   useEffect(() => {
     if (isClient) {
       form.setValue("first_name", dataClient?.first_name ?? "");
@@ -212,31 +212,24 @@ const TicketForm = () => {
 
 
   const onResetPassengerForm = () => {
+    queryClient.setQueryData(["passanger"], null)
     setFetchedPassanger(null);
-    form.reset({
-      dni_number: "",
-      first_name: "",
-      last_name: "",
-      email: "",
-      dni_type: "V",
-      phone_number: "",
-    });
+    form.setValue("dni_number", "")
+    form.setValue("first_name", "")
+    form.setValue("last_name", "")
+    form.setValue("email", "")
+    form.setValue("phone_number", "")
   };
 
   const onTicketFormReset = () => {
-    form.reset({
-      ticket_number: "",
-      booking_ref: "",
-      flight_date: undefined,
-      purchase_date: undefined,
-      routes: [],
-      ticket_type: "B",
-      served_by: undefined,
-      providerId: undefined,
-      isClient: false,
-    })
+    form.setValue("ticket_number", "")
+    form.setValue("booking_ref", "")
+    form.setValue("routes", [])
+    form.setValue("isClient", false)
+    form.setValue("rate", "")
+    form.setValue("ticket_price", "")
+    form.setValue("fee", "")
     queryClient.setQueryData(["passanger"], null)
-    setFetchedPassanger(null); // Limpiar el estado del pasajero actual
     setSelectedRoutes([]); // Limpiar rutas seleccionadas
   }
 
@@ -347,7 +340,6 @@ const TicketForm = () => {
         }
       }
       onTicketFormReset()
-
     } catch (error) {
       console.error(error); // Log the error for debugging
       toast.error("Error al guardar el boleto", {

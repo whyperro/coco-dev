@@ -28,7 +28,7 @@ import { UploadButton } from "@/lib/uploadthing"
 import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQueryClient } from "@tanstack/react-query"
-import { CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert } from "lucide-react"
+import { CalendarIcon, CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -41,13 +41,18 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Input } from "../ui/input"
 import Image from "next/image"
-import { isToday } from "date-fns"
+import { format, isToday } from "date-fns"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
+import { Calendar } from "../ui/calendar"
+import { es } from "date-fns/locale"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   payment_ref: z.string(),
   payment_method: z.string(),
   image_ref: z.string().optional(),// Change from File to string to store URL,
   void_description: z.string().optional(),
+  transaction_date: z.date(),
 });
 
 const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
@@ -59,6 +64,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [openVoid, setOpenVoid] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
+  const [openTransactionDate, setOpenTransactionDate] = useState(false)
   const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
   const { updateCreditProvider } = useUpdateCreditProvider();
@@ -81,8 +87,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         ticketId: ticket.id,
         registered_by: session?.user.username || "",
         updated_by: session?.user.username || "",
-        transaction_date: new Date(),
       });
+      setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });
       toast.success("¡Pagado!", {
@@ -93,8 +99,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       toast.error("Oops!", {
         description: `¡Hubo un error al procesar el pago!: ${error}`,
       });
-    } finally {
-      setOpen(false); // Cierra el modal al final
     }
   };
 
@@ -219,7 +223,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="flex flex-col gap-2 md:grid md:grid-cols-2">
+              <div className="flex flex-col gap-2">
                 <FormField
                   control={form.control}
                   name="payment_method"
@@ -276,10 +280,56 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                     <FormItem>
                       <FormLabel className="font-bold">Comprobante de pago</FormLabel>
                       <FormControl>
-                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="XK-456" {...field} />
+                        <Input className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="XK-456" {...field} />
                       </FormControl>
                       <FormDescription>
                         Comprobante del pago realizado
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="transaction_date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col mt-2">
+                      <FormLabel className="font-bold">Fecha del Pago</FormLabel>
+                      <Popover open={openTransactionDate} onOpenChange={setOpenTransactionDate}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP", {
+                                  locale: es
+                                })
+                              ) : (
+                                <span>Seleccione una fecha</span>
+                              )}
+                              <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={(e) => {
+                              field.onChange(e)
+                              setOpenTransactionDate(false)
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        Fecha de compra del boleto
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

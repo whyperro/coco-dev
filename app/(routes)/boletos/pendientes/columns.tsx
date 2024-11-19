@@ -114,7 +114,7 @@ export const columns: ColumnDef<Ticket>[] = [
     cell: ({ row }) => {
       return <div className="flex justify-center">
         <p className="text-center text-muted-foreground italic">{row.original.purchase_date}</p>
-      </div>  
+      </div>
     },
   },
   {
@@ -129,7 +129,7 @@ export const columns: ColumnDef<Ticket>[] = [
     },
   },
   {
-    accessorKey: "statusUpdatedAt",
+    accessorKey: "transaction",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Estado' />
     ),

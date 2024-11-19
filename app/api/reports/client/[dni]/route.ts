@@ -2,10 +2,6 @@ import db from "@/lib/db";
 import { format, parse, subDays } from "date-fns";
 import { NextResponse } from "next/server";
 
-interface branchData {
-  name: string;
-  amount: number;
-}
 
 export async function GET(request: Request, { params }: { params: { dni: string } }) {
   const { dni } = params;

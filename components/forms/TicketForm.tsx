@@ -117,6 +117,7 @@ const formSchema = z.object({
 });
 
 const VENDEDORAS = [
+  { name: "COKO" },
   { name: "RAUL R." },
   { name: "DUBRASKA" },
   { name: "STEFANY" },

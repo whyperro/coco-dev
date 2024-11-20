@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const data = await db.route.findMany({
       orderBy: {
-        origin: "desc"
+        origin: "asc"
       }
     });
     return NextResponse.json(data, {

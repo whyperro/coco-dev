@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const data = await db.route.findMany();
+    const data = await db.route.findMany({
+      orderBy: {
+        origin: "desc"
+      }
+    });
     return NextResponse.json(data, {
       status: 200,
     });

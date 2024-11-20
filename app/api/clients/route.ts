@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const data = await db.client.findMany({
       orderBy: {
-        createdAt: "desc"
+        first_name: "desc"
       }
     })
     return NextResponse.json(data,{

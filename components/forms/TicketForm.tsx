@@ -126,7 +126,6 @@ const VENDEDORAS = [
   { name: "GLYSMAR" },
   { name: "KAREN" },
   { name: "SARAY" },
-  { name: "ALINA" }
 ]
 
 const TicketForm = () => {

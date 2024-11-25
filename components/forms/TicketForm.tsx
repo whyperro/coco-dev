@@ -169,8 +169,13 @@ const TicketForm = () => {
   const fee = watch('fee')
   const rate = watch('rate')
   const isClient = watch('isClient')
+  const clientId = watch("clientId")
 
-  console.log(fetchedPassanger)
+  useEffect(() => {
+    queryClient.setQueryData(["client"], null)
+    queryClient.refetchQueries({ queryKey: ["client"] })
+  }, [clientId])
+
   useEffect(() => {
     if (isClient) {
       form.setValue("first_name", dataClient?.first_name ?? "");
@@ -212,7 +217,10 @@ const TicketForm = () => {
 
 
   const onResetPassengerForm = () => {
+    form.setValue("isClient", false)
     queryClient.setQueryData(["passanger"], null)
+    queryClient.setQueryData(["client"], null)
+    queryClient.refetchQueries({ queryKey: ["client"] })
     setFetchedPassanger(null);
     form.setValue("dni_number", "")
     form.setValue("first_name", "")

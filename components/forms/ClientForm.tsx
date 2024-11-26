@@ -88,10 +88,15 @@ const CreateClientForm = ({ id, onClose, isEditing = false }: FormProps) => {
           phone_number: values?.phone_number ? values.phone_number : null,
         });
       }
-      form.reset();
-      onClose();
     } catch (error) {
       console.error(error);
+    } finally {
+      form.setValue("first_name", "")
+      form.setValue("last_name", "")
+      form.setValue("dni", "")
+      form.setValue("email", "")
+      form.setValue("phone_number", "")
+      onClose();
     }
   };
 

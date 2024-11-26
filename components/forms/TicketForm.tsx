@@ -969,7 +969,7 @@ const TicketForm = () => {
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
                           <RegisterRouteDialog />
-                          <CommandInput placeholder="Buscar rol..." />
+                          <CommandInput placeholder="Buscar Ruta..." />
                           <CommandList>
                             <CommandEmpty>No se encontraron rutas...</CommandEmpty>
                             <CommandGroup>
@@ -979,7 +979,7 @@ const TicketForm = () => {
                               {routes?.map((route) => (
                                 <CommandItem
                                   key={route.id}
-                                  value={route.id}
+                                  value={`${route.origin} ${route.destiny}`}
                                   onSelect={() => handleRoutesSelect(route.id)}
                                 >
                                   <Check

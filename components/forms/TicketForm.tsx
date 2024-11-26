@@ -969,7 +969,7 @@ const TicketForm = () => {
                       <PopoverContent className="w-[200px] p-0">
                         <Command>
                           <RegisterRouteDialog />
-                          <CommandInput placeholder="Buscar rol..." />
+                          <CommandInput placeholder="Buscar ruta..." />
                           <CommandList>
                             <CommandEmpty>No se encontraron rutas...</CommandEmpty>
                             <CommandGroup>

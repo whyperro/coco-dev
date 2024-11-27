@@ -64,6 +64,20 @@ export async function GET(request: Request){
     });
 
     const clientsData = await db.client.findMany({
+      where: {
+        passenger: {
+          some: {
+            ticket: {
+              some: {
+                purchase_date: unparsedDate,
+                status: {
+                  not: "CANCELADO",
+                },
+              },
+            },
+          },
+        },
+      },
       include: {
         passenger: {
           include: {

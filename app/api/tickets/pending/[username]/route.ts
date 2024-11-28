@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     //     whereClause.registered_by = username;
     //   }
     // }
-    
+
     const data = await db.ticket.findMany({
       where: {
         status: "PENDIENTE",
@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { username: st
         provider: true,
         transaction: true,
       },
-      orderBy:{statusUpdatedAt:"desc"}
+      orderBy:{purchase_date:"desc"}
     });
 
     return NextResponse.json(data, {

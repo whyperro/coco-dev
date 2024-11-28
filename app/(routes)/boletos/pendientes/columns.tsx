@@ -78,7 +78,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Pasajero(s)' />
     ),
     cell: ({ row }) => {
-      return <p className="text-center font-bold">{row.original.passanger.first_name} {row.original.passanger.last_name}</p>
+      return <p className="text-center font-bold text-sm">{row.original.passanger.first_name} {row.original.passanger.last_name}</p>
     },
   },
   {
@@ -114,6 +114,17 @@ export const columns: ColumnDef<Ticket>[] = [
     cell: ({ row }) => {
       return <div className="flex justify-center">
         <p className="text-center text-muted-foreground italic">{row.original.purchase_date}</p>
+      </div>
+    },
+  },
+  {
+    accessorKey: "flight_date",
+    header: ({ column }) => (
+      <DataTableColumnHeader filter column={column} title='Fecha de Vuelo' />
+    ),
+    cell: ({ row }) => {
+      return <div className="flex justify-center">
+        <p className="text-center text-muted-foreground italic">{row.original.flight_date}</p>
       </div>
     },
   },

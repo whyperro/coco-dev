@@ -789,22 +789,6 @@ const TicketForm = () => {
             <div id="ticket-info-container" className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
               <FormField
                 control={form.control}
-                name="ticket_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-bold">Nro. de Boleto</FormLabel>
-                    <FormControl>
-                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="123456789" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Número identificador del boleto
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="booking_ref"
                 render={({ field }) => (
                   <FormItem>
@@ -819,7 +803,22 @@ const TicketForm = () => {
                   </FormItem>
                 )}
               />
-
+              <FormField
+                control={form.control}
+                name="ticket_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Nro. de Boleto</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="123456789" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Número identificador del boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="purchase_date"

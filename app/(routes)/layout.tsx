@@ -1,3 +1,4 @@
+'use client'
 import AdminPanelLayout from "@/components/sidebar/AdminPanelLayout";
 
 export default function AppLayout({

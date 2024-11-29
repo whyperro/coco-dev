@@ -350,688 +350,210 @@ const TicketForm = () => {
       onTicketFormReset()
     } catch (error) {
       console.error(error); // Log the error for debugging
-    };
+      toast.error("Error al guardar el boleto", {
+        description: "Ocurrió un error, por favor intenta nuevamente.",
+      });
+    }
+  };
 
 
-    const driverObj = driver({
-      showProgress: true,
-      steps: [
-        {
-          element: '#client-provider', // The id or className of the div which you want to focous of highlight
-          popover: {
-            title: 'Clientes y Proveedores',
-            description: 'Aquí ingresará el cliente que estaría comprando los boletos y el proveedor del cual se estan obteniendo dichos boletos.'
-          }
-        },
-        {
-          element: '#passanger-info-container', // The id or className of the div which you want to focous of highlight
-          popover: {
-            title: 'Información del Pasajero',
-            description: 'En este apartado ingresará toda la información correspondiente al pasajero del boleto a registrar.'
-          }
-        },
-        {
-          element: '#dni-number', // The id or className of the div which you want to focous of highlight
-          popover: {
-            title: 'Nro. de Identificación',
-            description: 'Al ingresar el número de identifiación, si este ya ha sido registrado anteriormente, los campos del pasajero se rellenaran automáticamente. Caso contrario, deberá llenar el resto de la información para que sea guardado.'
-          }
-        },
-        {
-          element: '#ticket-info-container', // The id or className of the div which you want to focous of highlight
-          popover: {
-            title: 'Información del Boleto',
-            description: 'Luego, ingrese la información correspondiente al boleto a registrar.',
-            align: "center",
-            side: "left"
-          }
-        },
-      ]
-    });
+  const driverObj = driver({
+    showProgress: true,
+    steps: [
+      {
+        element: '#client-provider', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Clientes y Proveedores',
+          description: 'Aquí ingresará el cliente que estaría comprando los boletos y el proveedor del cual se estan obteniendo dichos boletos.'
+        }
+      },
+      {
+        element: '#passanger-info-container', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Información del Pasajero',
+          description: 'En este apartado ingresará toda la información correspondiente al pasajero del boleto a registrar.'
+        }
+      },
+      {
+        element: '#dni-number', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Nro. de Identificación',
+          description: 'Al ingresar el número de identifiación, si este ya ha sido registrado anteriormente, los campos del pasajero se rellenaran automáticamente. Caso contrario, deberá llenar el resto de la información para que sea guardado.'
+        }
+      },
+      {
+        element: '#ticket-info-container', // The id or className of the div which you want to focous of highlight
+        popover: {
+          title: 'Información del Boleto',
+          description: 'Luego, ingrese la información correspondiente al boleto a registrar.',
+          align: "center",
+          side: "left"
+        }
+      },
+    ]
+  });
 
-    return (
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className='flex flex-col max-w-7xl mx-auto mt-4 space-y-6'>
 
-            {/* CLIENTE / PROVEEDOR */}
-            <div id="client-provider" className="flex flex-col lg:flex-row gap-8">
-              <FormField
-                control={form.control}
-                name="clientId"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="font-bold">Cliente</FormLabel>
-                    <Popover open={openClient} onOpenChange={setOpenClient}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            disabled={loading}
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-[200px] justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {
-                              clientsLoading && <Loader2 className="size-4 animate-spin mr-2" />
-                            }
-                            {field.value
-                              ? <p>{clients?.find(
-                                (client) => client.id === field.value
-                              )?.first_name} - {clients?.find(
-                                (client) => client.id === field.value
-                              )?.last_name}</p>
-                              : "Elige el cliente..."
-                            }
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Busque un cliente..." />
-                          <CreateClientDialog />
-                          <CommandList>
-                            <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
-                            <CommandGroup>
-                              {clients?.map((client) => (
-                                <CommandItem
-                                  value={`${client.first_name} ${client.last_name}`}
-                                  key={client.id}
-                                  onSelect={() => {
-                                    form.setValue("clientId", client.id)
-                                    setOpenClient(false)
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      client.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {
-                                    <p>{client.first_name} {client.last_name}</p>
-                                  }
-                                </CommandItem>
-                              ))}
-                              {
-                                clientsError && <p className="text-sm text-muted-foreground">Ha ocurrido un error al cargar los datos...</p>
-                              }
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      Seleccione al cliente
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="providerId"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="font-bold">Proveedor</FormLabel>
-                    <Popover open={openProvider} onOpenChange={setOpenProvider}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            disabled={loading}
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "w-[200px] justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {providersLoading && <Loader2 className="size-4 animate-spin mr-2" />}
-                            {field.value
-                              ? <p>{providers?.find(provider => provider.id === field.value)?.name}</p>
-                              : "Elige un proveedor..."}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0">
-                        <Command>
-                          <RegisterProviderDialog />
-                          <CommandInput placeholder="Busque un proveedor..." />
-                          <CommandList>
-                            <CommandEmpty>No se ha encontrado el proveedor.</CommandEmpty>
-                            <CommandGroup>
-                              {providers?.map(provider => (
-                                <CommandItem
-                                  value={`${provider.name}`}
-                                  key={provider.id}
-                                  onSelect={() => {
-                                    form.setValue("providerId", provider.id);
-                                    setOpenProvider(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      provider.id === field.value ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                  <p>{provider.name}</p>
-                                </CommandItem>
-                              ))}
-                              {providersError && (
-                                <p className="text-muted-foreground text-sm">
-                                  Ha ocurrido un error al cargar los proveedores...
-                                </p>
-                              )}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      Seleccione el proveedor.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {
-                (session?.user.user_role === 'SUPERADMIN' || session?.user.user_role === 'AUDITOR') && (
-                  <FormField
-                    control={form.control}
-                    name="branchId"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="font-bold">Sucursales</FormLabel>
-                        <Popover open={openBranch} onOpenChange={setOpenBranch}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                disabled={loading}
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-[200px] justify-between",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {branchLoading && <Loader2 className="size-4 animate-spin mr-2" />}
-                                {field.value
-                                  ? <p>{branches?.find(branch => branch.id === field.value)?.location_name}</p>
-                                  : "Elige una sucursal..."}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[200px] p-0">
-                            <Command>
-                              <CommandInput placeholder="Busque una sucursal..." />
-                              <CreateBranchDialog />
-                              <CommandList>
-                                <CommandEmpty>No se ha encontrado una sucursal.</CommandEmpty>
-                                <CommandGroup>
-                                  {branches?.map(branch => (
-                                    <CommandItem
-                                      value={`${branch.location_name}`}
-                                      key={branch.id}
-                                      onSelect={() => {
-                                        form.setValue("branchId", branch.id);
-                                        setOpenBranch(false);
-                                      }}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          branch.id === field.value ? "opacity-100" : "opacity-0"
-                                        )}
-                                      />
-                                      <p>{branch.location_name}</p>
-                                    </CommandItem>
-                                  ))}
-                                  {branchError && (
-                                    <p className="text-muted-foreground text-sm">
-                                      Ha ocurrido un error al cargar los datos...
-                                    </p>
-                                  )}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormDescription>
-                          Seleccione la sucursal
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )
-              }
-              <Button className="w-[20px] h-[20px] mt-4" type="button" onClick={() => driverObj.drive()} size={"icon"}>?</Button>
-
-            </div>
+          {/* CLIENTE / PROVEEDOR */}
+          <div id="client-provider" className="flex flex-col lg:flex-row gap-8">
             <FormField
               control={form.control}
-              name="isClient"
+              name="clientId"
               render={({ field }) => (
-                <FormItem className=" w-[300px] flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      ¿El cliente será el pasajero?
-                    </FormLabel>
-
-                  </div>
+                <FormItem className="flex flex-col">
+                  <FormLabel className="font-bold">Cliente</FormLabel>
+                  <Popover open={openClient} onOpenChange={setOpenClient}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {
+                            clientsLoading && <Loader2 className="size-4 animate-spin mr-2" />
+                          }
+                          {field.value
+                            ? <p>{clients?.find(
+                              (client) => client.id === field.value
+                            )?.first_name} - {clients?.find(
+                              (client) => client.id === field.value
+                            )?.last_name}</p>
+                            : "Elige el cliente..."
+                          }
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Busque un cliente..." />
+                        <CreateClientDialog />
+                        <CommandList>
+                          <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
+                          <CommandGroup>
+                            {clients?.map((client) => (
+                              <CommandItem
+                                value={`${client.first_name} ${client.last_name}`}
+                                key={client.id}
+                                onSelect={() => {
+                                  form.setValue("clientId", client.id)
+                                  setOpenClient(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    client.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {
+                                  <p>{client.first_name} {client.last_name}</p>
+                                }
+                              </CommandItem>
+                            ))}
+                            {
+                              clientsError && <p className="text-sm text-muted-foreground">Ha ocurrido un error al cargar los datos...</p>
+                            }
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Seleccione al cliente
+                  </FormDescription>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            {/* FORMULARIO DEL PASAJERO */}
-            <div className='flex flex-col'>
-              <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
-              <Separator className='w-56' />
-              <div id="passanger-info-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
-                <FormField
-                  control={form.control}
-                  name="last_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Apellido</FormLabel>
+            <FormField
+              control={form.control}
+              name="providerId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="font-bold">Proveedor</FormLabel>
+                  <Popover open={openProvider} onOpenChange={setOpenProvider}>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Perez" {...field} />
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {providersLoading && <Loader2 className="size-4 animate-spin mr-2" />}
+                          {field.value
+                            ? <p>{providers?.find(provider => provider.id === field.value)?.name}</p>
+                            : "Elige un proveedor..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
                       </FormControl>
-                      <FormDescription>
-                        Apellido el pasajero registrar o registrado
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <RegisterProviderDialog />
+                        <CommandInput placeholder="Busque un proveedor..." />
+                        <CommandList>
+                          <CommandEmpty>No se ha encontrado el proveedor.</CommandEmpty>
+                          <CommandGroup>
+                            {providers?.map(provider => (
+                              <CommandItem
+                                value={`${provider.name}`}
+                                key={provider.id}
+                                onSelect={() => {
+                                  form.setValue("providerId", provider.id);
+                                  setOpenProvider(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    provider.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <p>{provider.name}</p>
+                              </CommandItem>
+                            ))}
+                            {providersError && (
+                              <p className="text-muted-foreground text-sm">
+                                Ha ocurrido un error al cargar los proveedores...
+                              </p>
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Seleccione el proveedor.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {
+              (session?.user.user_role === 'SUPERADMIN' || session?.user.user_role === 'AUDITOR') && (
                 <FormField
                   control={form.control}
-                  name="first_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Nombre</FormLabel>
-                      <FormControl>
-                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Maria" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Primer nombre del pasajero a registrar o registrado
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div id="dni-number">
-                  <FormField
-                    control={form.control}
-                    name="dni_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
-                        <FormControl>
-                          <Input className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          El número identificador del pasajero
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="dni_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Tipo de Identificación</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
-                            <SelectValue placeholder="Tipo de documentación" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="V">V</SelectItem>
-                          <SelectItem value="J">J</SelectItem>
-                          <SelectItem value="E">E</SelectItem>
-                          <SelectItem value="PARTIDA_NACIMIENTO">P. de Nacimiento</SelectItem>
-                          <SelectItem value="PASAPORTE">Pasaporte</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Tipo del documento de identificación
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Correo</FormLabel>
-                      <FormControl>
-                        <Input type="email" className="w-auto shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="maria@example.com" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Correo del pasajero
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Tlf. de Contacto</FormLabel>
-                      <FormControl>
-                        <Input type="tel" className="w-auto shadow-none border-b-1 border-r-0 border-t-0 border-l-0 max-w-32" placeholder="01234567889" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Número de telefóno del pasajero
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="doc_order"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          ¿Documento Vigente?
-                        </FormLabel>
-
-                      </div>
-                    </FormItem>
-                  )}
-                />
-
-
-              </div>
-            </div>
-
-
-
-            {/* FORMULARIO DEL BOLETO */}
-
-            <div className='flex flex-col'>
-              <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onTicketFormReset()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
-              <Separator className='w-56 mb-4' />
-              <div id="ticket-info-container" className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
-                <FormField
-                  control={form.control}
-                  name="booking_ref"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Localizador</FormLabel>
-                      <FormControl>
-                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="SCS7126" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Localizador del o los boleto(s)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="ticket_number"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Nro. de Boleto</FormLabel>
-                      <FormControl>
-                        <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="123456789" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Número identificador del boleto
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="purchase_date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col mt-2">
-                      <FormLabel className="font-bold">Fecha de Compra</FormLabel>
-                      <Popover open={openPurchaseDate} onOpenChange={setOpenPurchaseDate}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP", {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Seleccione una fecha</span>
-                              )}
-                              <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(e) => {
-                              field.onChange(e)
-                              setOpenPurchaseDate(false)
-                            }}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription>
-                        Fecha de compra del boleto
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="flight_date"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col mt-2">
-                      <FormLabel className="font-bold">Fecha del Vuelo</FormLabel>
-                      <Popover open={openFlightDate} onOpenChange={setOpenFlightDate}>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP", {
-                                  locale: es
-                                })
-                              ) : (
-                                <span>Seleccione una fecha</span>
-                              )}
-                              <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(e) => {
-                              field.onChange(e)
-                              setOpenFlightDate(false)
-                            }}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription>
-                        Fecha de compra del boleto
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="routes"
+                  name="branchId"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Ruta(s)</FormLabel>
-                      <Popover open={openRoute} onOpenChange={setOpenRoute}>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-[200px] justify-between"
-                          >
-                            {selectedRoutes?.length > 0 && (
-                              <>
-                                <Separator orientation="vertical" className="mx-2 h-4" />
-                                <Badge
-                                  variant="secondary"
-                                  className="rounded-sm px-1 font-normal lg:hidden"
-                                >
-                                  {selectedRoutes.length}
-                                </Badge>
-                                <div className="hidden space-x-1 lg:flex">
-                                  {selectedRoutes.length > 2 ? (
-                                    <Badge
-                                      variant="secondary"
-                                      className="rounded-sm px-1 font-normal"
-                                    >
-                                      {selectedRoutes.length} seleccionados
-                                    </Badge>
-                                  ) : (
-                                    routes?.filter((option) => selectedRoutes.includes(option.id))
-                                      .map((option) => (
-                                        <Badge
-                                          variant="secondary"
-                                          key={option.id}
-                                          className="rounded-sm px-1 font-medium"
-                                        >
-                                          {option.origin}/{option.destiny}
-                                        </Badge>
-                                      ))
-                                  )}
-                                </div>
-                              </>
-                            )}
-                            {
-                              selectedRoutes.length <= 0 && <p className="text-sm text-muted-foreground">Seleccione rutas...</p>
-                            }
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0">
-                          <Command>
-                            <RegisterRouteDialog />
-                            <CommandInput placeholder="Buscar Ruta..." />
-                            <CommandList>
-                              <CommandEmpty>No se encontraron rutas...</CommandEmpty>
-                              <CommandGroup>
-                                {
-                                  routesLoading && <Loader2 className="animate-spin size-4" />
-                                }
-                                {routes?.map((route) => (
-                                  <CommandItem
-                                    key={route.id}
-                                    value={`${route.origin} ${route.destiny}`}
-                                    onSelect={() => handleRoutesSelect(route.id)}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        isRouteSelected(route.id) ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {route.origin} - {route.destiny}
-                                  </CommandItem>
-                                ))}
-                                {
-                                  routesError && <p className="text-center text-muted-foreground text-sm">Ha ocurrido un error al cargar las rutas...</p>
-                                }
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                      <FormDescription>
-                        Seleccione la o las rutas
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="ticket_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Tipo de Boleto</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={""}>
-                        <FormControl>
-                          <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
-                            <SelectValue placeholder="Elige el tipo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="B">BOLETO</SelectItem>
-                          <SelectItem value="X">EXCHANGE</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Seleccione el tipo del boleto
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="served_by"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col mt-2">
-                      <FormLabel className="font-bold">Atendido por:</FormLabel>
-                      <Popover open={openSellers} onOpenChange={setOpenSellers}>
+                      <FormLabel className="font-bold">Sucursales</FormLabel>
+                      <Popover open={openBranch} onOpenChange={setOpenBranch}>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
@@ -1039,178 +561,660 @@ const TicketForm = () => {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0 justify-between",
+                                "w-[200px] justify-between",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
+                              {branchLoading && <Loader2 className="size-4 animate-spin mr-2" />}
                               {field.value
-                                ? <p>{VENDEDORAS?.find(
-                                  (vendedora) => vendedora.name === field.value
-                                )?.name}</p>
-                                : "Seleccione..."
-                              }
+                                ? <p>{branches?.find(branch => branch.id === field.value)?.location_name}</p>
+                                : "Elige una sucursal..."}
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0">
                           <Command>
-                            <CommandInput placeholder="Busqueda..." />
+                            <CommandInput placeholder="Busque una sucursal..." />
+                            <CreateBranchDialog />
                             <CommandList>
-                              <CommandEmpty>No se ha encontrado un(a) vendedor(a).</CommandEmpty>
+                              <CommandEmpty>No se ha encontrado una sucursal.</CommandEmpty>
                               <CommandGroup>
-                                {VENDEDORAS?.map((vendedora) => (
+                                {branches?.map(branch => (
                                   <CommandItem
-                                    value={`${vendedora.name}`}
-                                    key={vendedora.name}
+                                    value={`${branch.location_name}`}
+                                    key={branch.id}
                                     onSelect={() => {
-                                      form.setValue("served_by", vendedora.name)
-                                      setOpenSellers(false)
+                                      form.setValue("branchId", branch.id);
+                                      setOpenBranch(false);
                                     }}
                                   >
                                     <Check
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        vendedora.name === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
+                                        branch.id === field.value ? "opacity-100" : "opacity-0"
                                       )}
                                     />
-                                    {
-                                      <p>{vendedora.name}</p>
-                                    }
+                                    <p>{branch.location_name}</p>
                                   </CommandItem>
                                 ))}
+                                {branchError && (
+                                  <p className="text-muted-foreground text-sm">
+                                    Ha ocurrido un error al cargar los datos...
+                                  </p>
+                                )}
                               </CommandGroup>
                             </CommandList>
                           </Command>
                         </PopoverContent>
                       </Popover>
                       <FormDescription>
-                        Seleccione al vendedor(a)
+                        Seleccione la sucursal
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="issued_by"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Emitido por:</FormLabel>
-                      <FormControl>
-                        <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={`${session?.user.first_name} ${session?.user.last_name}`} />
-                      </FormControl>
-                      <FormDescription>
-                        Agente que emitio el Boleto
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              )
+            }
+            <Button className="w-[20px] h-[20px] mt-4" type="button" onClick={() => driverObj.drive()} size={"icon"}>?</Button>
 
-              </div>
+          </div>
+          <FormField
+            control={form.control}
+            name="isClient"
+            render={({ field }) => (
+              <FormItem className=" w-[300px] flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>
+                    ¿El cliente será el pasajero?
+                  </FormLabel>
 
-            </div>
-
-            {/* FORMULARIO DE  TRANSACTION*/}
-
-            <div className="flex flex-col ">
-              <h1 className='text-3xl font-bold italic flex items-center gap-3'>Info. del Transaccion <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
-              <Separator className='w-57' />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
-                <FormField
-                  control={form.control}
-                  name="ticket_price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Precio del Boleto</FormLabel>
-                      <FormControl>
-                        <AmountInput  {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="fee"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold"><span className="italic">Fee</span> de Emisión</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="rate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Tasa</FormLabel>
-                      <FormControl>
-                        <AmountInput {...field} prefix="Bs " placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="total"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Total a Cobrar</FormLabel>
-                      <FormControl>
-                        <AmountInput disabled {...field} placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="total_bs"
-                  render={({ field }) => (
-                    <FormItem >
-                      <FormLabel className="font-bold">Total en Bolivares</FormLabel>
-                      <FormControl>
-                        <AmountInput disabled {...field} prefix="Bs " placeholder="0.00" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-              </div>
-
-            </div>
-
-            <div className="flex flex-col items-center">
+                </div>
+              </FormItem>
+            )}
+          />
+          {/* FORMULARIO DEL PASAJERO */}
+          <div className='flex flex-col'>
+            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. del Pasajero <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <Separator className='w-56' />
+            <div id="passanger-info-container" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
               <FormField
                 control={form.control}
-                name="description"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold">Observaciones</FormLabel>
+                    <FormLabel className="font-bold">Apellido</FormLabel>
                     <FormControl>
-                      <Textarea className="w-[850px] shadow-none" placeholder="..." {...field} />
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Perez" {...field} />
                     </FormControl>
-
+                    <FormDescription>
+                      Apellido el pasajero registrar o registrado
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
-          </div>
-        </form>
-      </Form >
-    );
-  }
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Nombre</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Maria" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Primer nombre del pasajero a registrar o registrado
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div id="dni-number">
+                <FormField
+                  control={form.control}
+                  name="dni_number"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
+                      <FormControl>
+                        <Input className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        El número identificador del pasajero
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="dni_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Tipo de Identificación</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
+                          <SelectValue placeholder="Tipo de documentación" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="V">V</SelectItem>
+                        <SelectItem value="J">J</SelectItem>
+                        <SelectItem value="E">E</SelectItem>
+                        <SelectItem value="PARTIDA_NACIMIENTO">P. de Nacimiento</SelectItem>
+                        <SelectItem value="PASAPORTE">Pasaporte</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Tipo del documento de identificación
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Correo</FormLabel>
+                    <FormControl>
+                      <Input type="email" className="w-auto shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="maria@example.com" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Correo del pasajero
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Tlf. de Contacto</FormLabel>
+                    <FormControl>
+                      <Input type="tel" className="w-auto shadow-none border-b-1 border-r-0 border-t-0 border-l-0 max-w-32" placeholder="01234567889" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Número de telefóno del pasajero
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="doc_order"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        ¿Documento Vigente?
+                      </FormLabel>
 
-  export default TicketForm;
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+
+            </div>
+          </div>
+
+
+
+          {/* FORMULARIO DEL BOLETO */}
+
+          <div className='flex flex-col'>
+            <h1 className='text-3xl font-bold italic flex items-center gap-2'>Info. de Boleto <RotateCw onClick={() => onTicketFormReset()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <Separator className='w-56 mb-4' />
+            <div id="ticket-info-container" className="grid grid-cols-1 md:grid-cols-2 place-content-center md:flex md:flex-row gap-12 md:items-center md:justify-start flex-wrap">
+              <FormField
+                control={form.control}
+                name="booking_ref"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Localizador</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="SCS7126" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Localizador del o los boleto(s)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ticket_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Nro. de Boleto</FormLabel>
+                    <FormControl>
+                      <Input className="w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="123456789" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Número identificador del boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="purchase_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mt-2">
+                    <FormLabel className="font-bold">Fecha de Compra</FormLabel>
+                    <Popover open={openPurchaseDate} onOpenChange={setOpenPurchaseDate}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", {
+                                locale: es
+                              })
+                            ) : (
+                              <span>Seleccione una fecha</span>
+                            )}
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(e) => {
+                            field.onChange(e)
+                            setOpenPurchaseDate(false)
+                          }}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      Fecha de compra del boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="flight_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mt-2">
+                    <FormLabel className="font-bold">Fecha del Vuelo</FormLabel>
+                    <Popover open={openFlightDate} onOpenChange={setOpenFlightDate}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-auto pl-3 text-left font-normal shadow-none border-b-1 border-r-0 border-t-0 border-l-0 bg-transparent",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", {
+                                locale: es
+                              })
+                            ) : (
+                              <span>Seleccione una fecha</span>
+                            )}
+                            <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(e) => {
+                            field.onChange(e)
+                            setOpenFlightDate(false)
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      Fecha de compra del boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="routes"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Ruta(s)</FormLabel>
+                    <Popover open={openRoute} onOpenChange={setOpenRoute}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-[200px] justify-between"
+                        >
+                          {selectedRoutes?.length > 0 && (
+                            <>
+                              <Separator orientation="vertical" className="mx-2 h-4" />
+                              <Badge
+                                variant="secondary"
+                                className="rounded-sm px-1 font-normal lg:hidden"
+                              >
+                                {selectedRoutes.length}
+                              </Badge>
+                              <div className="hidden space-x-1 lg:flex">
+                                {selectedRoutes.length > 2 ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="rounded-sm px-1 font-normal"
+                                  >
+                                    {selectedRoutes.length} seleccionados
+                                  </Badge>
+                                ) : (
+                                  routes?.filter((option) => selectedRoutes.includes(option.id))
+                                    .map((option) => (
+                                      <Badge
+                                        variant="secondary"
+                                        key={option.id}
+                                        className="rounded-sm px-1 font-medium"
+                                      >
+                                        {option.origin}{option.scale ? `/${option.scale}/` : "/"}{option.destiny}
+                                      </Badge>
+                                    ))
+                                )}
+                              </div>
+                            </>
+                          )}
+                          {
+                            selectedRoutes.length <= 0 && <p className="text-sm text-muted-foreground">Seleccione rutas...</p>
+                          }
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <RegisterRouteDialog />
+                          <CommandInput placeholder="Buscar Ruta..." />
+                          <CommandList>
+                            <CommandEmpty>No se encontraron rutas...</CommandEmpty>
+                            <CommandGroup>
+                              {
+                                routesLoading && <Loader2 className="animate-spin size-4" />
+                              }
+                              {routes?.map((route) => (
+                                <CommandItem
+                                  key={route.id}
+                                  value={`${route.origin} ${route.scale ?? ""} ${route.destiny}`}
+                                  onSelect={() => handleRoutesSelect(route.id)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      isRouteSelected(route.id) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {route.origin} {route.scale ? `- ${route.scale} -` : "-"} {route.destiny}
+                                </CommandItem>
+                              ))}
+                              {
+                                routesError && <p className="text-center text-muted-foreground text-sm">Ha ocurrido un error al cargar las rutas...</p>
+                              }
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      Seleccione la o las rutas
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ticket_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Tipo de Boleto</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={""}>
+                      <FormControl>
+                        <SelectTrigger className={cn("w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0", field.value ? "font-bold" : "")}>
+                          <SelectValue placeholder="Elige el tipo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="B">BOLETO</SelectItem>
+                        <SelectItem value="X">EXCHANGE</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Seleccione el tipo del boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="served_by"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col mt-2">
+                    <FormLabel className="font-bold">Atendido por:</FormLabel>
+                    <Popover open={openSellers} onOpenChange={setOpenSellers}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            disabled={loading}
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-[200px] shadow-none border-b-1 border-r-0 border-t-0 border-l-0 justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? <p>{VENDEDORAS?.find(
+                                (vendedora) => vendedora.name === field.value
+                              )?.name}</p>
+                              : "Seleccione..."
+                            }
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Busqueda..." />
+                          <CommandList>
+                            <CommandEmpty>No se ha encontrado un(a) vendedor(a).</CommandEmpty>
+                            <CommandGroup>
+                              {VENDEDORAS?.map((vendedora) => (
+                                <CommandItem
+                                  value={`${vendedora.name}`}
+                                  key={vendedora.name}
+                                  onSelect={() => {
+                                    form.setValue("served_by", vendedora.name)
+                                    setOpenSellers(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      vendedora.name === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {
+                                    <p>{vendedora.name}</p>
+                                  }
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      Seleccione al vendedor(a)
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="issued_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Emitido por:</FormLabel>
+                    <FormControl>
+                      <Input type="text" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" disabled placeholder="1234567" {...field} value={`${session?.user.first_name} ${session?.user.last_name}`} />
+                    </FormControl>
+                    <FormDescription>
+                      Agente que emitio el Boleto
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+            </div>
+
+          </div>
+
+          {/* FORMULARIO DE  TRANSACTION*/}
+
+          <div className="flex flex-col ">
+            <h1 className='text-3xl font-bold italic flex items-center gap-3'>Info. del Transaccion <RotateCw onClick={() => onResetPassengerForm()} className="size-4 cursor-pointer hover:animate-spin" /></h1>
+            <Separator className='w-57' />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 place-content-center w-full mx-auto mt-4">
+              <FormField
+                control={form.control}
+                name="ticket_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Precio del Boleto</FormLabel>
+                    <FormControl>
+                      <AmountInput  {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="fee"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold"><span className="italic">Fee</span> de Emisión</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="rate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Tasa</FormLabel>
+                    <FormControl>
+                      <AmountInput {...field} prefix="Bs " placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Total a Cobrar</FormLabel>
+                    <FormControl>
+                      <AmountInput disabled {...field} placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="total_bs"
+                render={({ field }) => (
+                  <FormItem >
+                    <FormLabel className="font-bold">Total en Bolivares</FormLabel>
+                    <FormControl>
+                      <AmountInput disabled {...field} prefix="Bs " placeholder="0.00" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+            </div>
+
+          </div>
+
+          <div className="flex flex-col items-center">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Observaciones</FormLabel>
+                  <FormControl>
+                    <Textarea className="w-[850px] shadow-none" placeholder="..." {...field} />
+                  </FormControl>
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button disabled={createPassenger.isPending || createTicket.isPending} type="submit">Crear ticket</Button>
+        </div>
+      </form>
+    </Form >
+  );
+}
+
+export default TicketForm;

@@ -239,7 +239,6 @@ export async function GET(request: Request) {
       pendingCount,
       paidCount
     };
-    console.log(response)
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error fetching transaction summary:", error);

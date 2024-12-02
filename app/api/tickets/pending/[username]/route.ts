@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export const revalidate = 0
@@ -6,35 +7,38 @@ export const revalidate = 0
 export async function GET(request: Request, { params }: { params: { username: string } }) {
   const { username } = params;
   try {
+    // Obtener información del usuario para determinar su rol
     const user = await db.user.findUnique({
-      where:{username},
-      select:{user_role:true, branchId:true}
-    })
+      where: { username },
+      select: { user_role: true, branchId: true },
+    });
 
-    // const whereClause: any = {
-    //   status: "PENDIENTE", // Siempre filtramos por status "PAGADO"
-    // };
-    // if(user?.user_role){
-    //   if (user?.user_role === "SELLER") {
-    //     whereClause.registered_by = username;
-    //   }
-    // }
+    if (!user) {
+      return NextResponse.json(
+        { message: "Usuario no encontrado." },
+        { status: 404 }
+      );
+    }
+
+    // Determinar el filtro basado en el rol del usuario
+    const where: Prisma.TicketWhereInput =
+      user.user_role === "SUPERADMIN" || user.user_role === "ADMINISTRADOR"
+        ? { status: "PENDIENTE" }
+        : { status: "PENDIENTE", registered_by: username };
 
     const data = await db.ticket.findMany({
-      where: {
-        status: "PENDIENTE",
-      },
+      where: where,
       include: {
         routes: true,
         passanger: {
           include: {
             client: true,
-          }
+          },
         },
         provider: true,
         transaction: true,
       },
-      orderBy:{purchase_date:"desc"}
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(data, {
@@ -49,9 +53,7 @@ export async function GET(request: Request, { params }: { params: { username: st
       {
         message: "Error al obtener los boletos pendientes.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

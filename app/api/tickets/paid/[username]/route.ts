@@ -21,7 +21,6 @@ export async function GET(request: Request, { params }: { params: { username: st
 
     const data = await db.ticket.findMany({
       where:whereClause,
-
       include: {
         routes: true,
         passanger: {

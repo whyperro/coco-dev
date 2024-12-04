@@ -5,7 +5,7 @@ import { toast } from "sonner";
 export const useCreateTransaction = () => {
   const createMutation = useMutation({
       mutationFn: async (values: {
-        payment_ref: string,
+        payment_ref?: string,
         image_ref: string,
         payment_method: string,
         ticketId: string,

@@ -1,16 +1,12 @@
 "use client"
 
 import PaidTicketsDropdownActions from "@/components/dropdowns/PaidTicketsDropdownActions"
-import PendingTicketsDropdownActions from "@/components/dropdowns/PendingTicketsDropdownActions"
 import { DataTableColumnHeader } from "@/components/tables/DataTableHeader"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { convertAmountFromMiliunits } from "@/lib/utils"
 import { Ticket } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
-import { es } from "date-fns/locale"
 import { Download, TicketCheck } from "lucide-react"
 
 // This type is used to define the shape of our data.
@@ -18,32 +14,6 @@ import { Download, TicketCheck } from "lucide-react"
 
 
 export const columns: ColumnDef<Ticket>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <div className="w-full flex justify-center">
-  //       <Checkbox
-  //         checked={
-  //           table.getIsAllPageRowsSelected() ||
-  //           (table.getIsSomePageRowsSelected() && "indeterminate")
-  //         }
-  //         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //         aria-label="Select all"
-  //       />
-  //     </div>
-  //   ),
-  //   cell: ({ row }) => (
-  //     <div className="w-full flex justify-center">
-  //       <Checkbox
-  //         checked={row.getIsSelected()}
-  //         onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //         aria-label="Select row"
-  //       />
-  //     </div>
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     accessorKey: "ticket_number",
     header: ({ column }) => (
@@ -145,7 +115,7 @@ export const columns: ColumnDef<Ticket>[] = [
                     rel="noopener noreferrer"
                   >
                     <Download />
-                    <p>{row.original.transaction.payment_ref}</p>
+                    <p>{row.original.transaction.payment_ref ?? "Sin referencia..."}</p>
                   </a>
                 </TooltipTrigger>
                 <TooltipContent>

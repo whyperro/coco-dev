@@ -31,7 +31,7 @@ const AnaliticsPage = () => {
       {
         data && <>
           <div className='flex justify-center '><DateFilter /></div>
-          <DataGrid incomeChange={data.incomeChange} pendingTicketChange={data.pendingTicketChange} paidTicketChange={data.paidTicketChange} total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.pendingCount} paidCount={data.paidCount} />
+          <DataGrid incomeChange={data.incomeChange} pendingTicketChange={data.pendingTicketChange} paidTicketChange={data.paidTicketChange} total_amount={data.total_amount} ticketCount={data.ticketCount} pendingCount={data.currentPendingCount} paidCount={data.currentPaidCount} />
           <DataCharts pieTitle='Clientes' pieDescription="Ingresos según los clientes." transactions={data.transactionsByBranch} branches={data.chartPie} />
         </>
       }

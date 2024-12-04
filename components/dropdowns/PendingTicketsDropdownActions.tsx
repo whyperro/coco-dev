@@ -48,7 +48,7 @@ import { es } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
-  payment_ref: z.string(),
+  payment_ref: z.string().optional(),
   payment_method: z.string(),
   image_ref: z.string().optional(),// Change from File to string to store URL,
   void_description: z.string().optional(),
@@ -112,12 +112,12 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       toast.error("¡Pagado!", {
         description: "¡El boleto ha sido pagado correctamente!",
       });
+      setOpenConfirm(false);
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });
     } catch (error) {
       console.log(error);
     }
-    setOpenVoid(false);
   };
 
   const { deleteTicket } = useDeleteTicket();
@@ -432,7 +432,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           {
             !!ticket.transaction?.image_ref ? (
               <div className="w-full flex justify-center">
-                <Image src={ticket.transaction.image_ref} alt="imagen de referencia" width={350} height={350} />
+                <Image src={ticket.transaction.image_ref} alt="imagen de referencia" width={350} height={350} className="w-48 h-54" />
               </div>
             ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
           }

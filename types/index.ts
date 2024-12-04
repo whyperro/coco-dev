@@ -84,7 +84,7 @@ export type Client = {
   export type Transaction = {
     id: string,
     payment_method: string,
-    payment_ref:string,
+    payment_ref?:string,
     image_ref: string,
     registered_by: string,
     transaction_date: Date,

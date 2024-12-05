@@ -38,20 +38,20 @@ const ClientDropdownActions = ({ id, dni }: { id: string, dni: string }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="flex gap-2 justify-center">
           {/* Delete Option */}
-          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "MANAGER"} onClick={() => {
+          <DropdownMenuItem onClick={() => {
             setIsDialogOpen1(true);
             setIsDropdownMenuOpen(false);
           }}>
             <Trash2 className='size-5 text-red-500' />
           </DropdownMenuItem>
           {/* Edit Option */}
-          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR"} onClick={() => {
+          <DropdownMenuItem onClick={() => {
             setIsDialogOpen2(true);
             setIsDropdownMenuOpen(false);
           }}>
             <Pencil className="size-4 cursor-pointer" />
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "ADMIN" } onClick={() => router.push(`/reportes/cliente/${dni}`)}>
+          <DropdownMenuItem disabled={session?.user.user_role != "AUDITOR" && session?.user.user_role != "ADMIN"} onClick={() => router.push(`/reportes/cliente/${dni}`)}>
             <Notebook className="size-4 cursor-pointer" />
           </DropdownMenuItem>
         </DropdownMenuContent>

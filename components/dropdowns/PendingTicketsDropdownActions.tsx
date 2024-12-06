@@ -139,11 +139,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     setOpenDelete(false);
   };
 
-  // const handleDelete = async () => {
-  //   await deleteTicket.mutateAsync(ticket.ticket_number);
-  //   setOpenDelete(false);
-  // };
-
   const onVoidTicket = async () => {
     try {
       await updateStatusTicket.mutateAsync({

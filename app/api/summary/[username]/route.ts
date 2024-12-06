@@ -146,8 +146,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         status: "PENDIENTE",
         registered_by:username,
         statusUpdatedAt: {
-          gte: lastPeriodStart,
-          lte: lastPeriodEnd
+          gte: startDate,
+          lte: endDate
         }
       }
     })
@@ -157,9 +157,9 @@ export async function GET(request: Request, { params }: { params: { username: st
         status: "PAGADO",
         registered_by:username,
         statusUpdatedAt: {
-          gte:lastPeriodStart,
-          lte: lastPeriodEnd
-        }
+          gte:startDate,
+          lte: endDate
+        },
       }
     })
 
@@ -245,6 +245,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     const paidTicketChange = calculatePercentageChange(currentPaidCount, lastPaidCount);
 
 
+    // Calculate the total amounts per client
     const pieData: { [key: string]: number } = {};
     currentTransactions.forEach(transaction => {
       const ticket = currentTickets.find(t => t.id === transaction.ticketId);
@@ -253,14 +254,23 @@ export async function GET(request: Request, { params }: { params: { username: st
       if (!pieData[client]) {
         pieData[client] = 0;
       }
-      pieData[client] += transaction.ticket.total || 0; // Accumulate amounts per branch
+      pieData[client] += transaction.ticket.total || 0;
     });
 
-    // Format data for the Pie chart
-    const chartPie: PieData[] = Object.keys(pieData).map(client => ({
-      name: client,
-      amount: pieData[client],
-    }));
+    // Convert pieData to an array and sort it by the amount in descending order
+    const sortedData = Object.entries(pieData)
+      .map(([client, amount]) => ({ name: client, amount }))
+      .sort((a, b) => b.amount - a.amount);
+
+    // Separate the top two clients and group others
+    const topClients = sortedData.slice(0, 3); // Top 2 clients
+    const others = sortedData.slice(3).reduce((acc, client) => acc + client.amount, 0); // Sum of others
+
+    // Format the data for the Pie chart
+    const chartPie: PieData[] = [
+      ...topClients,
+      ...(others > 0 ? [{ name: 'Otros', amount: others }] : []), // Add "Others..." if applicable
+    ];
 
     // Return the JSON response
     const response: SummaryResponse = {

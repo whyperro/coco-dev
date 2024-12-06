@@ -456,9 +456,9 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                   <CarouselContent>
                     {
                       refUrls && refUrls.map((ref) => (
-                        <CarouselItem>
+                        <CarouselItem key={ref}>
                           <div className="flex justify-center">
-                            <Image src={ref} key={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
                           </div>
                         </CarouselItem>
                       ))

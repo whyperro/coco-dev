@@ -158,7 +158,7 @@ export const columns: ColumnDef<Ticket>[] = [
             <TooltipContent>
               {
                 isPaid ? (
-                  row.original.transaction?.image_ref ? <Image src={row.original.transaction!.image_ref} alt="Imagen de Referencia" width={200} height={200} /> : <p className="text-sm text-muted-foreground italic text-white">No hay imagen de referencia...</p>
+                  row.original.transaction?.image_ref ? <Image src={row.original.transaction!.image_ref.split(", ")[0]} alt="Imagen de Referencia" width={200} height={200} /> : <p className="text-sm text-muted-foreground italic text-white">No hay imagen de referencia...</p>
                 ) : (
                   <p className="text-sm text-muted-foreground italic text-white">No hay un pago registrado...</p>
                 )

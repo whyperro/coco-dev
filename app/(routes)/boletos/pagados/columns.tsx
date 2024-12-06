@@ -101,22 +101,29 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader column={column} title='Ref.' />
     ),
     cell: ({ row }) => {
+      const refUrls = row.original.transaction?.image_ref.split(", ")
       return (
         <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-all">
           {row.original.transaction?.image_ref ? (
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <a
-                    className="flex gap-2 items-center"
-                    href={row.original.transaction.image_ref}
-                    download={`referencia_${row.original.ticket_number}_${row.original.transaction.payment_ref}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Download />
-                    <p>{row.original.transaction.payment_ref ?? "Sin referencia..."}</p>
-                  </a>
+                <TooltipTrigger className="flex flex-col gap-2">
+                  {
+                    refUrls && refUrls.map((ref, index) => (
+                      <div key={ref}>
+                        <a
+                          className="flex gap-2 items-center"
+                          href={ref}
+                          download={`referencia_${row.original.ticket_number}_${row.original.transaction!.payment_ref}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Download />
+                          <p>{row.original.transaction!.payment_ref ? `${row.original.transaction!.payment_ref} - ${index + 1}` : "Sin referencia..."}</p>
+                        </a>
+                      </div>
+                    ))
+                  }
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Descargar Imagen</p>

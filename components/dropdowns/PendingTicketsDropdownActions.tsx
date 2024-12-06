@@ -2,6 +2,7 @@ import { useUpdateCreditProvider } from "@/actions/providers/actions"
 import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
 import { useCreateTransaction } from "@/actions/transactions/actions"
 import { useDeleteTicket } from "@/actions/tickets/actions"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useQueryClient } from "@tanstack/react-query"
 import { CalendarIcon, CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert } from "lucide-react"
 import { useSession } from "next-auth/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { FaCreditCard, FaMoneyBillWave } from "react-icons/fa"
 import { IoIosPhonePortrait } from "react-icons/io"
@@ -59,16 +60,21 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
+  const [api, setApi] = useState<CarouselApi>()
+  const [current, setCurrent] = useState(0)
+  const [count, setCount] = useState(0)
   const [open, setOpen] = useState<boolean>(false);
-  const [imgName, setImgName] = useState<string>();
   const [openVoid, setOpenVoid] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
   const [openTransactionDate, setOpenTransactionDate] = useState(false)
   const [reason, setReason] = useState<"CancelledByClient" | "WrongSellerInput" | "WrongClientInfo">("CancelledByClient");
   const { createTransaction } = useCreateTransaction();
+  const { deleteTicket } = useDeleteTicket();
   const { updateCreditProvider } = useUpdateCreditProvider();
   const { updateStatusTicket } = useUpdateStatusTicket();
+  const refUrls = ticket.transaction?.image_ref.split(", ");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -76,14 +82,26 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     },
   });
 
+  useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+  }, [api])
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const imageUrl = values.image_ref || ""; // URL de la imagen
 
       // Ejecuta las mutaciones de forma concurrente
       await createTransaction.mutateAsync({
         ...values,
-        image_ref: imageUrl,
+        image_ref: values.image_ref || "",
         ticketId: ticket.id,
         registered_by: session?.user.username || "",
         updated_by: session?.user.username || "",
@@ -120,8 +138,6 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
   };
 
-  const { deleteTicket } = useDeleteTicket();
-
   const onDeletePending = async () => {
     try {
       await updateCreditProvider.mutateAsync({
@@ -157,6 +173,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
     }
     setOpenVoid(false);
   };
+
   return (
     <>
       {/* Dropdown Menu for Payment */}
@@ -332,17 +349,22 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                 />
                 <FormField
                   control={form.control}
-                  name="image_ref"
+                  name="image_ref" // Change the name to represent multiple images
                   render={({ field }) => (
                     <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
-                      <FormLabel className="font-bold">Imagen Comprobante de pago</FormLabel>
+                      <FormLabel className="font-bold">Imágenes Comprobantes de pago</FormLabel>
                       <FormControl>
                         <UploadButton
                           endpoint="imageUploader"
                           onClientUploadComplete={(res) => {
-                            const fileUrl = res[0]?.url; // Asumiendo que la respuesta contiene la URL
-                            setImgName(res[0].name);
-                            form.setValue("image_ref", fileUrl);
+                            // Extract URLs from the response and merge with existing URLs
+                            const uploadedImages = res.map((file) => file.url);
+                            const currentImages = field.value ? field.value.split(', ') : [];
+                            const newImageRefs = [...currentImages, ...uploadedImages];
+                            const concatenatedUrls = newImageRefs.join(', ');
+
+                            // Update the form value
+                            form.setValue("image_ref", concatenatedUrls);
                           }}
                           onUploadError={(error: Error) => {
                             toast.error(`Error: ${error.message}`);
@@ -350,8 +372,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                           content={{
                             button({ ready, isUploading }) {
                               if (isUploading) return <div>Subiendo...</div>;
-                              if (imgName) return <div>{imgName}</div>; // Mostrar el nombre del archivo si existe
-                              return <div>{ready ? "Cargar Imagen" : "Cargando..."}</div>;
+                              return <div>{ready ? "Cargar Imágenes" : "Cargando..."}</div>;
                             },
                             allowedContent({ ready }) {
                               if (!ready) return "Revisando que puedes subir...";
@@ -360,15 +381,19 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                           }}
                         />
                       </FormControl>
-                      {field.value && (
-                        <Image
-                          width={128}
-                          height={128}
-                          src={field.value}
-                          alt="Vista previa de la imagen"
-                          className="w-32 h-32 object-cover rounded mt-2"
-                        />
-                      )}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {(field.value ? field.value.split(', ') : []).map((url, index) => (
+                          <div key={index} className="relative">
+                            <Image
+                              width={128}
+                              height={128}
+                              src={url}
+                              alt={`Imagen ${index + 1}`}
+                              className="w-32 h-32 object-cover rounded"
+                            />
+                          </div>
+                        ))}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -426,8 +451,25 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           {
             !!ticket.transaction?.image_ref ? (
-              <div className="w-full flex justify-center">
-                <Image src={ticket.transaction.image_ref} alt="imagen de referencia" width={350} height={350} className="w-48 h-54" />
+              <div className="mx-auto max-w-xs">
+                <Carousel setApi={setApi}>
+                  <CarouselContent>
+                    {
+                      refUrls && refUrls.map((ref) => (
+                        <CarouselItem>
+                          <div className="flex justify-center">
+                            <Image src={ref} key={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                          </div>
+                        </CarouselItem>
+                      ))
+                    }
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+                <div className="py-2 text-center text-sm text-muted-foreground">
+                  Referencia {current} de {count}
+                </div>
               </div>
             ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
           }
@@ -438,11 +480,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
 
       {/*Confirm Delete Dialog*/}
 
-      <Dialog open={openDelete} onOpenChange={setOpenDelete}>
+      <Dialog open={openDelete} onOpenChange={setOpenDelete} >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-center text-3xl">Eliminar Boleto</DialogTitle>
@@ -457,7 +499,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog >
     </>
   )
 }

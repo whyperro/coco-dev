@@ -74,6 +74,7 @@ export async function GET(request: Request) {
         ticket: {
           select: {
             total: true, // Select the total from the ticket
+            fee: true,
           },
         },
       },
@@ -175,11 +176,11 @@ export async function GET(request: Request) {
 
       const existingTransaction = branchTransactions[branchId].transactions.find(item => item.date === formattedDate);
       if (existingTransaction) {
-        existingTransaction.amount += transaction.ticket.total || 0; // Add to existing amount
+        existingTransaction.amount += transaction.ticket.fee || 0; // Add to existing amount
       } else {
         branchTransactions[branchId].transactions.push({
           date: formattedDate,
-          amount: transaction.ticket.total || 0, // Use transaction total or 0
+          amount: transaction.ticket.fee || 0, // Use transaction total or 0
         });
       }
     });
@@ -204,7 +205,7 @@ export async function GET(request: Request) {
     });
 
     // Aggregate total amount across all transactions
-    const totalCurrentAmount = currentTransactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
+    const totalCurrentAmount = currentTransactions.reduce((sum, t) => sum + (t.ticket.fee || 0), 0);
     const totalLastAmount = lastTransactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
 
     const incomeChange = calculatePercentageChange(totalCurrentAmount, totalLastAmount)

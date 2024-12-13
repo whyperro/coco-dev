@@ -206,12 +206,6 @@ const TicketForm = () => {
       form.setValue("email", fetchedPassanger.email ?? "");
       form.setValue("dni_type", fetchedPassanger.dni_type);
       form.setValue("phone_number", fetchedPassanger.phone_number ?? "");
-      if (fetchedPassanger.client && fetchedPassanger.client.id) {
-        form.setValue("clientId", fetchedPassanger.client.id);
-      } else {
-        form.setValue("clientId", "");
-      }
-
     }
   }, [fetchedPassanger, form]);
 
@@ -221,8 +215,8 @@ const TicketForm = () => {
     queryClient.setQueryData(["passanger"], null)
     queryClient.setQueryData(["client"], null)
     queryClient.refetchQueries({ queryKey: ["client"] })
-    setFetchedPassanger(null);
     form.setValue("dni_number", "")
+    setFetchedPassanger(null);
     form.setValue("first_name", "")
     form.setValue("last_name", "")
     form.setValue("email", "")
@@ -316,7 +310,7 @@ const TicketForm = () => {
         if (res.status === 200) {
           setFetchedPassanger(res.data)
           const ticketCreated = await createTicket.mutateAsync({
-            ticket_number: values.ticket_number.toUpperCase(), ////values.first_name.charAt(0).toUpperCase() + values.first_name.slice(1)
+            ticket_number: values.ticket_number.toUpperCase(),
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
             description: values.description ?? "",

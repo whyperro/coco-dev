@@ -168,6 +168,14 @@ export const columns: ColumnDef<Ticket>[] = [
         </TooltipProvider>
       );
     },
+    sortingFn: (rowA, rowB) => {
+      const isPaidA = !!rowA.original.transaction;
+      const isPaidB = !!rowB.original.transaction;
+
+      // Prioridad: "Por Pagar" (false) antes que "Por Confirmar" (true)
+      if (isPaidA === isPaidB) return 0;
+      return isPaidA ? 1 : -1;
+    },
   },
   {
     id: "actions",

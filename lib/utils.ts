@@ -8,7 +8,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
 export function convertAmountToMiliunits(amount: number) {
   return Math.round(amount * 1000);
 }
@@ -63,6 +62,16 @@ export function formatCurrency(value: number) {
     currency: "USD",
     minimumFractionDigits: 2,
   }).format(value)
+}
+
+export function formatBolivares(value: number) {
+  const formattedValue = Intl.NumberFormat("es-VE", {
+    style: 'currency',
+    currency: "VES",  // Cambio a bolívar
+    minimumFractionDigits: 2,
+  }).format(value);
+
+  return formattedValue.replace('Bs.S', 'Bs.');
 }
 
 export function calculatePercentageChange(

@@ -119,7 +119,7 @@ export const columns: ColumnDef<Ticket>[] = [
                           rel="noopener noreferrer"
                         >
                           <Download />
-                          <p>{row.original.transaction!.payment_ref ? `${row.original.transaction!.payment_ref} - ${index + 1}` : "Sin referencia..."}</p>
+                          <p>{row.original.transaction!.payment_ref ? `${row.original.transaction!.payment_ref}` : "Sin referencia..."}</p>
                         </a>
                       </div>
                     ))

@@ -1,4 +1,4 @@
-import { convertAmountFromMiliunits, formatCurrency } from "@/lib/utils";
+import { convertAmountFromMiliunits, formatCurrency, formatBolivares } from "@/lib/utils";
 import { Ticket } from "@/types";
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 interface PdfFileProps {
@@ -152,7 +152,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size="A4" orientation="landscape" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>- Berkana -</Text>
@@ -170,6 +170,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
               <Text style={styles.column}>Fare</Text>
               <Text style={styles.column}>Fee</Text>
               <Text style={styles.column}>Total</Text>
+              <Text style={styles.column}>Tasa</Text>
+              <Text style={styles.column}>Total Bs</Text>
               <Text style={styles.column}>M. de Pago</Text>
               <Text style={styles.columnWide}>Pasajero</Text>
               <Text style={styles.columnWide}>Proveedor</Text>
@@ -182,6 +184,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
+                <Text style={styles.column}>{ticket.rate === 0 ? "N/A" : formatBolivares(convertAmountFromMiliunits(ticket.rate))}</Text>
+                <Text style={styles.column}>{ticket.total_bs === 0 ? "N/A" : formatBolivares(convertAmountFromMiliunits(ticket.total_bs))}</Text>
                 <Text style={styles.column}>{ticket.transaction?.payment_method === 'PAGO_MOVIL' ? "PM" : ticket.transaction?.payment_method}</Text>
                 <Text style={styles.columnWide}>{ticket.passanger.first_name} {ticket.passanger.last_name}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
@@ -214,6 +218,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
               <Text style={styles.column}>Fare</Text>
               <Text style={styles.column}>Fee</Text>
               <Text style={styles.column}>Total</Text>
+              <Text style={styles.column}>Tasa</Text>
+              <Text style={styles.column}>Total Bs</Text>
               <Text style={styles.columnWide}>Proveedor</Text>
               <Text style={styles.columnWide}>Pasajero</Text>
               <Text style={styles.columnWide}>Ruta</Text>
@@ -225,6 +231,8 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.total))}</Text>
+                <Text style={styles.column}>{ticket.rate === 0 ? "N/A" : formatBolivares(convertAmountFromMiliunits(ticket.rate))}</Text>
+                <Text style={styles.column}>{ticket.total_bs === 0 ? "N/A" : formatBolivares(convertAmountFromMiliunits(ticket.total_bs))}</Text>
                 <Text style={styles.columnWide}>{ticket.provider.name}</Text>
                 <Text style={styles.columnWide}>{`${ticket.passanger.first_name} ${ticket.passanger.last_name}`}</Text>
                 <Text style={styles.columnWide}>{ticket.routes.map((route, index) => (<Text key={`${route.origin}-${route.destiny}-${index}`}>{route.origin} - {route.destiny}</Text>))}</Text>

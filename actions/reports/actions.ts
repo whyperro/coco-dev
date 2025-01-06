@@ -19,6 +19,8 @@ interface ClientTicket {
   ticket_price: number;
   fee: number;
   total: number;
+  rate: number;
+  total_bs: number;
   provider: { name: string };
   transaction: { payment_ref: string | null; payment_method: string | null } | null;
   passanger: {first_name:string, last_name:string} | null;

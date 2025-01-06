@@ -202,7 +202,7 @@ const PassangerForm = ({ id, onClose, isEditing = false }: FormProps) => {
                   <FormItem>
                     <FormLabel className="font-bold">Nro. de Identificación</FormLabel>
                     <FormControl>
-                      <Input type="number" className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
+                      <Input className="w-[200px] shadow-none border-b border-r-0 border-t-0 border-l-0" placeholder="1234567" {...field} />
                     </FormControl>
                     <FormDescription>
                       El número identificador del pasajero

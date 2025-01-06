@@ -394,7 +394,83 @@ const TicketForm = () => {
 
           {/* CLIENTE / PROVEEDOR */}
           <div id="client-provider" className="flex flex-col lg:flex-row gap-8">
-             
+            <FormField
+              control={form.control}
+              name="clientId"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="font-bold">Cliente</FormLabel>
+                  <Popover open={openClient} onOpenChange={setOpenClient}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          disabled={loading}
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-[200px] justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {
+                            clientsLoading && <Loader2 className="size-4 animate-spin mr-2" />
+                          }
+                          {field.value
+                            ? <p>{clients?.find(
+                              (client) => client.id === field.value
+                            )?.first_name} - {clients?.find(
+                              (client) => client.id === field.value
+                            )?.last_name}</p>
+                            : "Elige el cliente..."
+                          }
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        <CommandInput placeholder="Busque un cliente..." />
+                        <CreateClientDialog />
+                        <CommandList>
+                          <CommandEmpty>No se ha encontrado un cliente.</CommandEmpty>
+                          <CommandGroup>
+                            {clients?.map((client) => (
+                              <CommandItem
+                                value={`${client.first_name} ${client.last_name}`}
+                                key={client.id}
+                                onSelect={() => {
+                                  form.setValue("clientId", client.id)
+                                  setOpenClient(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    client.id === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {
+                                  <p>{client.first_name} {client.last_name}</p>
+                                }
+                              </CommandItem>
+                            ))}
+                            {
+                              clientsError && <p className="text-sm text-muted-foreground">Ha ocurrido un error al cargar los datos...</p>
+                            }
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription>
+                    Seleccione al cliente
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="providerId"

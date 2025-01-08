@@ -199,7 +199,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }
           {/* Confirm Payment Option */}
           {
-            (session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN") && !!ticket.transaction && (
+            (session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN" || session?.user.user_role === "AUDITOR") && !!ticket.transaction && (
               <DropdownMenuItem onClick={() => {
                 setOpenConfirm(true);
                 setIsDropdownMenuOpen(false);
@@ -450,11 +450,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               Indique que se ha verificado el pago, y el boleto ha sido pagado.
             </DialogDescription>
           </DialogHeader>
-              <div className="text-center flex justify-between items-center mb-4 gap-4">
-                <div className="flex flex-col items-center"><p className="font-medium underline">Total: </p><p>{formatCurrency(convertAmountFromMiliunits(ticket?.total)) || "N/A"}</p></div>
-                <div className="flex flex-col items-center"><p className="font-medium underline">Tasa: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.rate)) || "N/A"}</p></div>
-                <div className="flex flex-col items-center"><p className="font-medium underline">Total en Bs.: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.total_bs)) || "N/A"}</p></div>
-              </div>
+          <div className="text-center flex justify-between items-center mb-4 gap-4">
+            <div className="flex flex-col items-center"><p className="font-medium underline">Total: </p><p>{formatCurrency(convertAmountFromMiliunits(ticket?.total)) || "N/A"}</p></div>
+            <div className="flex flex-col items-center"><p className="font-medium underline">Tasa: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.rate)) || "N/A"}</p></div>
+            <div className="flex flex-col items-center"><p className="font-medium underline">Total en Bs.: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.total_bs)) || "N/A"}</p></div>
+          </div>
           {
             !!ticket.transaction?.image_ref ? (
               <div className="mx-auto max-w-xs">
@@ -464,7 +464,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                       refUrls && refUrls.map((ref) => (
                         <CarouselItem key={ref}>
                           <div className="flex justify-center">
-                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                            <Image unoptimized src={ref} alt="Imagen de referencia" width={100} height={150} className="h-52 w-48" />
                           </div>
                         </CarouselItem>
                       ))

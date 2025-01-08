@@ -102,6 +102,25 @@ export const useGetDailyReport = () => {
   });
 };
 
+export const useGetGeneralReport = () => {
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+  return useQuery<DailyReport, Error>({
+    queryKey: ["daily-report", from, to],
+    queryFn: async () => {
+     const {data} = await axios.get('/api/reports/general-report', {
+      params: {
+        from,
+        to
+      },  // Cambia la URL según tu configuración de API
+    }); // Cambia la URL según tu configuración de API
+     return data; // Devuelve los datos del reporte
+   },
+    refetchOnWindowFocus: false,
+  });
+};
+
 export const useGetClientReport = () => {
   const searchParams = useSearchParams();
   const params = useParams<{dni: string}>()

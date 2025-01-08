@@ -29,7 +29,7 @@ const DateFilter = () => {
   const to = params.get("to") || ""
 
   const defaultTo = new Date();
-  const defaultFrom = subDays(defaultTo, 30);
+  const defaultFrom = subDays(defaultTo, 31);
 
   const paramState = {
     from: from ? parseISO(from) : defaultFrom,
@@ -79,5 +79,5 @@ const DateFilter = () => {
     </Popover>
   )
 }
-
+    
 export default DateFilter

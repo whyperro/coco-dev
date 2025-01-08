@@ -199,7 +199,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }
           {/* Confirm Payment Option */}
           {
-            (session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN") && !!ticket.transaction && (
+            (session?.user.user_role === "ADMINISTRADOR" || session?.user.user_role === "SUPERADMIN" || session?.user.user_role === "AUDITOR") && !!ticket.transaction && (
               <DropdownMenuItem onClick={() => {
                 setOpenConfirm(true);
                 setIsDropdownMenuOpen(false);
@@ -466,7 +466,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                       refUrls && refUrls.map((ref) => (
                         <CarouselItem key={ref}>
                           <div className="flex justify-center">
-                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                            <Image unoptimized src={ref} alt="Imagen de referencia" width={100} height={150} className="h-52 w-48" />
                           </div>
                         </CarouselItem>
                       ))

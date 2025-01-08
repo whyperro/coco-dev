@@ -12,7 +12,6 @@ import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer"
 const DailyReportPage = () => {
 
   const { data: providerReport, isLoading, isError } = useGetProviderReport()
-  console.log(providerReport)
   if (isLoading) {
     return <LoadingPage />
   }

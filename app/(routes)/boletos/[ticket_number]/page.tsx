@@ -13,6 +13,18 @@ import { IdCard, MailCheck, Phone, TicketCheck, User } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import Image from "next/image"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+  } from "@/components/ui/dialog"
+  import { Button } from "@/components/ui/button"
+
+
 
 const TicketPage = () => {
     const params = useParams<{ ticket_number: string }>()
@@ -21,7 +33,9 @@ const TicketPage = () => {
     const refUrls = ticket?.transaction?.image_ref.split(", ");
     const [count, setCount] = useState(0)
     const [current, setCurrent] = useState(0)
-
+    const [openImage, setOpenImage] = useState(false)
+    const [selectedImage, setSelectedImage] = useState('');
+   
     useEffect(() => {
         if (!api) {
         return
@@ -34,6 +48,7 @@ const TicketPage = () => {
         setCurrent(api.selectedScrollSnap() + 1)
         })
     }, [api])
+   
     if (loading) {
         return <LoadingPage />
     }
@@ -110,13 +125,15 @@ const TicketPage = () => {
    
                     {
                         !!ticket?.transaction?.image_ref ? (
-                        <div className="mx-auto max-w-xs mt-4">
+                        <div className="mx-auto max-w-xs mt-4"> 
                             <Carousel setApi={setApi} >
                             <CarouselContent>
                                 {
                                     refUrls && refUrls.map((ref) => (
                                         <CarouselItem key={ref}>
-                                        <div className="flex justify-center">
+                                        <div onClick={() => {setOpenImage(true); setSelectedImage(ref)}
+                                                
+                                        } className="flex justify-center cursor-pointer">
                                             <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
                                         </div>
                                         </CarouselItem>
@@ -135,6 +152,28 @@ const TicketPage = () => {
                     
                 </div>
             </div>
+
+            <Dialog open={openImage} onOpenChange={setOpenImage}>
+         
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Imagen de referencia</DialogTitle>
+                    </DialogHeader>
+                        {selectedImage && (
+                            <div className="flex justify-center">
+                                <Image
+                                    src={selectedImage}
+                                    alt="Imagen seleccionada"
+                                    width={300}
+                                    height={300}
+                                    className=" w-[1000px] object-contain"
+                                />
+                            </div>
+                        )}                        
+                    <DialogFooter className="sm:justify-start">
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </ContentLayout>
     )
 }

@@ -4,18 +4,36 @@ import { useGetTicket } from '@/actions/tickets/actions'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
 import LoadingPage from '@/components/misc/LoadingPage'
 import { ContentLayout } from '@/components/sidebar/ContentLayout'
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
 import { Separator } from '@/components/ui/separator'
 import { convertAmountFromMiliunits, formatCurrency } from '@/lib/utils'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { IdCard, MailCheck, Phone, TicketCheck, User } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import Image from "next/image"
 
 const TicketPage = () => {
     const params = useParams<{ ticket_number: string }>()
     const { data: ticket, loading } = useGetTicket(params.ticket_number)
+    const [api, setApi] = useState<CarouselApi>()
+    const refUrls = ticket?.transaction?.image_ref.split(", ");
+    const [count, setCount] = useState(0)
+    const [current, setCurrent] = useState(0)
 
+    useEffect(() => {
+        if (!api) {
+        return
+        }
+
+        setCount(api.scrollSnapList().length)
+        setCurrent(api.selectedScrollSnap() + 1)
+
+        api.on("select", () => {
+        setCurrent(api.selectedScrollSnap() + 1)
+        })
+    }, [api])
     if (loading) {
         return <LoadingPage />
     }
@@ -84,9 +102,37 @@ const TicketPage = () => {
                         <p><span className='font-medium underline'>Fee:</span> <br /> {formatCurrency(convertAmountFromMiliunits(ticket!.fee))}</p>
                         <p><span className='font-medium underline'>Total:</span> <br /> {formatCurrency(convertAmountFromMiliunits(ticket!.total))}</p>
                         <p><span className='font-medium underline'>Metodo de Pago:</span> <br /> {ticket?.transaction?.payment_method}</p>
-                        <p><span className='font-medium underline'>Ref:</span> <br /> {ticket?.transaction?.payment_ref}</p>
                         <p><span className='font-medium underline'>Fecha de Pago:</span> <br /> {ticket?.transaction?.transaction_date ? format(ticket?.transaction?.transaction_date, "PPP", { locale: es }) : "Aún por pagar."}</p>
+                        <p><span className='font-medium underline'>Ref:</span> <br /> {ticket?.transaction?.payment_ref}</p>
+                       
+                        
                     </div>
+   
+                    {
+                        !!ticket?.transaction?.image_ref ? (
+                        <div className="mx-auto max-w-xs mt-4">
+                            <Carousel setApi={setApi} >
+                            <CarouselContent>
+                                {
+                                    refUrls && refUrls.map((ref) => (
+                                        <CarouselItem key={ref}>
+                                        <div className="flex justify-center">
+                                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                                        </div>
+                                        </CarouselItem>
+                                    ))
+                                }
+                            </CarouselContent>
+                            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10"/>
+                            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10"/>
+                            </Carousel>
+                            <div className="py-2 text-center text-sm text-muted-foreground">
+                            Referencia {current} de {count}
+                            </div>
+                        </div>
+                        ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
+                    }
+                    
                 </div>
             </div>
         </ContentLayout>

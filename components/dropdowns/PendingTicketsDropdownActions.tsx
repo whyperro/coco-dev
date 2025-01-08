@@ -455,11 +455,13 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
               Indique que se ha verificado el pago, y el boleto ha sido pagado.
             </DialogDescription>
           </DialogHeader>
-          <div className="text-center flex justify-between items-center mb-4 gap-4">
-            <div className="flex flex-col items-center"><p className="font-medium underline">Total: </p><p>{formatCurrency(convertAmountFromMiliunits(ticket?.total)) || "N/A"}</p></div>
-            <div className="flex flex-col items-center"><p className="font-medium underline">Tasa: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.rate)) || "N/A"}</p></div>
-            <div className="flex flex-col items-center"><p className="font-medium underline">Total en Bs.: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.total_bs)) || "N/A"}</p></div>
-          </div>
+              <div className="text-center grid grid-cols-3 justify-between items-center mb-4 gap-4">
+                <div className="flex flex-col items-center"><p className="font-medium underline">Total: </p><p>{formatCurrency(convertAmountFromMiliunits(ticket?.total)) || "N/A"}</p></div>
+                <div className="flex flex-col items-center"><p className="font-medium underline">Tasa: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.rate)) || "N/A"}</p></div>
+                <div className="flex flex-col items-center"><p className="font-medium underline">Total en Bs.: </p><p>{formatBolivares(convertAmountFromMiliunits(ticket?.total_bs)) || "N/A"}</p></div>   
+                <div className="flex flex-col col-span-3 items-center"><p className="font-medium underline">Referencia: </p><p>{ticket?.transaction?.payment_ref || "N/A"}</p></div>
+
+              </div>
           {
             !!ticket.transaction?.image_ref ? (
               <div className="mx-auto max-w-xs">

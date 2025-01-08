@@ -44,14 +44,14 @@ export async function GET(request: Request){
         provider: { select: { name: true } },
         routes: { select: { origin: true, destiny: true, route_type: true } },
         branch: { select: { location_name: true } },
-        transaction: { select: { payment_ref: true, payment_method: true } },
+        transaction: { select: { payment_ref: true, payment_method: true, ticketId: true } },
       },
       orderBy: { status: "asc" }
     });
 
     // Formateamos los datos para separar boletos pagados y pendientes
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
-    const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
+    const pendingTickets = tickets.filter(ticket => (ticket.status === "PENDIENTE" || ticket.status === 'POR_CONFIRMAR'));
 
     const transactions = await db.transaction.findMany({
       where: {
@@ -124,7 +124,7 @@ export async function GET(request: Request){
       const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0);
 
       // Calculate pending tickets
-      const pendingTickets = allTickets.filter(ticket => ticket.status === "PENDIENTE");
+      const pendingTickets = allTickets.filter(ticket => (ticket.status === "PENDIENTE" || ticket.status === 'POR_CONFIRMAR'));
       const pendingCount = pendingTickets.length;
       const pendingAmount = pendingTickets.reduce((sum, ticket) => sum + ticket.total, 0);
 
@@ -163,7 +163,7 @@ export async function GET(request: Request){
 
     const providersReport = providersData.map(provider => {
       const paidTickets = provider.tickets.filter(ticket => ticket.status === "PAGADO");
-      const pendingTickets = provider.tickets.filter(ticket => ticket.status === "PENDIENTE");
+      const pendingTickets = provider.tickets.filter(ticket => (ticket.status === "PENDIENTE" || ticket.status === 'POR_CONFIRMAR'));
 
       const paidCount = paidTickets.length;
       const pendingCount = pendingTickets.length;
@@ -190,6 +190,7 @@ export async function GET(request: Request){
 
     // Populate branch data from transactions
     transactions.forEach(transaction => {
+      console.log(tickets)
       const ticket = tickets.find(t => t.id === transaction.ticketId);
       const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';
 
@@ -212,7 +213,7 @@ export async function GET(request: Request){
       if (ticket) {
         if (ticket.status === 'PAGADO') {
           branchData[branch].paidCount += 1;
-        } else if (ticket.status === 'PENDIENTE') {
+        } else if (ticket.status === 'PENDIENTE' || ticket.status === 'POR_CONFIRMAR') {
           branchData[branch].pendingCount += 1;
         }
       }

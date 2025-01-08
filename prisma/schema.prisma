@@ -150,6 +150,7 @@ enum ProviderType {
 
 enum TicketStatus {
   PAGADO
+  POR_CONFIRMAR
   PENDIENTE
   CANCELADO
 }

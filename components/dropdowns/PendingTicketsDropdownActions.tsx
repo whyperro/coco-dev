@@ -107,6 +107,11 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         registered_by: session?.user.username || "",
         updated_by: session?.user.username || "",
       });
+      await updateStatusTicket.mutateAsync({
+        id: ticket.id,
+        status: "POR_CONFIRMAR",
+        updated_by: session?.user.username || ""
+      });
       setOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });

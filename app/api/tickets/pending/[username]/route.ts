@@ -23,8 +23,8 @@ export async function GET(request: Request, { params }: { params: { username: st
     // Determinar el filtro basado en el rol del usuario
     const where: Prisma.TicketWhereInput =
       user.user_role === "SUPERADMIN" || user.user_role === "ADMINISTRADOR" || user.user_role === "AUDITOR"
-        ? { status: "PENDIENTE" }
-        : { status: "PENDIENTE", registered_by: username };
+        ? { OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }] }
+        : { OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }] , registered_by: username };
 
     const data = await db.ticket.findMany({
       where: where,

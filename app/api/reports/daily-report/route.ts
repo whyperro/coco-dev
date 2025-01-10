@@ -24,7 +24,10 @@ export async function GET(request: Request){
     // Obtenemos boletos filtrados por la fecha de compra y categorizados por estado
     const tickets = await db.ticket.findMany({
       where: {
-        purchase_date: unparsedDate,
+        OR: [
+          { purchase_date: unparsedDate},
+          { statusUpdatedAt: unparsedDate },
+        ],
         status: {
           not: "CANCELADO"
         }
@@ -41,7 +44,7 @@ export async function GET(request: Request){
 
     // Formateamos los datos para separar boletos pagados y pendientes
     const paidTickets = tickets.filter(ticket => ticket.status === "PAGADO");
-    const pendingTickets = tickets.filter(ticket => ticket.status === "PENDIENTE");
+    const pendingTickets = tickets.filter(ticket => (ticket.status === "PENDIENTE" || ticket.status === 'POR_CONFIRMAR'));
 
     const transactions = await db.transaction.findMany({
       where: {
@@ -69,7 +72,10 @@ export async function GET(request: Request){
           some: {
             ticket: {
               some: {
-                purchase_date: unparsedDate,
+                OR: [
+                  { purchase_date: unparsedDate},
+                  { statusUpdatedAt: unparsedDate },
+                ],
                 status: {
                   not: "CANCELADO",
                 },
@@ -83,7 +89,10 @@ export async function GET(request: Request){
           include: {
             ticket: {
               where: {
-                purchase_date: unparsedDate,
+                OR: [
+                  { purchase_date: unparsedDate},
+                  { statusUpdatedAt: unparsedDate },
+                ],
                 status: {
                   not: "CANCELADO",
                 },
@@ -128,7 +137,10 @@ export async function GET(request: Request){
       include: {
         tickets: {
           where: {
-            purchase_date: unparsedDate,
+            OR: [
+              { purchase_date: unparsedDate},
+              { statusUpdatedAt: unparsedDate },
+            ],
             status: {
               not: "CANCELADO",
             },
@@ -144,7 +156,7 @@ export async function GET(request: Request){
 
     const providersReport = providersData.map(provider => {
       const paidTickets = provider.tickets.filter(ticket => ticket.status === "PAGADO");
-      const pendingTickets = provider.tickets.filter(ticket => ticket.status === "PENDIENTE");
+      const pendingTickets = provider.tickets.filter(ticket => (ticket.status === "PENDIENTE" || ticket.status === 'POR_CONFIRMAR'));
 
       const paidCount = paidTickets.length;
       const pendingCount = pendingTickets.length;

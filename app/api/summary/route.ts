@@ -93,6 +93,7 @@ export async function GET(request: Request) {
         ticket: {
           select: {
             total: true, // Select the total from the ticket
+            fee: true,
           },
         },
       },
@@ -117,7 +118,7 @@ export async function GET(request: Request) {
 
     const pendingCount = await db.ticket.count({
       where: {
-        status: "PENDIENTE",
+        OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }],
         statusUpdatedAt: {
           gte: startDate,
           lte: endDate,
@@ -138,7 +139,7 @@ export async function GET(request: Request) {
 
     const lastPendingCount = await db.ticket.count({
       where: {
-        status: "PENDIENTE",
+        OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }],
         statusUpdatedAt: {
           gte: lastPeriodStart,
           lte: lastPeriodEnd,
@@ -206,7 +207,7 @@ export async function GET(request: Request) {
 
     // Aggregate total amount across all transactions
     const totalCurrentAmount = currentTransactions.reduce((sum, t) => sum + (t.ticket.fee || 0), 0);
-    const totalLastAmount = lastTransactions.reduce((sum, t) => sum + (t.ticket.total || 0), 0);
+    const totalLastAmount = lastTransactions.reduce((sum, t) => sum + (t.ticket.fee || 0), 0);
 
     const incomeChange = calculatePercentageChange(totalCurrentAmount, totalLastAmount)
     const paidTicketChange = calculatePercentageChange(paidCount, lastPaidCount)

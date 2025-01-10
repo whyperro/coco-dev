@@ -32,7 +32,7 @@ export async function GET(request: Request){
     const tickets = await db.ticket.findMany({
       where: {
         OR: [
-          { purchase_date: { gte: startDate, lte: endDate } },
+          { purchase_date: { gte: startDate, lte: endDate } }, 
           { statusUpdatedAt: { gte: startDateParsed, lte: endDateParsed } },
         ],
         status: {
@@ -190,7 +190,6 @@ export async function GET(request: Request){
 
     // Populate branch data from transactions
     transactions.forEach(transaction => {
-      console.log(tickets)
       const ticket = tickets.find(t => t.id === transaction.ticketId);
       const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';
 

@@ -48,10 +48,13 @@ export async function GET(request: Request, { params }: { params: { username: st
 
     // Set default date range (last 30 days if not provided)
     const defaultTo = new Date();
-    const defaultFrom = subDays(defaultTo, 30);
+    const defaultFrom = subDays(defaultTo, 31);
 
-    const startDate = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
-    const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
+    const startDate = from ? from : format(defaultFrom, "yyyy-MM-dd");
+    const endDate = to ? to : format(defaultTo, "yyyy-MM-dd");
+
+    const startDateParsed = from ? parse(from, "yyyy-MM-dd", new Date()) : defaultFrom;
+    const endDateParsed = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
     const periodLength = differenceInDays(endDate, startDate) + 1;
 
@@ -87,33 +90,6 @@ export async function GET(request: Request, { params }: { params: { username: st
         id: { in: currentTransactions.map(t => t.ticketId) },
         // issued_by: username
         registered_by:username,
-
-      },
-      select: {
-        id: true,
-        passanger: {
-            select: {
-                client: true
-            }
-        },
-        branchId: true,
-        branch: {
-          select: {
-            location_name: true // Select the branch name
-          }
-        }
-      }
-    });
-
-    const lastTickets = await db.ticket.findMany({
-      where: {
-        id: { in: currentTransactions.map(t => t.ticketId) },
-        // issued_by: username
-        registered_by:username,
-        statusUpdatedAt: {
-          gte:lastPeriodStart,
-          lte: lastPeriodEnd
-        }
       },
       select: {
         id: true,
@@ -134,7 +110,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     // Count the number of tickets
     const ticketCount = await db.ticket.count({
       where: {
-        createdAt: {
+        purchase_date: {
           gte: startDate,
           lte: endDate,
         },
@@ -144,7 +120,7 @@ export async function GET(request: Request, { params }: { params: { username: st
 
     const currentPendingCount = await db.ticket.count({
       where: {
-        status: "PENDIENTE",
+        OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }],
         registered_by:username,
         statusUpdatedAt: {
           gte: startDate,
@@ -166,7 +142,7 @@ export async function GET(request: Request, { params }: { params: { username: st
 
     const lastPendingCount = await db.ticket.count({
       where: {
-        status: "PENDIENTE",
+        OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }],
         registered_by:username,
         statusUpdatedAt: {
           gte:lastPeriodStart,
@@ -189,7 +165,7 @@ export async function GET(request: Request, { params }: { params: { username: st
 
 
     // 1: Generate the full date range
-    const dateRange = generateDateRange(startDate, endDate);
+    const dateRange = generateDateRange(startDateParsed, endDateParsed);
 
     // 2: Initialize an object to store transactions grouped by branch and date
     const branchTransactions: { [key: string]: { branchName: string, transactions: TransactionByBranch[] } } = {};

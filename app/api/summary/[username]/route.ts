@@ -64,8 +64,8 @@ export async function GET(request: Request, { params }: { params: { username: st
     const currentTransactions = await db.transaction.findMany({
       where: {
         transaction_date: {
-          gte: startDate,
-          lte: endDate,
+          gte: startDateParsed,
+          lte: endDateParsed,
         },
         ticket:{
           registered_by:username,
@@ -123,8 +123,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         OR: [{ status: "PENDIENTE" }, { status: "POR_CONFIRMAR" }],
         registered_by:username,
         statusUpdatedAt: {
-          gte: startDate,
-          lte: endDate
+          gte: startDateParsed,
+          lte: endDateParsed
         }
       }
     })
@@ -134,8 +134,8 @@ export async function GET(request: Request, { params }: { params: { username: st
         status: "PAGADO",
         registered_by:username,
         statusUpdatedAt: {
-          gte:startDate,
-          lte: endDate
+          gte:startDateParsed,
+          lte: endDateParsed  
         },
       }
     })

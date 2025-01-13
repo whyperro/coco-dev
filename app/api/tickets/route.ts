@@ -27,6 +27,7 @@ export async function POST(request: Request) {
         const newTicket = await db.ticket.create({
           data: {
             ...data,
+            statusUpdate: new Date(),
             routes: {
               connect: data.routes.map((routeId: string) => ({ id: routeId })),
           },

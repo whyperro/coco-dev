@@ -26,7 +26,7 @@ export async function GET(request: Request){
       where: {
         OR: [
           { purchase_date: unparsedDate},
-          { statusUpdatedAt: unparsedDate },
+          { statusUpdatedAt: date },
         ],
         status: {
           not: "CANCELADO"
@@ -74,7 +74,7 @@ export async function GET(request: Request){
               some: {
                 OR: [
                   { purchase_date: unparsedDate},
-                  { statusUpdatedAt: unparsedDate },
+                  { statusUpdatedAt: date },
                 ],
                 status: {
                   not: "CANCELADO",
@@ -91,7 +91,7 @@ export async function GET(request: Request){
               where: {
                 OR: [
                   { purchase_date: unparsedDate},
-                  { statusUpdatedAt: unparsedDate },
+                  { statusUpdatedAt: date },
                 ],
                 status: {
                   not: "CANCELADO",
@@ -139,9 +139,9 @@ export async function GET(request: Request){
           where: {
             OR: [
               { purchase_date: unparsedDate},
-              { statusUpdatedAt: unparsedDate },
+              { statusUpdatedAt: date },
             ],
-            status: {
+            status: { 
               not: "CANCELADO",
             },
           },

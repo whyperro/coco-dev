@@ -60,6 +60,7 @@ export async function GET(request: Request){
           select: {
             total: true, // Select the total from the ticket
             branch: true,
+            fee: true,
           },
         },
         payment_method: true,
@@ -100,6 +101,7 @@ export async function GET(request: Request){
               select: {
                 status: true,
                 total: true,
+                fee: true,
               },
             },
           },
@@ -141,7 +143,7 @@ export async function GET(request: Request){
               { purchase_date: unparsedDate},
               { statusUpdatedAt: date },
             ],
-            status: { 
+            status: {
               not: "CANCELADO",
             },
           },
@@ -149,6 +151,7 @@ export async function GET(request: Request){
             status: true,
             total: true, // Include total to calculate revenue
             ticket_price: true,
+            fee: true,
           },
         },
       },
@@ -161,7 +164,7 @@ export async function GET(request: Request){
       const paidCount = paidTickets.length;
       const pendingCount = pendingTickets.length;
 
-      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for paid tickets
+      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.fee, 0); // Calculate total for paid tickets
 
       return {
         provider: provider.name,
@@ -191,7 +194,7 @@ export async function GET(request: Request){
       }
 
       // Increment total amount
-      branchData[branch].totalAmount += transaction.ticket?.total || 0;
+      branchData[branch].totalAmount += transaction.ticket?.fee || 0;
     });
 
     tickets.forEach(ticket => {
@@ -205,7 +208,7 @@ export async function GET(request: Request){
       if (ticket) {
         if (ticket.status === 'PAGADO') {
           branchData[branch].paidCount += 1;
-        } else if (ticket.status === 'PENDIENTE') {
+        } else if (ticket.status === 'PENDIENTE' || ticket.status === 'POR_CONFIRMAR') {
           branchData[branch].pendingCount += 1;
         }
       }
@@ -227,7 +230,7 @@ export async function GET(request: Request){
       (acc, transaction) => {
         const method = transaction.payment_method || "UNKNOWN";
         const branch = transaction.ticket.branch.location_name || "UNASSIGNED";
-        const total = transaction.ticket?.total || 0;
+        const total = transaction.ticket?.fee || 0;
 
         if (!acc[branch]) {
           acc[branch] = {};

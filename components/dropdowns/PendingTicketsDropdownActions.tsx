@@ -65,6 +65,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [open, setOpen] = useState<boolean>(false);
+  const [openImage, setOpenImage] = useState(false)
+  const [selectedImage, setSelectedImage] = useState('');
   const [openVoid, setOpenVoid] = useState<boolean>(false);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
@@ -463,22 +465,24 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
 
           </div>
           {
-            !!ticket.transaction?.image_ref ? (
-              <div className="mx-auto max-w-xs">
-                <Carousel setApi={setApi}>
+            !!ticket?.transaction?.image_ref ? (
+              <div className="mx-auto max-w-xs mt-4">
+                <Carousel setApi={setApi} >
                   <CarouselContent>
                     {
                       refUrls && refUrls.map((ref) => (
                         <CarouselItem key={ref}>
-                          <div className="flex justify-center">
-                            <Image unoptimized src={ref} alt="Imagen de referencia" width={100} height={150} className="h-52 w-48" />
+                          <div onClick={() => { setOpenImage(true); setSelectedImage(ref) }
+
+                          } className="flex justify-center cursor-pointer">
+                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
                           </div>
                         </CarouselItem>
                       ))
                     }
                   </CarouselContent>
-                  <CarouselPrevious />
-                  <CarouselNext />
+                  <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10" />
+                  <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10" />
                 </Carousel>
                 <div className="py-2 text-center text-sm text-muted-foreground">
                   Referencia {current} de {count}
@@ -513,6 +517,29 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog >
+
+      {/*Show Image*/}
+
+      <Dialog open={openImage} onOpenChange={setOpenImage}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Imagen de referencia</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="flex justify-center">
+              <Image
+                src={selectedImage}
+                alt="Imagen seleccionada"
+                width={300}
+                height={300}
+                className=" w-[1000px] object-contain"
+              />
+            </div>
+          )}
+          <DialogFooter className="sm:justify-start">
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

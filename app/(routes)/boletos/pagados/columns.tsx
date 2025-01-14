@@ -35,7 +35,7 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "routes",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Vuelo' />
+      <DataTableColumnHeader filter  column={column} title='Vuelo' />
     ),
     cell: ({ row }) => {
       const routes = row.original.routes

@@ -164,7 +164,7 @@ enum RouteType {
   NACIONAL
   INTERNACIONAL
 }
-  
+
 enum PaymentMethod {
   PAGO_MOVIL
   EFECTIVO

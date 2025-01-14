@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { Ticket } from "@/types"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, FilterFn } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { TicketMinus } from "lucide-react"
 import {
@@ -18,33 +18,8 @@ import {
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
+
 export const columns: ColumnDef<Ticket>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <div className="w-full flex justify-center">
-  //       <Checkbox
-  //         checked={
-  //           table.getIsAllPageRowsSelected() ||
-  //           (table.getIsSomePageRowsSelected() && "indeterminate")
-  //         }
-  //         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //         aria-label="Select all"
-  //       />
-  //     </div>
-  //   ),
-  //   cell: ({ row }) => (
-  //     <div className="w-full flex justify-center">
-  //       <Checkbox
-  //         checked={row.getIsSelected()}
-  //         onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //         aria-label="Select row"
-  //       />
-  //     </div>
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     accessorKey: "ticket_number",
     header: ({ column }) => (
@@ -93,17 +68,28 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "routes",
     header: ({ column }) => (
-      <DataTableColumnHeader filter column={column} title='Ruta de Vuelo' />
+      <DataTableColumnHeader filter column={column} title="Ruta de Vuelo" />
     ),
     cell: ({ row }) => {
-      const routes = row.original.routes
-      return <div className="text-center flex flex-col gap-2 justify-center">
-        {
-          routes.map((route) => (
-            <p key={route.id} className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
-          ))
-        }
-      </div>
+      const routes = row.original.routes;
+      return (
+        <div className="text-center flex flex-col gap-2 justify-center">
+          {routes.map((route) => (
+            <p key={route.id} className="italic text-muted-foreground">
+              {route.origin} {route.scale ? `- ${route.scale}` : ""} - {route.destiny}
+            </p>
+          ))}
+        </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const routes = row.getValue(columnId);
+      if (!Array.isArray(routes)) return false;
+
+      return routes.some(route => {
+        const routeString = `${route.origin} ${route.destiny}`.toLowerCase();
+        return routeString.includes(filterValue.toLowerCase());
+      });
     },
   },
   {

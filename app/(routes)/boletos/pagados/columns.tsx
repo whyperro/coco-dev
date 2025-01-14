@@ -35,17 +35,28 @@ export const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: "routes",
     header: ({ column }) => (
-      <DataTableColumnHeader filter  column={column} title='Vuelo' />
+      <DataTableColumnHeader filter column={column} title="Ruta de Vuelo" />
     ),
     cell: ({ row }) => {
-      const routes = row.original.routes
-      return <div className="text-center flex flex-col gap-2 justify-center">
-        {
-          routes.map((route) => (
-            <p key={route.id} className="italic text-muted-foreground">{route.origin} {route.scale ? `- ${route.scale}` : ""}  - {route.destiny}</p>
-          ))
-        }
-      </div>
+      const routes = row.original.routes;
+      return (
+        <div className="text-center flex flex-col gap-2 justify-center">
+          {routes.map((route) => (
+            <p key={route.id} className="italic text-muted-foreground">
+              {route.origin} {route.scale ? `- ${route.scale}` : ""} - {route.destiny}
+            </p>
+          ))}
+        </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const routes = row.getValue(columnId);
+      if (!Array.isArray(routes)) return false;
+
+      return routes.some(route => {
+        const routeString = `${route.origin} ${route.destiny}`.toLowerCase();
+        return routeString.includes(filterValue.toLowerCase());
+      });
     },
   },
   {

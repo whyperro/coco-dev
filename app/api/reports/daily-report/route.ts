@@ -164,7 +164,7 @@ export async function GET(request: Request){
       const paidCount = paidTickets.length;
       const pendingCount = pendingTickets.length;
 
-      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.fee, 0); // Calculate total for paid tickets
+      const paidAmount = paidTickets.reduce((sum, ticket) => sum + ticket.total, 0); // Calculate total for paid tickets
 
       return {
         provider: provider.name,
@@ -230,7 +230,7 @@ export async function GET(request: Request){
       (acc, transaction) => {
         const method = transaction.payment_method || "UNKNOWN";
         const branch = transaction.ticket.branch.location_name || "UNASSIGNED";
-        const total = transaction.ticket?.fee || 0;
+        const total = transaction.ticket?.total || 0;
 
         if (!acc[branch]) {
           acc[branch] = {};

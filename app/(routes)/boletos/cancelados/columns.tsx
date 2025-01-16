@@ -103,7 +103,7 @@ export const columns: ColumnDef<Ticket>[] = [
     id: "actions",
     cell: ({ row }) => {
       return (
-        <CancelledTicketDropdownActions ticket_number={row.original.ticket_number} />
+        <CancelledTicketDropdownActions id={row.original.id} />
       )
     },
   }

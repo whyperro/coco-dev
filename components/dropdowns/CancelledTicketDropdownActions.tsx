@@ -1,24 +1,24 @@
 import { useDeleteTicket } from "@/actions/tickets/actions"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Loader2, MoreHorizontal, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
 
-const CancelledTicketDropdownActions = ({ ticket_number }: { ticket_number: string }) => {
+const CancelledTicketDropdownActions = ({ id }: { id: string }) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   const [isDialogOpen1, setIsDialogOpen1] = useState<boolean>(false); // Delete dialog
 
 
   const { deleteTicket } = useDeleteTicket();
 
-  const handleDelete = async (ticket_number: string) => {
-    await deleteTicket.mutateAsync(ticket_number);
+  const handleDelete = async (id: string) => {
+    await deleteTicket.mutateAsync(id);
     setIsDialogOpen1(false);
   };
 
@@ -40,7 +40,7 @@ const CancelledTicketDropdownActions = ({ ticket_number }: { ticket_number: stri
           }}>
             <Trash2 className='size-5 text-red-500' />
           </DropdownMenuItem>
-       
+
         </DropdownMenuContent>
       </DropdownMenu>
 

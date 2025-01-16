@@ -166,3 +166,50 @@ export const useCreateTicket = () => {
       deleteTicket: deleteMutation,
     };
   };
+
+  export const useUpdatePassenger = () => {
+    const queryClient = useQueryClient();
+  
+    const updateMutation = useMutation({
+      mutationFn: async (values: {
+        passengerId: string; // ID del pasajero a actualizar
+        first_name: string; // Nombre del pasajero
+        last_name: string; // Apellido del pasajero
+        dni_type: string; // Tipo de documento (e.g., "V", "E", etc.)
+        dni_number: string; // Número de documento
+        phone_number?: string; // Número de teléfono (opcional)
+        email?: string; // Correo electrónico (opcional)
+        updated_by: string; // Usuario que realiza la actualización
+      }) => {
+        // Realiza una solicitud PUT o PATCH para actualizar los datos del pasajero
+        const res = await axios.put(`/api/passengers/${values.passengerId}`, {
+          first_name: values.first_name,
+          last_name: values.last_name,
+          dni_type: values.dni_type,
+          dni_number: values.dni_number,
+          phone_number: values.phone_number,
+          email: values.email,
+          updated_by: values.updated_by, // Campo adicional que puedes usar en tu lógica
+        });
+  
+        return res.data; // Retorna los datos de la respuesta
+      },
+      onSuccess: async () => {
+        // Invalida consultas relacionadas con pasajeros para refrescar la cache
+        await queryClient.invalidateQueries({ queryKey: ["passenger"] });
+        toast.success("¡Actualizado!", {
+          description: "¡La información del pasajero se actualizó correctamente!",
+          dismissible: true,
+        });
+      },
+      onError: (error: any) => {
+        toast.error("Oops!", {
+          description: `¡Hubo un error al actualizar los datos del pasajero!: ${error?.response?.data?.message || error.message}`,
+        });
+      },
+    });
+  
+    return {
+      updatePassenger: updateMutation, // Retorna la mutación para ser utilizada
+    };
+  };

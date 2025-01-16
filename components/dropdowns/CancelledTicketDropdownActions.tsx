@@ -60,7 +60,7 @@ const CancelledTicketDropdownActions = ({ id }: { id: string }) => {
             <Button
               disabled={deleteTicket.isPending} // Disable button while mutation is pending
               className="hover:bg-white hover:text-black hover:border hover:border-black transition-all"
-              onClick={() => handleDelete(ticket_number)}
+              onClick={() => handleDelete(id)}
             >
               {deleteTicket.isPending ? <Loader2 className="animate-spin" /> : "Confirmar"} {/* Show loader */}
             </Button>

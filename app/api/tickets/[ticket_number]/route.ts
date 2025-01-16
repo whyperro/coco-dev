@@ -17,7 +17,7 @@ export async function GET(request: Request,{ params }: { params: { ticket_number
     }
 
     try {
-        const ticket = await db.ticket.findUnique({
+        const ticket = await db.ticket.findFirst({
           where: {
             ticket_number
           },

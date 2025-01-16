@@ -159,7 +159,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         credit: ticket.provider.credit + ticket.ticket_price,
       });
 
-      await deleteTicket.mutateAsync(ticket.ticket_number);
+      await deleteTicket.mutateAsync(ticket.id);
 
       await queryClient.invalidateQueries({ queryKey: ["paid"] });
       await queryClient.invalidateQueries({ queryKey: ["pending"] });

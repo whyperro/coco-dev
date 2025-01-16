@@ -146,8 +146,8 @@ export const useCreateTicket = () => {
     const queryClient = useQueryClient();
 
     const deleteMutation = useMutation({
-      mutationFn: async (ticket_number: string) => {
-        await axios.delete(`/api/tickets/${ticket_number}`); // Include ID in the URL
+      mutationFn: async (id: string) => {
+        await axios.delete(`/api/tickets/delete/${id}`); // Include ID in the URL
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["cancelled"] });

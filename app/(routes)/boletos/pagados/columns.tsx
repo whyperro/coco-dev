@@ -20,7 +20,7 @@ export const columns: ColumnDef<Ticket>[] = [
       <DataTableColumnHeader filter column={column} title='Nro. de Ticket' />
     ),
     cell: ({ row }) => {
-      return <div className="text-center font-bold flex gap-2 items-center justify-center"><TicketCheck className="size-4 text-green-700" /> {row.original.ticket_number}</div>
+      return <div className="text-center font-bold flex gap-2 items-center justify-center"><TicketCheck className="size-4 text-green-700" /> {row.original.ticket_number ?? "N/A"}</div>
     },
   },
   {

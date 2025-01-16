@@ -90,7 +90,7 @@ export const useCreateTicket = () => {
 
     const createMutation = useMutation({
         mutationFn: async (values: {           // ID of the branch to be updated
-          ticket_number: string
+          ticket_number?: string
           purchase_date: string,
           flight_date: string,
           booking_ref: string,

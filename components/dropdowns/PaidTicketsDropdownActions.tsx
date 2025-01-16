@@ -24,7 +24,7 @@ const formSchema = z.object({
 });
 
 
-const PaidTicketsDropdownActions = ({ ticket_number }: { ticket_number: string }) => {
+const PaidTicketsDropdownActions = ({ ticket_number }: { ticket_number?: string }) => {
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState<boolean>(false);
   return (
     <>
@@ -39,7 +39,7 @@ const PaidTicketsDropdownActions = ({ ticket_number }: { ticket_number: string }
         <DropdownMenuContent align="center" className="flex gap-2 justify-center">
           <DropdownMenuItem>
             <Link href={`/boletos/${ticket_number}`}>
-             <EyeIcon className="size-5  hover:scale-125 transition-all"/>
+              <EyeIcon className="size-5  hover:scale-125 transition-all" />
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>

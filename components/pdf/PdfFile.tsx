@@ -179,7 +179,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
             </View>
             {paidTickets.map((ticket) => (
               <View style={styles.tableRow} key={ticket.ticket_number}>
-                <Text style={styles.columnExtraWide}>{ticket.ticket_number}</Text>
+                <Text style={styles.columnExtraWide}>{ticket.ticket_number ?? "N/A"}</Text>
                 <Text style={styles.columnWide}>{ticket.booking_ref}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>
@@ -226,7 +226,7 @@ const PdfFile = ({ paidTickets, pendingTickets, clientsReport, providersReport, 
             </View>
             {pendingTickets.map((ticket) => (
               <View style={styles.tableRow} key={ticket.ticket_number}>
-                <Text style={styles.columnExtraWide}>{ticket.ticket_number}</Text>
+                <Text style={styles.columnExtraWide}>{ticket.ticket_number ?? "N/A"}</Text>
                 <Text style={styles.columnWide}>{ticket.booking_ref}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.ticket_price))}</Text>
                 <Text style={styles.column}>{formatCurrency(convertAmountFromMiliunits(ticket.fee))}</Text>

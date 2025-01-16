@@ -54,7 +54,7 @@ export type Client = {
 
   export type Ticket = {
     id: string,
-    ticket_number: string
+    ticket_number?: string
     purchase_date: string,
     flight_date: string,
     booking_ref: string,

@@ -110,6 +110,7 @@ model Transaction {
   image_ref        String?
   registered_by    String
   updated_by       String?
+  transaction_note String?
   transaction_date DateTime
   ticketId         String         @unique
   createdAt        DateTime       @default(now())

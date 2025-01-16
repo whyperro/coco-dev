@@ -86,6 +86,7 @@ export type Client = {
     payment_method: string,
     payment_ref?:string,
     image_ref: string,
+    transaction_note?: string,
     registered_by: string,
     transaction_date: Date,
     ticket: Ticket,

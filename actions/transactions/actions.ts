@@ -8,6 +8,7 @@ export const useCreateTransaction = () => {
         payment_ref?: string,
         image_ref: string,
         payment_method: string,
+        transaction_note?: string,
         ticketId: string,
         registered_by: string,
         updated_by: string,

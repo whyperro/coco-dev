@@ -114,14 +114,14 @@ export const columns: ColumnDef<Ticket>[] = [
     cell: ({ row }) => {
       const refUrls = row.original.transaction?.image_ref.split(", ")
       return (
-        <div className="flex items-center justify-center cursor-pointer hover:scale-110 transition-all">
+        <div className="flex items-center justify-center">
           {row.original.transaction?.image_ref ? (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger className="flex flex-col gap-2">
                   {
                     refUrls && refUrls.map((ref, index) => (
-                      <div key={ref}>
+                      <div key={ref} className="cursor-pointer hover:scale-110 transition-all">
                         <a
                           className="flex gap-2 items-center"
                           href={ref}
@@ -130,7 +130,7 @@ export const columns: ColumnDef<Ticket>[] = [
                           rel="noopener noreferrer"
                         >
                           <Download />
-                          <p>{row.original.transaction!.payment_ref ? `${row.original.transaction!.payment_ref}` : "Sin referencia..."}</p>
+                          <p>{row.original.transaction!.payment_ref ? `${row.original.booking_ref} - ${index + 1}` : "Sin referencia..."}</p>
                         </a>
                       </div>
                     ))
@@ -143,7 +143,7 @@ export const columns: ColumnDef<Ticket>[] = [
             </TooltipProvider>
           ) : (
             <div className="text-muted-foreground flex justify-center">
-              {row.original.transaction?.payment_ref}
+              {row.original.transaction?.payment_ref ? row.original.transaction?.payment_ref : row.original.transaction?.transaction_note ? row.original.transaction?.transaction_note : "Sin referencia, ni nota..."}
             </div>
           )}
         </div>

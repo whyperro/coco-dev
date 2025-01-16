@@ -48,11 +48,15 @@ import { Calendar } from "../ui/calendar"
 import { es } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { convertAmountFromMiliunits, formatBolivares, formatCurrency } from '@/lib/utils'
+import { Textarea } from "../ui/textarea"
+import { Switch } from "../ui/switch"
+import { Label } from "../ui/label"
 
 const formSchema = z.object({
   payment_ref: z.string().optional(),
   payment_method: z.string(),
-  image_ref: z.string().optional(),// Change from File to string to store URL,
+  image_ref: z.string().optional(),
+  transaction_note: z.string().optional(),
   void_description: z.string().optional(),
   transaction_date: z.date(),
 });
@@ -65,6 +69,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [open, setOpen] = useState<boolean>(false);
+  const [addImage, setAddImage] = useState<boolean>(false);
   const [openImage, setOpenImage] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [openVoid, setOpenVoid] = useState<boolean>(false);
@@ -106,6 +111,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         ...values,
         image_ref: values.image_ref || "",
         ticketId: ticket.id,
+        transaction_note: values.transaction_note || "",
         registered_by: session?.user.username || "",
         updated_by: session?.user.username || "",
       });
@@ -355,57 +361,139 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="image_ref" // Change the name to represent multiple images
-                  render={({ field }) => (
-                    <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
-                      <FormLabel className="font-bold">Imágenes Comprobantes de pago</FormLabel>
-                      <FormControl>
-                        <UploadButton
-                          endpoint="imageUploader"
-                          onClientUploadComplete={(res) => {
-                            // Extract URLs from the response and merge with existing URLs
-                            const uploadedImages = res.map((file) => file.url);
-                            const currentImages = field.value ? field.value.split(', ') : [];
-                            const newImageRefs = [...currentImages, ...uploadedImages];
-                            const concatenatedUrls = newImageRefs.join(', ');
-
-                            // Update the form value
-                            form.setValue("image_ref", concatenatedUrls);
-                          }}
-                          onUploadError={(error: Error) => {
-                            toast.error(`Error: ${error.message}`);
-                          }}
-                          content={{
-                            button({ ready, isUploading }) {
-                              if (isUploading) return <div>Subiendo...</div>;
-                              return <div>{ready ? "Cargar Imágenes" : "Cargando..."}</div>;
-                            },
-                            allowedContent({ ready }) {
-                              if (!ready) return "Revisando que puedes subir...";
-                              return `¿Qué puedes subir?: imágenes.`;
-                            },
-                          }}
-                        />
-                      </FormControl>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {(field.value ? field.value.split(', ') : []).map((url, index) => (
-                          <div key={index} className="relative">
-                            <Image
-                              width={128}
-                              height={128}
-                              src={url}
-                              alt={`Imagen ${index + 1}`}
-                              className="w-32 h-32 object-cover rounded"
-                            />
-                          </div>
-                        ))}
+                {
+                  form.watch("payment_method") === 'EFECTIVO' ? (
+                    <>
+                      <div className="flex flex-col gap-2 ">
+                        <Label className="font-bold">Agregar Imagen</Label>
+                        <Switch onCheckedChange={() => setAddImage(!addImage)} />
                       </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      <FormField
+                        control={form.control}
+                        name="transaction_note"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-bold">Nota de Pago</FormLabel>
+                            <FormControl>
+                              <Textarea className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0" placeholder="Ingrese nota de efectivo..." {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              Nota del pago realizado.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {
+                        addImage && (
+                          <FormField
+                            control={form.control}
+                            name="image_ref" // Change the name to represent multiple images
+                            render={({ field }) => (
+                              <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
+                                <FormLabel className="font-bold">Imágenes Comprobantes de pago</FormLabel>
+                                <FormControl>
+                                  <UploadButton
+                                    endpoint="imageUploader"
+                                    onClientUploadComplete={(res) => {
+                                      // Extract URLs from the response and merge with existing URLs
+                                      const uploadedImages = res.map((file) => file.url);
+                                      const currentImages = field.value ? field.value.split(', ') : [];
+                                      const newImageRefs = [...currentImages, ...uploadedImages];
+                                      const concatenatedUrls = newImageRefs.join(', ');
+
+                                      // Update the form value
+                                      form.setValue("image_ref", concatenatedUrls);
+                                    }}
+                                    onUploadError={(error: Error) => {
+                                      toast.error(`Error: ${error.message}`);
+                                    }}
+                                    content={{
+                                      button({ ready, isUploading }) {
+                                        if (isUploading) return <div>Subiendo...</div>;
+                                        return <div>{ready ? "Cargar Imágenes" : "Cargando..."}</div>;
+                                      },
+                                      allowedContent({ ready }) {
+                                        if (!ready) return "Revisando que puedes subir...";
+                                        return `¿Qué puedes subir?: imágenes.`;
+                                      },
+                                    }}
+                                  />
+                                </FormControl>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  {(field.value ? field.value.split(', ') : []).map((url, index) => (
+                                    <div key={index} className="relative">
+                                      <Image
+                                        width={128}
+                                        height={128}
+                                        src={url}
+                                        alt={`Imagen ${index + 1}`}
+                                        className="w-32 h-32 object-cover rounded"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )
+                      }
+                    </>
+                  ) : (
+                    <FormField
+                      control={form.control}
+                      name="image_ref" // Change the name to represent multiple images
+                      render={({ field }) => (
+                        <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
+                          <FormLabel className="font-bold">Imágenes Comprobantes de pago</FormLabel>
+                          <FormControl>
+                            <UploadButton
+                              endpoint="imageUploader"
+                              onClientUploadComplete={(res) => {
+                                // Extract URLs from the response and merge with existing URLs
+                                const uploadedImages = res.map((file) => file.url);
+                                const currentImages = field.value ? field.value.split(', ') : [];
+                                const newImageRefs = [...currentImages, ...uploadedImages];
+                                const concatenatedUrls = newImageRefs.join(', ');
+
+                                // Update the form value
+                                form.setValue("image_ref", concatenatedUrls);
+                              }}
+                              onUploadError={(error: Error) => {
+                                toast.error(`Error: ${error.message}`);
+                              }}
+                              content={{
+                                button({ ready, isUploading }) {
+                                  if (isUploading) return <div>Subiendo...</div>;
+                                  return <div>{ready ? "Cargar Imágenes" : "Cargando..."}</div>;
+                                },
+                                allowedContent({ ready }) {
+                                  if (!ready) return "Revisando que puedes subir...";
+                                  return `¿Qué puedes subir?: imágenes.`;
+                                },
+                              }}
+                            />
+                          </FormControl>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {(field.value ? field.value.split(', ') : []).map((url, index) => (
+                              <div key={index} className="relative">
+                                <Image
+                                  width={128}
+                                  height={128}
+                                  src={url}
+                                  alt={`Imagen ${index + 1}`}
+                                  className="w-32 h-32 object-cover rounded"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )
+                }
               </div>
               <DialogFooter className="mt-12 flex flex-col gap-2 md:flex-row">
                 <Button type="button" variant={"destructive"} onClick={() => setOpen(false)}>Cancelar</Button>
@@ -466,30 +554,45 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </div>
           {
             !!ticket?.transaction?.image_ref ? (
-              <div className="mx-auto max-w-xs mt-4">
-                <Carousel setApi={setApi} >
-                  <CarouselContent>
-                    {
-                      refUrls && refUrls.map((ref) => (
-                        <CarouselItem key={ref}>
-                          <div onClick={() => { setOpenImage(true); setSelectedImage(ref) }
+              <>
+                {
+                  ticket.transaction.transaction_note && (
+                    <div className="flex flex-col items-center"><p className="font-medium underline">Nota de Pago: </p><p>{ticket.transaction.transaction_note || "N/A"}</p></div>
+                  )
+                }
+                <div className="mx-auto max-w-xs mt-4">
+                  <Carousel setApi={setApi} >
+                    <CarouselContent>
+                      {
+                        refUrls && refUrls.map((ref) => (
+                          <CarouselItem key={ref}>
+                            <div onClick={() => { setOpenImage(true); setSelectedImage(ref) }
 
-                          } className="flex justify-center cursor-pointer">
-                            <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
-                          </div>
-                        </CarouselItem>
-                      ))
-                    }
-                  </CarouselContent>
-                  <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10" />
-                  <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10" />
-                </Carousel>
-                <div className="py-2 text-center text-sm text-muted-foreground">
-                  Referencia {current} de {count}
+                            } className="flex justify-center cursor-pointer">
+                              <Image src={ref} alt="Imagen de referencia" width={100} height={100} className="h-52 w-48" />
+                            </div>
+                          </CarouselItem>
+                        ))
+                      }
+                    </CarouselContent>
+                    <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10" />
+                    <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10" />
+                  </Carousel>
+                  <div className="py-2 text-center text-sm text-muted-foreground">
+                    Referencia {current} de {count}
+                  </div>
                 </div>
-              </div>
-            ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
+              </>
+            ) : <>
+              {
+                ticket?.transaction?.transaction_note && (
+                  <div className="flex flex-col items-center"><p className="font-medium underline">Nota de Pago: </p><p>{ticket.transaction.transaction_note || "N/A"}</p></div>
+                )
+              }
+              <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
+            </>
           }
+
           <DialogFooter>
             <Button variant={"outline"} type="button" onClick={() => setOpenVoid(false)}>Cancelar</Button>
             <Button onClick={onPaymentConfirm} disabled={updateStatusTicket.isPending}>
@@ -511,8 +614,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogHeader>
           <DialogFooter>
             <Button variant={"outline"} type="button" onClick={() => setOpenDelete(false)}>Cancelar</Button>
-            <Button variant={"destructive"} onClick={onDeletePending} disabled={updateStatusTicket.isPending}>
-              {updateStatusTicket.isPending ? <Loader2 className="size-4 animate-spin" /> : "Eliminar Boleto"}
+            <Button variant={"destructive"} onClick={onDeletePending} disabled={updateStatusTicket.isPending || deleteTicket.isPending}>
+              {(updateStatusTicket.isPending || deleteTicket.isPending) ? <Loader2 className="size-4 animate-spin" /> : "Eliminar Boleto"}
             </Button>
           </DialogFooter>
         </DialogContent>

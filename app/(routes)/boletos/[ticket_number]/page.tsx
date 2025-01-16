@@ -112,11 +112,10 @@ const TicketPage = () => {
                         <p><span className='font-medium underline'>Precio:</span> <br /> {formatCurrency(convertAmountFromMiliunits(ticket!.ticket_price))}</p>
                         <p><span className='font-medium underline'>Fee:</span> <br /> {formatCurrency(convertAmountFromMiliunits(ticket!.fee))}</p>
                         <p><span className='font-medium underline'>Total:</span> <br /> {formatCurrency(convertAmountFromMiliunits(ticket!.total))}</p>
-                        <p><span className='font-medium underline'>Metodo de Pago:</span> <br /> {ticket?.transaction?.payment_method}</p>
+                        <p><span className='font-medium underline'>Metodo de Pago:</span> <br /> {ticket?.transaction?.payment_method === 'PAGO_MOVIL' ? "PAGO MOVIL" : ticket?.transaction?.payment_method}</p>
                         <p><span className='font-medium underline'>Fecha de Pago:</span> <br /> {ticket?.transaction?.transaction_date ? format(ticket?.transaction?.transaction_date, "PPP", { locale: es }) : "Aún por pagar."}</p>
                         <p><span className='font-medium underline'>Ref:</span> <br /> {ticket?.transaction?.payment_ref}</p>
-
-
+                        <p><span className='font-medium underline'>Nota de Pago:</span> <br /> {ticket?.transaction?.transaction_note ?? "N/A"}</p>
                     </div>
 
                     {
@@ -143,7 +142,7 @@ const TicketPage = () => {
                                     Referencia {current} de {count}
                                 </div>
                             </div>
-                        ) : <p className="text-sm text-muted-foreground italic text-center">No hay imagen de referencia...</p>
+                        ) : <p className="text-sm text-muted-foreground italic text-center p-6">No hay imagen de referencia...</p>
                     }
 
                 </div>

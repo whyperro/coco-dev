@@ -11,6 +11,7 @@ export async function POST(request: Request) {
           image_ref: data.image_ref,
           ticketId: data.ticketId,
           registered_by: data.registered_by,
+          transaction_note: data.transaction_note,
           transaction_date: data.transaction_date
         },
       });

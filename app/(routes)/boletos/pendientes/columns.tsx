@@ -170,5 +170,8 @@ export const columns: ColumnDef<Ticket>[] = [
         <PendingTicketsDropdownActions ticket={row.original} />
       )
     },
+    meta: {
+      className: "sticky right-0", // Keep it fixed
+    },
   }
 ]

@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table"
 import { ListRestart } from "lucide-react"
 import { useState } from "react"
+import { cn } from "@/lib/utils"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -75,7 +76,7 @@ export function DataTable<TData, TValue>({
         </div>
         <DataTableViewOptions table={table} />
       </div>
-      <div className="rounded-md border mb-4">
+      <div className="rounded-md border mb-4 overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -103,7 +104,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className={cn(cell.column.id === "actions" ? "sticky right-0 bg-slate-50 shadow-md z-10 rounded-sm" : "")}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

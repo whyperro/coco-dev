@@ -72,7 +72,7 @@ model Passanger {
 
 model Ticket {
   id               String       @id @default(cuid())
-  ticket_number    String?       @unique
+  ticket_number    String?
   booking_ref      String
   purchase_date    String
   flight_date      String

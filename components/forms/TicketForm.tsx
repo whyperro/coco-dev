@@ -82,7 +82,7 @@ const formSchema = z.object({
 
   ticket_number: z.string({
     message: "Debe ingresar un número de ticket."
-  }),
+  }).optional(),
   purchase_date: z.date({
     message: "Debe ingresar una fecha de compra."
   }),
@@ -269,7 +269,7 @@ const TicketForm = () => {
     try {
       if (fetchedPassanger) {
         const ticketCreated = await createTicket.mutateAsync({
-          ticket_number: values.ticket_number.toUpperCase(),
+          ticket_number: values.ticket_number?.toUpperCase() ?? "N/A",
           booking_ref: values.booking_ref.toUpperCase(),
           purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
           doc_order: values.doc_order,
@@ -310,7 +310,7 @@ const TicketForm = () => {
         if (res.status === 200) {
           setFetchedPassanger(res.data)
           const ticketCreated = await createTicket.mutateAsync({
-            ticket_number: values.ticket_number.toUpperCase(),
+            ticket_number: values.ticket_number?.toUpperCase() ?? "N/A",
             booking_ref: values.booking_ref.toUpperCase(),
             purchase_date: format(values.purchase_date, 'yyyy-MM-dd'),
             description: values.description ?? "",

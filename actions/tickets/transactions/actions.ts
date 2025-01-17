@@ -12,10 +12,12 @@ export const useUpdateStatusTicket = () => {
       status: string,
       void_description?: "CancelledByClient" | "WrongSellerInput" | "WrongClientInfo",
       updated_by: string,
+      statusUpdatedAt: Date,
     }) => {
       await axios.patch(`/api/tickets/transaction/${values.id}`, {
         status: values.status,
         updated_by: values.updated_by,
+        statusUpdatedAt: values.statusUpdatedAt,
         void_description: values.void_description ?? null,
       });
     },

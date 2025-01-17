@@ -172,14 +172,14 @@ export const useCreateTicket = () => {
   
     const updateMutation = useMutation({
       mutationFn: async (values: {
-        passengerId: string; // ID del pasajero a actualizar
-        first_name: string; // Nombre del pasajero
-        last_name: string; // Apellido del pasajero
-        dni_type: string; // Tipo de documento (e.g., "V", "E", etc.)
-        dni_number: string; // Número de documento
-        phone_number?: string; // Número de teléfono (opcional)
-        email?: string; // Correo electrónico (opcional)
-        updated_by: string; // Usuario que realiza la actualización
+        passengerId: string;
+        first_name: string;
+        last_name: string;
+        dni_type: string;
+        dni_number: string;
+        phone_number?: string;
+        email?: string;
+        updated_by: string;
       }) => {
         // Realiza una solicitud PUT o PATCH para actualizar los datos del pasajero
         const res = await axios.put(`/api/passengers/${values.passengerId}`, {
@@ -189,7 +189,7 @@ export const useCreateTicket = () => {
           dni_number: values.dni_number,
           phone_number: values.phone_number,
           email: values.email,
-          updated_by: values.updated_by, // Campo adicional que puedes usar en tu lógica
+          updated_by: values.updated_by,
         });
   
         return res.data; // Retorna los datos de la respuesta

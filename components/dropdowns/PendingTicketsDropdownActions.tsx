@@ -29,7 +29,7 @@ import { UploadButton } from "@/lib/uploadthing"
 import { Ticket } from "@/types"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useQueryClient } from "@tanstack/react-query"
-import { CalendarIcon, CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert } from "lucide-react"
+import { CalendarIcon, CreditCard, FileCheck, HandCoins, Loader2, MessageCircle, MessageCircleWarning, MoreHorizontal, TicketX, Trash, TriangleAlert, Pencil, Dot } from "lucide-react"
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -82,6 +82,10 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const { updateCreditProvider } = useUpdateCreditProvider();
   const { updateStatusTicket } = useUpdateStatusTicket();
   const refUrls = ticket.transaction?.image_ref.split(", ");
+
+  const [openEditPassenger, setOpenEditPassenger] = useState(false);
+  const [openEditTicket, setOpenEditTicket] = useState(false);
+  const [openEditInfo, setOpenEditInfo] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -228,6 +232,36 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           }}>
             <TicketX className='size-5 text-rose-500' />
           </DropdownMenuItem>
+
+          {/* Edit Option */}
+          {session?.user.user_role === "SELLER" || session?.user.user_role === "SUPERADMIN" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Pencil className="size-5 text-gray-500" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white border border-gray-300 rounded-md shadow-lg p-2 space-y-2">
+                <DropdownMenuItem onClick={() => {
+                    setOpenEditPassenger(true);
+                    setIsDropdownMenuOpen(false);
+                  }} className="flex items-center border border-gray-200 rounded-md p-2 hover:bg-gray-100 cursor-pointer">
+                  <span className="mr-2"> <Dot className="w-3 h-3 text-gray-500" /> </span> Editar Pasajero
+                </DropdownMenuItem>
+                <DropdownMenuItem  onClick={() => {
+                    setOpenEditTicket(true);
+                    setIsDropdownMenuOpen(false);
+                  }}  className="flex items-center border border-gray-200 rounded-md p-2 hover:bg-gray-100 cursor-pointer">
+                  <span className="mr-2"> <Dot className="w-3 h-3 text-gray-500" /> </span> Editar Ticket
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => {
+                    setOpenEditInfo(true);
+                    setIsDropdownMenuOpen(false);
+                  }}  className="flex items-center border border-gray-200 rounded-md p-2 hover:bg-gray-100 cursor-pointer">
+                  <span className="mr-2"> <Dot className="w-3 h-3 text-gray-500" /> </span> Editar Información
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           {/* delete Option */}
           <DropdownMenuItem className="cursor-pointer" onClick={() => {
             setOpenDelete(true);

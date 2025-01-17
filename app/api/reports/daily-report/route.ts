@@ -61,6 +61,7 @@ export async function GET(request: Request){
             total: true, // Select the total from the ticket
             branch: true,
             fee: true,
+            ticket_number: true,
           },
         },
         payment_method: true,
@@ -185,6 +186,7 @@ export async function GET(request: Request){
     } = {};
 
     // Populate branch data from transactions
+    console.log(transactions);
     transactions.forEach(transaction => {
       const ticket = tickets.find(t => t.id === transaction.ticketId);
       const branch = ticket ? `${ticket.branch.location_name}` : 'unknown';

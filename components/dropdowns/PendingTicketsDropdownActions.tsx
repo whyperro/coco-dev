@@ -122,6 +122,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       await updateStatusTicket.mutateAsync({
         id: ticket.id,
         status: "POR_CONFIRMAR",
+        statusUpdatedAt: new Date(),
         updated_by: session?.user.username || ""
       });
       setOpen(false);
@@ -143,6 +144,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       await updateStatusTicket.mutateAsync({
         id: ticket.id,
         status: "PAGADO",
+        statusUpdatedAt: new Date(),
         updated_by: session?.user.username || ""
       });
       toast.error("¡Pagado!", {
@@ -179,6 +181,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
         id: ticket.id,
         status: "CANCELADO",
         void_description: reason ?? null,
+        statusUpdatedAt: new Date(),
         updated_by: session?.user.username || ""
       });
       await queryClient.invalidateQueries({ queryKey: ["paid"] });

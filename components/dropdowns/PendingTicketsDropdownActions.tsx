@@ -1,7 +1,7 @@
 import { useUpdateCreditProvider } from "@/actions/providers/actions"
 import { useUpdateStatusTicket } from "@/actions/tickets/transactions/actions"
 import { useCreateTransaction } from "@/actions/transactions/actions"
-import { useDeleteTicket } from "@/actions/tickets/actions"
+import { useDeleteTicket, useUpdatePassenger } from "@/actions/tickets/actions"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel"
 import {
   DropdownMenu,
@@ -59,6 +59,13 @@ const formSchema = z.object({
   transaction_note: z.string().optional(),
   void_description: z.string().optional(),
   transaction_date: z.date(),
+
+  passanger_name: z.string(),
+  passanger_lastname: z.string(),
+  passanger_dni_type: z.enum(["V", "E", "J", "PARTIDA_NACIMIENTO", "PASAPORTE"]), // Ejemplo para un tipo de documento venezolano
+  passanger_id: z.string(),
+  passanger_phone: z.string().optional(),
+  passanger_email: z.string().optional(),
 });
 
 const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
@@ -87,6 +94,8 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
   const [openEditTicket, setOpenEditTicket] = useState(false);
   const [openEditInfo, setOpenEditInfo] = useState(false);
 
+  const { updatePassenger } = useUpdatePassenger();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -106,6 +115,17 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
       setCurrent(api.selectedScrollSnap() + 1)
     })
   }, [api])
+
+  useEffect(() => {
+    if (openEditPassenger && ticket?.passanger) {
+      form.setValue("passanger_name", ticket.passanger.first_name);
+      form.setValue("passanger_lastname", ticket.passanger.last_name);
+      form.setValue("passanger_dni_type", ticket.passanger.dni_type);
+      form.setValue("passanger_id", ticket.passanger.dni_number);
+      form.setValue("passanger_phone", ticket.passanger.phone_number ?? 'N/A');
+      form.setValue("passanger_email", ticket.passanger.email ?? 'N/A');
+    }
+  }, [openEditPassenger, ticket?.passanger]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -638,6 +658,141 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog >
+
+      <Dialog open={openEditPassenger} onOpenChange={setOpenEditPassenger}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center text-3xl">Editar Información del Pasajero</DialogTitle>
+            <DialogDescription className="text-center p-2 mb-0 pb-0 italic">
+              Actualice los datos del pasajero según sea necesario.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form>
+              <div className="flex flex-col gap-2">
+                {/* Campo: Nombre */}
+                <FormField
+                  control={form.control}
+                  name="passanger_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Nombre</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0"
+                          placeholder="Ejemplo: John"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Campo: Apellido */}
+                <FormField
+                  control={form.control}
+                  name="passanger_lastname"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Apellido</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0"
+                          placeholder="Ejemplo: Doe"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Campo: Tipo de Documento */}
+                <FormField
+                  control={form.control}
+                  name="passanger_dni_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Tipo de Documento</FormLabel>
+                      <FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Campo: Número de Documento */}
+                <FormField
+                  control={form.control}
+                  name="passanger_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Número de Documento</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0"
+                          placeholder="Ejemplo: V-12345678"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Campo: Teléfono */}
+                <FormField
+                  control={form.control}
+                  name="passanger_phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Teléfono</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0"
+                          placeholder="Ejemplo: +58 412 345 6789"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Campo: Correo Electrónico */}
+                <FormField
+                  control={form.control}
+                  name="passanger_email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-bold">Correo Electrónico</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="shadow-none border-b-1 border-r-0 border-t-0 border-l-0"
+                          placeholder="Ejemplo: john.doe@example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Botones de acción */}
+              <DialogFooter>
+              <Button type="button" variant={"destructive"} onClick={() => setOpenEditPassenger(false)}>Cancelar</Button>
+              <Button type="submit" variant="default" disabled={updatePassenger.isPending}> {updatePassenger.isPending ? <Loader2 className="size-4 animate-spin" /> : "Guardar Cambios"} </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       {/*Confirm Delete Dialog*/}
 

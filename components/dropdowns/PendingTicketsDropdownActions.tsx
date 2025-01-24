@@ -503,7 +503,7 @@ const PendingTicketsDropdownActions = ({ ticket }: { ticket: Ticket }) => {
                       name="image_ref" // Change the name to represent multiple images
                       render={({ field }) => (
                         <FormItem className="col-span-2 flex flex-col justify-start items-center mt-4 space-y-3">
-                          <FormLabel className="font-bold">Imágenes Comprobantes de pago</FormLabel>
+                          <FormLabel className="font-bold">Imágenes Comprobantes de Pago</FormLabel>
                           <FormControl>
                             <UploadButton
                               endpoint="imageUploader"

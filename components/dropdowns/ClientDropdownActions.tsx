@@ -85,9 +85,9 @@ const ClientDropdownActions = ({ id, dni }: { id: string, dni: string }) => {
       <Dialog open={isDialogOpen2} onOpenChange={setIsDialogOpen2}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Editar sucursal</DialogTitle>
+            <DialogTitle>Editar Cliente</DialogTitle>
             <DialogDescription>
-              Actualiza los detalles de la sucursal
+              Actualiza los detalles del cliente
             </DialogDescription>
           </DialogHeader>
           <CreateClientForm isEditing id={id} onClose={() => setIsDialogOpen2(false)} />
